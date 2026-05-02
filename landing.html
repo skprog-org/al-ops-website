@@ -1,0 +1,1366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AL Ops — Agentic Ops platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink: #f3eedf;          /* primary text on dark */
+    --ink-2: #ffffff;
+    --paper: #07100c;        /* base dark */
+    --paper-2: #0c1814;      /* slightly lighter dark */
+    --rule: rgba(255,255,255,0.08);
+    --rule-strong: rgba(255,255,255,0.18);
+    --muted: #9aa6a0;
+    --muted-2: #5f6a64;
+    --navy: #7C9BFF;         /* on dark, use the soft blue as the navy accent */
+    --navy-deep: #3B6DFF;
+    --blue: #3B6DFF;
+    --blue-soft: #7C9BFF;
+    --gold: #d6b65a;
+    --gold-deep: #f3d77a;    /* on dark, gold reads brighter */
+    --serif: "Source Serif 4", "Iowan Old Style", "Apple Garamond", Georgia, serif;
+    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{
+    background:
+      radial-gradient(900px 600px at 50% 50%, rgba(59,109,255,0.10), transparent 60%),
+      radial-gradient(1200px 700px at 50% 60%, rgba(27,61,170,0.18), transparent 70%),
+      var(--paper);
+    overflow-x: hidden;
+  }
+  a{ color: inherit; text-decoration: none; }
+  button{ font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  img{ max-width:100%; display:block; }
+
+  /* ===== Type ===== */
+  .serif{ font-family: var(--serif); font-feature-settings: "ss01","liga","kern"; }
+  .mono{ font-family: var(--mono); }
+  .h-display{
+    font-family: var(--serif);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    font-size: clamp(44px, 7.2vw, 104px);
+    margin: 0;
+  }
+  .h-display em{ font-style: italic; color: var(--blue-soft); font-weight: 500; }
+  .h-display .gold{ font-style: italic; color: var(--blue-soft); }
+  .h-section{
+    font-family: var(--serif);
+    font-weight: 500;
+    line-height: 1.06;
+    letter-spacing: -0.018em;
+    font-size: clamp(36px, 4.6vw, 64px);
+    margin: 0;
+  }
+  .h-section em{ font-style: italic; color: var(--blue-soft); font-weight: 500; }
+  .h-section .gold{ font-style: italic; color: var(--blue-soft); }
+  .h-3{
+    font-family: var(--serif);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    font-size: clamp(22px, 2vw, 28px);
+    margin: 0;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .eyebrow .pip{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background: var(--blue-soft); margin-right: 8px; vertical-align: 1px;
+  }
+  .lede{
+    font-family: var(--serif);
+    font-size: clamp(18px, 1.4vw, 22px);
+    line-height: 1.5;
+    color: rgba(243,238,223,0.78);
+    max-width: 620px;
+  }
+  .body-p{ font-size: 16px; line-height: 1.62; color: rgba(243,238,223,0.78); }
+  .body-p.muted{ color: var(--muted); }
+
+  /* ===== Layout primitives ===== */
+  .container{ max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+  .rule{ height:1px; background: var(--rule); width: 100%; }
+  .rule-strong{ height:1px; background: var(--rule-strong); width: 100%; }
+  .section{ padding: 110px 0; position: relative; }
+  .section-tight{ padding: 72px 0; }
+
+  /* ===== Nav ===== */
+  .nav{
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(7,16,12,0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav-row{
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 14px 0;
+  }
+  .logo{ display: inline-flex; align-items: baseline; gap: 8px; }
+  .logo-mark{
+    font-family: var(--serif); font-weight: 600; font-style: italic;
+    font-size: 22px; letter-spacing: -0.02em; color: var(--ink-2);
+  }
+  .logo-mark::after{
+    content: "."; color: var(--blue-soft); margin-left: 1px;
+  }
+  .logo-tag{
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .nav-links{ display: flex; gap: 30px; justify-content: center; }
+  .nav-links a{
+    font-size: 13.5px; color: var(--ink); font-weight: 500;
+  }
+  .nav-links a:hover{ color: var(--blue-soft); }
+  .nav-right{ display: flex; justify-content: flex-end; gap: 14px; align-items: center; }
+  .nav-link-quiet{ font-size: 13.5px; color: var(--muted); }
+  .nav-cta{
+    padding: 9px 16px; font-size: 13px; font-weight: 600;
+    color: #fff; background: var(--blue);
+    border-radius: 4px;
+    transition: background .15s;
+  }
+  .nav-cta:hover{ background: var(--blue-soft); }
+
+  /* ===== HERO ===== */
+  .hero{
+    padding: 80px 0 0;
+    position: relative;
+  }
+  .hero-grid{
+    display: grid; grid-template-columns: 1.05fr 1fr;
+    gap: 64px; align-items: end;
+    padding-bottom: 96px;
+  }
+  .hero-left .eyebrow{ margin-bottom: 28px; display: inline-flex; align-items: center; gap: 10px; }
+  .hero-left .h-display{ margin-bottom: 28px; }
+  .hero-sub{
+    font-family: var(--serif);
+    font-size: clamp(18px, 1.4vw, 22px);
+    line-height: 1.5; color: rgba(243,238,223,0.82);
+    max-width: 540px;
+    margin: 0 0 36px;
+  }
+  .cta-row{ display:flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .btn-primary{
+    padding: 13px 22px; font-size: 14px; font-weight: 600;
+    color: #fff; background: var(--blue);
+    border-radius: 4px; letter-spacing: -0.005em;
+    transition: background .15s;
+  }
+  .btn-primary:hover{ background: var(--blue-soft); }
+  .btn-text{
+    font-size: 14px; font-weight: 600; color: var(--ink);
+    padding: 13px 4px; border-bottom: 1px solid var(--ink);
+    transition: color .15s, border-color .15s;
+  }
+  .btn-text:hover{ color: var(--blue-soft); border-color: var(--blue-soft); }
+  .hero-trust{
+    margin-top: 48px;
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.16em; color: var(--muted);
+    text-transform: uppercase;
+    border-top: 1px solid var(--rule);
+    padding-top: 18px;
+    max-width: 540px;
+  }
+
+  /* Hero product mock — dark surface */
+  .hero-mock{
+    position: relative;
+    transform: translateY(-20px);
+  }
+  .hero-mock::before{
+    content: "";
+    position: absolute; inset: -40px -120px -60px 20px;
+    background:
+      radial-gradient(450px 300px at 50% 50%, rgba(59,109,255,0.18), transparent 70%),
+      linear-gradient(180deg, rgba(214,182,90,0.06), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero-mock-inner{
+    position: relative; z-index: 1;
+    background: #0d1a16;
+    border: 1px solid var(--rule-strong);
+    border-radius: 6px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.04) inset,
+      0 22px 60px -20px rgba(0,0,0,0.7),
+      0 8px 18px -6px rgba(0,0,0,0.5);
+    overflow: hidden;
+    font-family: var(--sans);
+    color: var(--ink);
+  }
+  .mock-titlebar{
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--rule);
+    background: rgba(255,255,255,0.02);
+  }
+  .mock-dots i{ width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,0.18); display:inline-block; }
+  .mock-dots{ display: inline-flex; gap: 6px; }
+  .mock-tab{
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); letter-spacing: 0.06em;
+    margin-left: 12px;
+  }
+  .mock-tab strong{ color: var(--ink); font-weight: 600; }
+  .mock-status{
+    margin-left: auto; display:inline-flex; align-items:center; gap:6px;
+    font-family: var(--mono); font-size: 10.5px;
+    color: #6cd6a3; letter-spacing: 0.08em;
+  }
+  .mock-status .dot{
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #6cd6a3; box-shadow: 0 0 0 3px rgba(108,214,163,0.18);
+  }
+  .mock-body{
+    display: grid; grid-template-columns: 180px 1fr;
+    min-height: 480px;
+  }
+  .mock-side{
+    background: rgba(255,255,255,0.02);
+    border-right: 1px solid var(--rule);
+    padding: 18px 14px;
+    font-size: 12.5px;
+  }
+  .mock-side-h{
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.16em; color: var(--muted-2);
+    text-transform: uppercase;
+    margin: 8px 6px 10px;
+  }
+  .mock-nav-item{
+    padding: 7px 8px; border-radius: 4px;
+    color: rgba(243,238,223,0.78); display: flex; align-items: center; gap: 8px;
+  }
+  .mock-nav-item.active{ background: var(--blue); color: #fff; }
+  .mock-nav-item .ic{
+    width: 14px; height: 14px; border: 1px solid currentColor; border-radius: 3px;
+    opacity: 0.65;
+  }
+  .mock-main{ padding: 22px 24px; }
+  .mock-main-h{
+    font-family: var(--serif); font-weight: 500; font-size: 19px;
+    letter-spacing: -0.01em; margin: 0 0 4px; color: var(--ink-2);
+  }
+  .mock-main-sub{
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); letter-spacing: 0.08em;
+  }
+  .mock-stats{
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-top: 18px;
+  }
+  .mock-stat{ padding: 14px 0; }
+  .mock-stat + .mock-stat{ border-left: 1px solid var(--rule); padding-left: 14px; }
+  .mock-stat-label{
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+    color: var(--muted-2); text-transform: uppercase;
+  }
+  .mock-stat-val{
+    font-family: var(--serif); font-weight: 500; font-size: 24px;
+    margin-top: 4px; letter-spacing: -0.01em; color: var(--ink-2);
+  }
+  .mock-stat-val .delta{ font-family: var(--mono); font-size: 11px; color: #6cd6a3; margin-left: 6px; letter-spacing: 0.04em; }
+  .mock-table{ margin-top: 18px; }
+  .mock-row{
+    display: grid; grid-template-columns: 18px 1.5fr 1fr 0.8fr 0.7fr;
+    align-items: center; gap: 12px;
+    padding: 11px 0;
+    font-size: 12.5px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mock-row.head{
+    font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted-2); padding: 8px 0;
+  }
+  .mock-row .pid{
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #6cd6a3;
+  }
+  .mock-row .pid.warn{ background: var(--gold-deep); }
+  .mock-row .pid.idle{ background: var(--muted-2); }
+  .mock-row .pname{ font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .mock-row .ptype{ color: var(--muted); }
+  .mock-row .ptokens{ font-family: var(--mono); font-size: 11.5px; color: var(--ink); }
+  .mock-row .pgate{
+    font-family: var(--mono); font-size: 10.5px;
+    padding: 3px 7px; border-radius: 3px;
+    border: 1px solid var(--rule-strong);
+    color: var(--muted); letter-spacing: 0.06em;
+    text-transform: uppercase;
+    justify-self: end;
+  }
+  .mock-row .pgate.ok{ color: #6cd6a3; border-color: rgba(108,214,163,0.35); background: rgba(108,214,163,0.08); }
+  .mock-row .pgate.hitl{ color: var(--blue-soft); border-color: rgba(124,155,255,0.40); background: rgba(59,109,255,0.10); }
+  .mock-foot{
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 24px;
+    border-top: 1px solid var(--rule);
+    background: rgba(255,255,255,0.02);
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .mock-cap{ font-family: var(--mono); font-size: 11px; color: var(--ink); letter-spacing: 0.04em; }
+  .mock-cap b{ color: var(--blue-soft); font-weight: 600; }
+
+  /* annotation lines around the mock */
+  .mock-annot{
+    position: absolute; z-index: 2;
+    font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mock-annot .l{
+    width: 36px; height: 1px; background: var(--rule-strong);
+  }
+  .mock-annot.a1{ top: 70px; right: -150px; }
+  .mock-annot.a2{ bottom: 110px; right: -160px; }
+  .mock-annot.a3{ top: 280px; left: -140px; flex-direction: row-reverse; }
+
+  /* ===== PAIN STRIP — inverted to paper-2 panel for contrast ===== */
+  .pain{
+    background: var(--paper-2);
+    color: var(--ink);
+    padding: 96px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .pain .container{ position: relative; }
+  .pain-h{
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(28px, 3vw, 40px); line-height: 1.15;
+    letter-spacing: -0.015em; max-width: 720px;
+    margin: 0 0 64px;
+    color: var(--ink-2);
+  }
+  .pain-h em{ font-style: italic; color: var(--blue-soft); }
+  .pain-cols{
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+  .pain-col{
+    padding: 0 36px 0 0;
+    border-left: 1px solid var(--rule-strong);
+    padding-left: 28px;
+  }
+  .pain-col:first-child{ border-left: 0; padding-left: 0; }
+  .pain-num{
+    font-family: var(--mono); font-size: 11px;
+    color: rgba(243,238,223,0.5);
+    letter-spacing: 0.18em; margin-bottom: 18px;
+  }
+  .pain-bold{
+    font-family: var(--serif); font-weight: 500;
+    font-size: 22px; line-height: 1.25;
+    letter-spacing: -0.012em; margin: 0 0 12px;
+    color: var(--ink-2);
+  }
+  .pain-p{
+    font-size: 14.5px; line-height: 1.6;
+    color: rgba(243,238,223,0.65);
+    margin: 0;
+  }
+  .pain-foot{
+    margin-top: 64px; padding-top: 28px;
+    border-top: 1px solid var(--rule-strong);
+    display: grid; grid-template-columns: auto 1fr; gap: 28px;
+    align-items: baseline;
+  }
+  .pain-foot-eyebrow{
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.18em; color: var(--blue-soft);
+    text-transform: uppercase;
+  }
+  .pain-foot-text{
+    font-family: var(--serif); font-size: 22px;
+    line-height: 1.35; max-width: 720px; color: var(--ink-2);
+  }
+  .pain-foot-text em{ font-style: italic; color: var(--blue-soft); }
+
+  /* ===== TWO THINGS ===== */
+  .two{ padding: 130px 0; }
+  .two-head{
+    display: grid; grid-template-columns: 1fr 1.4fr; gap: 56px;
+    align-items: end;
+    margin-bottom: 64px;
+  }
+  .two-cols{
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .two-col{
+    padding: 36px 36px 36px 0;
+  }
+  .two-col + .two-col{
+    border-left: 1px solid var(--rule-strong);
+    padding-left: 36px;
+  }
+  .two-tag{
+    display: inline-block;
+    font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--blue-soft); margin-bottom: 18px;
+  }
+  .two-col.govern .two-tag{ color: var(--blue-soft); }
+  .two-h{
+    font-family: var(--serif); font-weight: 500;
+    font-size: 30px; line-height: 1.15;
+    letter-spacing: -0.018em; margin: 0 0 16px;
+    color: var(--ink-2);
+  }
+  .two-h em{ font-style: italic; }
+  .two-p{
+    font-size: 15.5px; line-height: 1.62;
+    color: rgba(243,238,223,0.78); margin: 0;
+    max-width: 460px;
+  }
+  .two-diagram{
+    margin-top: 28px;
+  }
+  .two-foot{
+    margin-top: 56px; padding-top: 28px;
+    border-top: 1px solid var(--rule);
+    text-align: left;
+    font-family: var(--serif);
+    font-size: 22px; color: var(--ink-2);
+    letter-spacing: -0.005em;
+  }
+  .two-foot strong{ font-weight: 600; font-style: italic; }
+
+  /* ===== REPLACES TABLE — panel ===== */
+  .replaces{
+    background: var(--paper-2);
+    padding: 110px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .repl-table{ border-top: 2px solid var(--ink); }
+  .repl-row .repl-tool .strike{
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: rgba(243,238,223,0.4);
+    color: var(--muted);
+    font-style: italic;
+  }
+  .repl-foot{ border-top: 2px solid var(--ink); }
+  .repl-head{
+    display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
+    align-items: end; margin-bottom: 56px;
+  }
+  .repl-table{
+    border-top: 2px solid var(--ink);
+  }
+  .repl-row{
+    display: grid; grid-template-columns: 1fr 2fr auto;
+    gap: 32px; align-items: baseline;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .repl-tool{
+    font-family: var(--serif); font-weight: 500;
+    font-size: 22px; letter-spacing: -0.01em;
+    color: var(--ink-2);
+  }
+  .repl-rep{
+    font-size: 15.5px; line-height: 1.55; color: rgba(243,238,223,0.78);
+  }
+  .repl-arrow{
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted); letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .repl-foot{
+    margin-top: 48px; padding-top: 24px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 32px;
+    align-items: center;
+  }
+  .repl-foot-text{
+    font-family: var(--serif); font-size: 24px;
+    letter-spacing: -0.012em; color: var(--ink-2);
+  }
+  .repl-foot-text em{ font-style: italic; color: var(--blue-soft); }
+
+  /* ===== PLATFORM (six domains, asymmetric) ===== */
+  .platform{ padding: 130px 0; }
+  .pf-head{
+    display: grid; grid-template-columns: 1fr; gap: 24px;
+    margin-bottom: 64px; max-width: 920px;
+  }
+  .pf-grid{
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 28px 32px;
+    border-top: 1px solid var(--rule);
+    padding-top: 28px;
+  }
+  .pf-item{
+    border-top: 1px solid var(--rule-strong);
+    padding-top: 22px;
+    padding-right: 16px;
+  }
+  /* Asymmetric column spans break the grid feel */
+  .pf-item.s1{ grid-column: span 5; }
+  .pf-item.s2{ grid-column: span 7; }
+  .pf-item.s3{ grid-column: span 4; }
+  .pf-item.s4{ grid-column: span 4; }
+  .pf-item.s5{ grid-column: span 4; }
+  .pf-item.s6{ grid-column: span 12; padding-top: 32px; margin-top: 16px; border-top: 2px solid var(--ink-2); }
+  .pf-tag{
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.16em; color: var(--blue-soft);
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .pf-num{
+    font-family: var(--mono); font-size: 11px;
+    color: var(--muted-2); float: right;
+    letter-spacing: 0.06em;
+  }
+  .pf-h{
+    font-family: var(--serif); font-weight: 500;
+    font-size: 24px; line-height: 1.18;
+    letter-spacing: -0.014em; margin: 0 0 12px;
+    color: var(--ink-2);
+  }
+  .pf-p{
+    font-size: 14.5px; line-height: 1.62;
+    color: rgba(243,238,223,0.72); margin: 0; max-width: 540px;
+  }
+  .pf-item.s6 .pf-h{ font-size: 32px; max-width: 720px; }
+  .pf-item.s6 .pf-p{ font-size: 16px; max-width: 720px; }
+  .pf-item.s6 .pf-tag{ color: var(--blue-soft); }
+
+  /* ===== HOW (3 steps, panel) ===== */
+  .how{
+    background: var(--paper-2); color: var(--ink);
+    padding: 130px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .how-head{
+    display: grid; grid-template-columns: 1fr 1.3fr; gap: 56px;
+    align-items: end; margin-bottom: 80px;
+  }
+  .how-head .h-section{ color: var(--ink-2); }
+  .how-head .h-section em{ color: var(--blue-soft); }
+  .how-head .lede{ color: rgba(243,238,223,0.7); }
+  .how-steps{
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .how-step{
+    padding: 36px 32px 36px 0;
+    position: relative;
+  }
+  .how-step + .how-step{ border-left: 1px solid var(--rule-strong); padding-left: 32px; }
+  .how-num{
+    font-family: var(--serif); font-style: italic;
+    font-weight: 500; font-size: 56px;
+    color: var(--blue-soft); line-height: 1;
+    margin-bottom: 24px;
+  }
+  .how-h{
+    font-family: var(--serif); font-weight: 500;
+    font-size: 22px; line-height: 1.2;
+    letter-spacing: -0.012em; margin: 0 0 12px;
+    color: var(--ink-2);
+  }
+  .how-p{
+    font-size: 14.5px; line-height: 1.62;
+    color: rgba(243,238,223,0.72);
+    margin: 0 0 18px;
+  }
+  .how-meta{
+    font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.12em; color: var(--blue-soft);
+    text-transform: uppercase;
+  }
+
+  /* ===== DEPTH (Agentic Ops nervous system) ===== */
+  .depth{ padding: 130px 0; }
+  .depth-head{ max-width: 880px; margin-bottom: 56px; }
+  .depth-grid{
+    display: grid; grid-template-columns: 1.15fr 1fr; gap: 64px;
+    align-items: start;
+  }
+  .depth-body p{
+    font-family: var(--serif);
+    font-size: 19px; line-height: 1.55;
+    color: var(--ink); margin: 0 0 20px;
+  }
+  .depth-body p:first-child::first-letter{
+    font-family: var(--serif); font-style: italic;
+    font-weight: 500; font-size: 64px;
+    float: left; line-height: 0.85;
+    margin: 8px 10px 0 -2px; color: var(--blue-soft);
+  }
+  .depth-body em{ font-style: italic; color: var(--blue-soft); }
+  .depth-aside{
+    border-top: 2px solid var(--ink-2);
+    padding-top: 18px;
+  }
+  .depth-aside-h{
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 18px;
+  }
+  .depth-list{ list-style: none; padding: 0; margin: 0; counter-reset: d; }
+  .depth-list li{
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+    display: grid; grid-template-columns: 32px 1fr;
+    gap: 12px;
+    font-size: 14px; line-height: 1.55;
+    color: var(--ink);
+  }
+  .depth-list li::before{
+    content: counter(d, decimal-leading-zero);
+    counter-increment: d;
+    font-family: var(--mono); font-size: 10.5px;
+    color: var(--muted-2); letter-spacing: 0.06em;
+  }
+
+  /* ===== COMPLIANCE — panel ===== */
+  .comp{
+    background: var(--paper-2);
+    padding: 110px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .comp-list{
+    list-style: none; padding: 0; margin: 0;
+    border-top: 2px solid var(--ink-2);
+  }
+  .comp-list li{
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: baseline;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--serif);
+    font-size: 22px; letter-spacing: -0.01em;
+    color: var(--ink-2);
+  }
+  .comp-list li.feature{ color: var(--blue-soft); font-style: italic; font-weight: 500; }
+  .comp-list .meta{
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.14em; color: var(--muted);
+    text-transform: uppercase;
+    font-style: normal;
+  }
+
+  /* ===== PRICING ===== */
+  .pricing{ padding: 130px 0; }
+  .price-head{
+    display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
+    align-items: end; margin-bottom: 56px;
+  }
+  .plans{
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 2px solid var(--ink-2);
+  }
+  .plan{
+    padding: 32px 28px 32px 0;
+    display: flex; flex-direction: column; gap: 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .plan + .plan{
+    border-left: 1px solid var(--rule-strong);
+    padding-left: 28px;
+  }
+  .plan.featured{ background: linear-gradient(180deg, rgba(214,182,90,0.06), transparent 60%); }
+  .plan-name{
+    font-family: var(--serif); font-weight: 500;
+    font-size: 28px; letter-spacing: -0.014em;
+    margin: 0; color: var(--ink-2);
+  }
+  .plan-name em{ color: var(--blue-soft); font-style: italic; }
+  .plan-tag{
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.10em; color: var(--muted);
+    text-transform: uppercase;
+  }
+  .plan-list li{
+    font-size: 14px; line-height: 1.5;
+    padding-left: 18px; position: relative;
+    color: rgba(243,238,223,0.80);
+  }
+  .plan-cta{
+    margin-top: auto;
+    padding: 12px 18px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--ink); color: var(--ink);
+    background: transparent;
+    border-radius: 4px;
+    align-self: flex-start;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .plan-cta:hover{ background: var(--ink); color: var(--paper); }
+  .plan.featured .plan-cta{ background: var(--blue); color: #fff; border-color: var(--blue); }
+  .plan.featured .plan-cta:hover{ background: var(--blue-soft); border-color: var(--blue-soft); }
+
+  /* ===== FINAL CTA ===== */
+  .final{
+    padding: 140px 0 80px;
+    background: var(--paper-2); color: var(--ink);
+    position: relative;
+    border-top: 1px solid var(--rule);
+  }
+  .final-grid{
+    display: grid; grid-template-columns: 1.3fr 1fr; gap: 64px;
+    align-items: end;
+  }
+  .final-h{
+    font-family: var(--serif); font-weight: 500;
+    font-size: clamp(40px, 5.6vw, 80px);
+    line-height: 1.02; letter-spacing: -0.022em;
+    color: var(--ink-2); margin: 0 0 28px;
+  }
+  .final-h em{ font-style: italic; color: var(--blue-soft); }
+  .final-sub{
+    font-family: var(--serif); font-size: 20px;
+    line-height: 1.5; color: rgba(243,238,223,0.78);
+    max-width: 540px; margin: 0 0 28px;
+  }
+  .final-urgency{
+    font-family: var(--mono); font-size: 12px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--blue-soft); padding: 14px 0;
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule-strong);
+    margin-bottom: 28px;
+    line-height: 1.7;
+  }
+  .final-urgency strong{ color: var(--ink-2); font-weight: 600; }
+  .final-ctas{ display: flex; gap: 14px; flex-wrap: wrap; }
+  .final .btn-text{ color: var(--ink); border-color: var(--rule-strong); }
+  .final .btn-text:hover{ color: var(--blue-soft); border-color: var(--blue-soft); }
+  .final-aside{
+    border-top: 2px solid var(--ink-2);
+    padding-top: 18px;
+  }
+  .final-aside-h{
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.16em; color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .final-aside p{
+    font-family: var(--serif); font-size: 16px;
+    line-height: 1.55; color: rgba(243,238,223,0.78);
+    margin: 0 0 12px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer{
+    background: var(--paper); color: rgba(243,238,223,0.6);
+    padding: 56px 0 28px;
+    border-top: 1px solid var(--rule);
+  }
+  .foot-grid{
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px; margin-bottom: 48px;
+  }
+  .foot-col{ display: flex; flex-direction: column; }
+  .foot-brand .logo-mark{ color: var(--ink-2); font-size: 26px; }
+  .foot-brand p{
+    font-family: var(--serif); font-size: 14.5px;
+    line-height: 1.55; max-width: 320px;
+    margin: 14px 0 0; color: rgba(243,238,223,0.65);
+  }
+  .foot-col-h{
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.16em; color: rgba(243,238,223,0.4);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .foot-col a{
+    display: block; font-size: 13.5px;
+    color: rgba(243,238,223,0.7);
+    padding: 5px 0;
+  }
+  .foot-col a:hover{ color: var(--ink-2); }
+  .foot-row-bottom{
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 11px;
+    letter-spacing: 0.10em; color: rgba(243,238,223,0.45);
+    flex-wrap: wrap; gap: 14px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1080px){
+    .hero-grid, .two-head, .two-cols, .repl-head, .how-head, .depth-grid, .comp-grid, .price-head, .plans, .final-grid, .foot-grid{
+      grid-template-columns: 1fr;
+    }
+    .hero-mock{ transform: none; margin-top: 32px; }
+    .pain-cols{ grid-template-columns: 1fr; gap: 32px; }
+    .pain-col{ border-left: 0; padding-left: 0; }
+    .pain-col + .pain-col{ border-top: 1px solid rgba(255,255,255,0.16); padding-top: 28px; }
+    .how-steps{ grid-template-columns: 1fr; }
+    .how-step + .how-step{ border-left: 0; border-top: 1px solid rgba(255,255,255,0.16); padding-left: 0; padding-top: 28px; }
+    .pf-grid > *{ grid-column: span 12 !important; }
+    .nav-links{ display: none; }
+    .repl-row{ grid-template-columns: 1fr; gap: 8px; }
+    .plans{ display: block; }
+    .plan + .plan{ border-left: 0; border-top: 1px solid var(--rule-strong); padding-left: 0; padding-top: 28px; margin-top: 28px; }
+    .mock-annot{ display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<header class="nav">
+  <div class="container nav-row">
+    <a href="#" class="logo">
+      <span class="logo-mark serif">AL Ops</span>
+      <span class="logo-tag">Agentic Ops</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#platform">Platform</a>
+      <a href="#governance">Governance</a>
+      <a href="#how">Process</a>
+      <a href="#docs">Docs</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <div class="nav-right">
+      <a href="signin.html" class="nav-link-quiet">Sign in</a>
+      <a href="#" class="nav-cta">Book demo →</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-left">
+        <div class="eyebrow">
+          <span class="pip"></span>Agentic Ops Platform · v4.2
+        </div>
+        <h1 class="h-display">Your engineering org<br/>is running AI.<br/><em>Five tools</em> are trying<br/>to govern it. <span class="gold">One platform</span><br/>should.</h1>
+        <p class="hero-sub">AL Ops is the unified agentic ops platform — built to run your AI pipelines and govern every one of them from a single control plane.</p>
+        <div class="cta-row">
+          <a href="#" class="btn-primary">Book a demo →</a>
+          <a href="#replaces" class="btn-text">See what it replaces</a>
+        </div>
+        <div class="hero-trust">SOC 2 Type II · ISO 27001 · GDPR · DPDP Act 2023 · TLS 1.3 · AES-256</div>
+      </div>
+
+      <div class="hero-mock" aria-hidden="true">
+        <div class="mock-annot a1"><span>Live agent state</span><span class="l"></span></div>
+        <div class="mock-annot a2"><span>HITL gate, recorded</span><span class="l"></span></div>
+        <div class="mock-annot a3"><span class="l"></span><span>Token caps, hard-enforced</span></div>
+
+        <div class="hero-mock-inner">
+          <div class="mock-titlebar">
+            <span class="mock-dots"><i></i><i></i><i></i></span>
+            <span class="mock-tab"><strong>al-ops</strong> / pipelines / claims-triage</span>
+            <span class="mock-status"><span class="dot"></span>RUN · 00:14:32</span>
+          </div>
+          <div class="mock-body">
+            <aside class="mock-side">
+              <div class="mock-side-h">Workspace</div>
+              <div class="mock-nav-item active"><span class="ic"></span>Pipelines</div>
+              <div class="mock-nav-item"><span class="ic"></span>Agents</div>
+              <div class="mock-nav-item"><span class="ic"></span>Approvals</div>
+              <div class="mock-nav-item"><span class="ic"></span>Data contracts</div>
+              <div class="mock-side-h" style="margin-top:18px;">Governance</div>
+              <div class="mock-nav-item"><span class="ic"></span>Audit chain</div>
+              <div class="mock-nav-item"><span class="ic"></span>DPDP &amp; GDPR</div>
+              <div class="mock-nav-item"><span class="ic"></span>Cost centres</div>
+            </aside>
+            <div class="mock-main">
+              <h3 class="mock-main-h">Claims-triage / production</h3>
+              <div class="mock-main-sub">12 AGENTS · ORCHESTRATOR v3 · OWNER: data-platform</div>
+              <div class="mock-stats">
+                <div class="mock-stat">
+                  <div class="mock-stat-label">Tokens · 24h</div>
+                  <div class="mock-stat-val">1.42M<span class="delta">−18%</span></div>
+                </div>
+                <div class="mock-stat">
+                  <div class="mock-stat-label">Cost · MTD</div>
+                  <div class="mock-stat-val">$2,840<span class="delta">on track</span></div>
+                </div>
+                <div class="mock-stat">
+                  <div class="mock-stat-label">Approvals</div>
+                  <div class="mock-stat-val">38 / 38<span class="delta">signed</span></div>
+                </div>
+              </div>
+              <div class="mock-table">
+                <div class="mock-row head">
+                  <div></div><div>Agent</div><div>Role</div><div>Tokens</div><div>Gate</div>
+                </div>
+                <div class="mock-row">
+                  <span class="pid"></span>
+                  <span class="pname">intake-classifier</span>
+                  <span class="ptype">Routing · gpt-4o</span>
+                  <span class="ptokens">214,302</span>
+                  <span class="pgate ok">OK</span>
+                </div>
+                <div class="mock-row">
+                  <span class="pid"></span>
+                  <span class="pname">policy-extract</span>
+                  <span class="ptype">Extraction · claude-3.5</span>
+                  <span class="ptokens">412,180</span>
+                  <span class="pgate ok">OK</span>
+                </div>
+                <div class="mock-row">
+                  <span class="pid warn"></span>
+                  <span class="pname">payout-decision</span>
+                  <span class="ptype">Decision · claude-3.5</span>
+                  <span class="ptokens">182,440</span>
+                  <span class="pgate hitl">HITL</span>
+                </div>
+                <div class="mock-row">
+                  <span class="pid"></span>
+                  <span class="pname">notify-customer</span>
+                  <span class="ptype">Email · gpt-4o-mini</span>
+                  <span class="ptokens">36,914</span>
+                  <span class="pgate ok">OK</span>
+                </div>
+                <div class="mock-row">
+                  <span class="pid idle"></span>
+                  <span class="pname">audit-writer</span>
+                  <span class="ptype">Logging · system</span>
+                  <span class="ptokens">—</span>
+                  <span class="pgate ok">CHAIN</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mock-foot">
+            <span>SHA-256 chain head · 0x7a4c…3b91</span>
+            <span class="mock-cap">Cap <b>$5,000 / mo</b> · 56% used</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PAIN ===== -->
+  <section class="pain">
+    <div class="container">
+      <h2 class="pain-h">Right now, your AI governance <em>looks like this.</em></h2>
+      <div class="pain-cols">
+        <div class="pain-col">
+          <div class="pain-num">— 01 ·  HITL</div>
+          <h3 class="pain-bold">HITL approvals live in Slack DMs.</h3>
+          <p class="pain-p">Someone makes a decision. Nobody records it. Your next audit asks for a log that doesn't exist.</p>
+        </div>
+        <div class="pain-col">
+          <div class="pain-num">— 02 ·  COST</div>
+          <h3 class="pain-bold">LLM costs are tracked in a spreadsheet.</h3>
+          <p class="pain-p">One agent goes rogue, you find out at month-end when the bill arrives. No per-agent caps. No alerts.</p>
+        </div>
+        <div class="pain-col">
+          <div class="pain-num">— 03 ·  DATA</div>
+          <h3 class="pain-bold">Data quality breaks pipelines silently.</h3>
+          <p class="pain-p">Bad data reaches the model. Contracts get violated. Incidents pile up before anyone pages.</p>
+        </div>
+      </div>
+      <div class="pain-foot">
+        <div class="pain-foot-eyebrow">— Conclusion</div>
+        <div class="pain-foot-text">This isn't a tooling problem. It's an <em>architecture problem</em>. AL Ops solves it at the infrastructure level, not the integration level.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TWO THINGS ===== -->
+  <section class="two">
+    <div class="container">
+      <div class="two-head">
+        <div class="eyebrow"><span class="pip"></span>What it is</div>
+        <h2 class="h-section">AL Ops does <em>two things</em> no other platform does together.</h2>
+      </div>
+      <div class="two-cols">
+        <div class="two-col run">
+          <div class="two-tag">— Run</div>
+          <h3 class="two-h">It runs your <em>agents.</em></h3>
+          <p class="two-p">Deploy pipelines, define approval checkpoints, and run multi-agent workflows — production-ready, not prototype-ready. Stream live agent state. Track every token. Cap every cost. Every output signed to an immutable audit chain.</p>
+          <!-- diagram: pipeline flow -->
+          <svg class="two-diagram" viewBox="0 0 460 110" width="100%" aria-hidden="true">
+            <g fill="none" stroke="#1B3DAA" stroke-width="1.2">
+              <circle cx="30" cy="55" r="18"/>
+              <circle cx="130" cy="55" r="18"/>
+              <circle cx="230" cy="55" r="18"/>
+              <circle cx="330" cy="55" r="18"/>
+              <circle cx="430" cy="55" r="18"/>
+              <line x1="48" y1="55" x2="112" y2="55"/>
+              <line x1="148" y1="55" x2="212" y2="55"/>
+              <line x1="248" y1="55" x2="312" y2="55"/>
+              <line x1="348" y1="55" x2="412" y2="55"/>
+            </g>
+            <g font-family="IBM Plex Mono" font-size="9" fill="#5b6661" letter-spacing="0.06em" text-anchor="middle">
+              <text x="30" y="93">INTAKE</text>
+              <text x="130" y="93">EXTRACT</text>
+              <text x="230" y="93">DECIDE</text>
+              <text x="330" y="93">NOTIFY</text>
+              <text x="430" y="93">AUDIT</text>
+            </g>
+            <g font-family="IBM Plex Mono" font-size="9" fill="#1B3DAA" text-anchor="middle">
+              <text x="30" y="59">①</text>
+              <text x="130" y="59">②</text>
+              <text x="230" y="59">③</text>
+              <text x="330" y="59">④</text>
+              <text x="430" y="59">⑤</text>
+            </g>
+          </svg>
+        </div>
+        <div class="two-col govern">
+          <div class="two-tag">— Govern</div>
+          <h3 class="two-h">It <em>governs</em> your agents.</h3>
+          <p class="two-p">HITL approval gates where decisions are recorded, not messaged. Data contracts with SLA violation detection. DPDP and GDPR consent and erasure workflows built in — not bolted on. One policy engine that enforces across every pipeline, every model, every data asset.</p>
+          <svg class="two-diagram" viewBox="0 0 460 110" width="100%" aria-hidden="true">
+            <g fill="none" stroke="#a88a2c" stroke-width="1.2">
+              <rect x="14" y="40" width="100" height="32" rx="2"/>
+              <rect x="124" y="40" width="100" height="32" rx="2"/>
+              <rect x="234" y="40" width="100" height="32" rx="2"/>
+              <rect x="344" y="40" width="100" height="32" rx="2"/>
+              <line x1="64" y1="20" x2="64" y2="40" stroke-dasharray="2 3"/>
+              <line x1="174" y1="20" x2="174" y2="40" stroke-dasharray="2 3"/>
+              <line x1="284" y1="20" x2="284" y2="40" stroke-dasharray="2 3"/>
+              <line x1="394" y1="20" x2="394" y2="40" stroke-dasharray="2 3"/>
+              <line x1="14" y1="20" x2="444" y2="20"/>
+            </g>
+            <g font-family="IBM Plex Mono" font-size="9" fill="#a88a2c" text-anchor="middle">
+              <text x="64" y="60">HITL</text>
+              <text x="174" y="60">CONTRACTS</text>
+              <text x="284" y="60">DPDP</text>
+              <text x="394" y="60">AUDIT</text>
+            </g>
+            <g font-family="IBM Plex Mono" font-size="8" fill="#5b6661" letter-spacing="0.06em">
+              <text x="14" y="14">— POLICY MESH</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="two-foot">That's what <strong>Agentic Ops</strong> means. Run fast. Govern everything.</div>
+    </div>
+  </section>
+
+  <!-- ===== REPLACES ===== -->
+  <section class="replaces" id="replaces">
+    <div class="container">
+      <div class="repl-head">
+        <div>
+          <div class="eyebrow"><span class="pip"></span>What it replaces</div>
+        </div>
+        <div>
+          <h2 class="h-section">One AL Ops contract <em>replaces five.</em></h2>
+        </div>
+      </div>
+
+      <div class="repl-table">
+        <div class="repl-row">
+          <div class="repl-tool"><span class="strike">LangSmith / W&amp;B</span></div>
+          <div class="repl-rep">Agent tracing, token budgets, cost forecasting, pipeline state.</div>
+          <div class="repl-arrow">→ AL Ops</div>
+        </div>
+        <div class="repl-row">
+          <div class="repl-tool"><span class="strike">Collibra</span></div>
+          <div class="repl-rep">Data catalog, lineage, quality rules, contracts, profiling, glossary.</div>
+          <div class="repl-arrow">→ AL Ops</div>
+        </div>
+        <div class="repl-row">
+          <div class="repl-tool"><span class="strike">Monte Carlo</span></div>
+          <div class="repl-rep">Observability, schema change detection, incident management.</div>
+          <div class="repl-arrow">→ AL Ops</div>
+        </div>
+        <div class="repl-row">
+          <div class="repl-tool"><span class="strike">OneTrust</span></div>
+          <div class="repl-rep">DPDP Act 2023, GDPR consent, right to erasure, audit trail.</div>
+          <div class="repl-arrow">→ AL Ops</div>
+        </div>
+        <div class="repl-row">
+          <div class="repl-tool"><span class="strike">Slack + spreadsheets</span></div>
+          <div class="repl-rep">HITL approval gates, recorded decisions, cost alerts.</div>
+          <div class="repl-arrow">→ AL Ops</div>
+        </div>
+      </div>
+
+      <div class="repl-foot">
+        <div class="eyebrow"><span class="pip"></span>The result</div>
+        <div class="repl-foot-text">One control plane. One support team. <em>One audit trail.</em></div>
+        <a href="#" class="btn-primary">Book a demo →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PLATFORM ===== -->
+  <section class="platform" id="platform">
+    <div class="container">
+      <div class="pf-head">
+        <div class="eyebrow"><span class="pip"></span>The platform</div>
+        <h2 class="h-section">Every layer of your AI engineering org. <em>Governed.</em></h2>
+        <p class="lede">Six domains. One mesh. The platform you'd build if you had three years and a security team that says yes.</p>
+      </div>
+
+      <div class="pf-grid">
+        <article class="pf-item s1">
+          <div class="pf-tag">— API Platform <span class="pf-num">01</span></div>
+          <h3 class="pf-h">Every API in your org — gated, versioned, logged.</h3>
+          <p class="pf-p">Connect any service via OAuth. Every call auditable. Every outbound request safe. No integration escapes the mesh.</p>
+        </article>
+
+        <article class="pf-item s2">
+          <div class="pf-tag">— AI Platform <span class="pf-num">02</span></div>
+          <h3 class="pf-h">Deploy multi-agent pipelines and govern them in the same breath.</h3>
+          <p class="pf-p">Set token budgets that hard-cap before the bill arrives. Record every approval. Trace every output back to the data that produced it.</p>
+        </article>
+
+        <article class="pf-item s3">
+          <div class="pf-tag">— Data Platform <span class="pf-num">03</span></div>
+          <h3 class="pf-h">Stop managing your catalog separately from your AI stack.</h3>
+          <p class="pf-p">Lineage, quality rules, data contracts, and a natural-language SQL assistant — in the same platform your engineers use.</p>
+        </article>
+
+        <article class="pf-item s4">
+          <div class="pf-tag">— Enterprise Platform <span class="pf-num">04</span></div>
+          <h3 class="pf-h">Controls your security team needs.</h3>
+          <p class="pf-p">SSO, SCIM, role-based access, audit trails your compliance team can read. Cost-centre billing. Every sensitive action gated by role — not honour.</p>
+        </article>
+
+        <article class="pf-item s5">
+          <div class="pf-tag">— Infra &amp; Security <span class="pf-num">05</span></div>
+          <h3 class="pf-h">Privacy law is not a retrofit.</h3>
+          <p class="pf-p">Zero-trust defaults. Encrypted secrets on every connector. DPDP Act 2023 built in — consent, erasure, access rights.</p>
+        </article>
+
+        <article class="pf-item s6" id="governance">
+          <div class="pf-tag">— Governance Mesh <span class="pf-num">06 · the spine</span></div>
+          <h3 class="pf-h">One policy engine. Every domain. <em style="font-style:italic;color:var(--blue-soft);">Live.</em></h3>
+          <p class="pf-p">Change a rule in one place — it propagates to your API gateway, your data contracts, your model approval gates, and your audit chain. Simultaneously. No sync lag. This is the layer the other five pivot on.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW ===== -->
+  <section class="how" id="how">
+    <div class="container">
+      <div class="how-head">
+        <div>
+          <div class="eyebrow" style="color:rgba(243,238,223,0.55);"><span class="pip" style="background:var(--gold-deep);"></span>How it works</div>
+          <h2 class="h-section" style="margin-top:14px;">Up and governed <em>before the sprint ends.</em></h2>
+        </div>
+        <p class="lede">Three steps. One sprint. Most teams have their first stack mapped in week one and their first audit-ready pipeline in week two.</p>
+      </div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">i.</div>
+          <h3 class="how-h">Connect your stack.</h3>
+          <p class="how-p">Plug in your data warehouse, model registry, cloud provider, and CI/CD via OAuth connectors. AL Ops maps every asset automatically. No agents to deploy. No pipeline configuration to hand-write.</p>
+          <div class="how-meta">OAuth · SCIM · Auto-discovery</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">ii.</div>
+          <h3 class="how-h">Define governance once.</h3>
+          <p class="how-p">Set data contracts, quality thresholds, HITL approval gates, token budgets, and compliance policies. The governance mesh pushes them everywhere — models, pipelines, data, APIs.</p>
+          <div class="how-meta">Policy-as-code · Live propagation</div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">iii.</div>
+          <h3 class="how-h">Ship with a complete audit trail.</h3>
+          <p class="how-p">Every generation, approval, data access, and model output — signed, chained, queryable. When your auditors ask, you answer in minutes.</p>
+          <div class="how-meta">SHA-256 chain · Queryable in seconds</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DEPTH ===== -->
+  <section class="depth">
+    <div class="container">
+      <div class="depth-head">
+        <div class="eyebrow"><span class="pip"></span>Agentic Ops</div>
+        <h2 class="h-section" style="margin-top:14px;">Your AI systems need a <em>nervous system,</em> not a dashboard.</h2>
+      </div>
+      <div class="depth-grid">
+        <div class="depth-body">
+          <p>Most governance tools watch from the outside. They show you what happened after it happened.</p>
+          <p>AL Ops is different. It's <em>the infrastructure your agents run on</em> — orchestration, state management, cost enforcement, approval routing — not a layer bolted on top.</p>
+          <p>When a pipeline breaks a data contract, AL Ops doesn't send you a Slack notification and wait. It opens an incident, routes it to the right approver, and records the decision. When an agent hits its token budget, it stops — not after the bill arrives, before.</p>
+          <p>That's what governance-native means. Not governance bolted on. <em>Governance as the substrate.</em></p>
+        </div>
+        <aside class="depth-aside">
+          <div class="depth-aside-h">— What that gets you</div>
+          <ol class="depth-list">
+            <li>LangGraph orchestrator with live Socket.IO state streaming.</li>
+            <li>HITL gates where approval decisions are signed and auditable — not messaged in Slack.</li>
+            <li>Per-agent token caps with overage alerts and hard enforcement.</li>
+            <li>Data contracts with SLA violation detection — freshness, volume, schema, quality.</li>
+            <li>Immutable audit chain: every action SHA-256 signed, chain-verifiable.</li>
+            <li>DPDP Act 2023 sections 6, 8, 11, 12 — consent, erasure, access, correction.</li>
+          </ol>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMPLIANCE ===== -->
+  <section class="comp">
+    <div class="container comp-grid">
+      <div>
+        <div class="eyebrow"><span class="pip"></span>Compliance</div>
+        <h2 class="h-section" style="margin-top:14px;">Built for regulated industries <em>from line one.</em></h2>
+        <p class="lede" style="margin-top:24px;">The only AI operations platform with native DPDP Act 2023 support — alongside GDPR, SOC 2 Type II, and ISO 27001. Every control auditable. Every secret encrypted. Every action logged.</p>
+      </div>
+      <ul class="comp-list">
+        <li>SOC 2 <span class="meta">Type II · audited</span></li>
+        <li>ISO 27001 <span class="meta">Information security</span></li>
+        <li class="feature">DPDP Act 2023 <span class="meta">Native · India</span></li>
+        <li>GDPR <span class="meta">Erasure ready</span></li>
+        <li>TLS 1.3 <span class="meta">In transit</span></li>
+        <li>AES-256 <span class="meta">At rest</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== PRICING ===== -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="price-head">
+        <div>
+          <div class="eyebrow"><span class="pip"></span>Pricing</div>
+          <h2 class="h-section" style="margin-top:14px;">Priced for teams. Built for <em>enterprises.</em></h2>
+        </div>
+        <p class="lede">Three plans. Annual contracts. Volume discounts on tokens, connectors, and seats. Talk to us if your security review is the long part.</p>
+      </div>
+      <div class="plans">
+        <article class="plan">
+          <div>
+            <h3 class="plan-name">Starter</h3>
+            <div class="plan-tag">— Teams shipping their first AI features</div>
+          </div>
+          <ul class="plan-list">
+            <li>Core platform</li>
+            <li>3 connectors</li>
+            <li>5 users</li>
+            <li>Community support</li>
+          </ul>
+          <a href="#" class="plan-cta">Start free trial</a>
+        </article>
+        <article class="plan featured">
+          <div>
+            <h3 class="plan-name">Scale <em>· most popular</em></h3>
+            <div class="plan-tag">— Engineering orgs with multiple AI products</div>
+          </div>
+          <ul class="plan-list">
+            <li>All six domains</li>
+            <li>Unlimited connectors</li>
+            <li>50 users</li>
+            <li>HITL gates · Data contracts</li>
+            <li>DPDP module</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="#" class="plan-cta">Talk to sales →</a>
+        </article>
+        <article class="plan">
+          <div>
+            <h3 class="plan-name">Enterprise</h3>
+            <div class="plan-tag">— For regulated industries</div>
+          </div>
+          <ul class="plan-list">
+            <li>Everything in Scale</li>
+            <li>SSO / SCIM</li>
+            <li>Custom RBAC</li>
+            <li>Dedicated audit support</li>
+            <li>SLA · custom contract</li>
+          </ul>
+          <a href="#" class="plan-cta">Talk to us →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FINAL ===== -->
+  <section class="final">
+    <div class="container final-grid">
+      <div>
+        <h2 class="final-h">You're already running AI in production.<br/><em>Start governing it like you are.</em></h2>
+        <div class="final-urgency">
+          <strong>Q3 deadline.</strong> &nbsp;DPDP enforcement makes Q3 the forcing function for most of our customers. Most teams take 3 weeks to connect their first stack. Starting now matters.
+        </div>
+        <div class="final-ctas">
+          <a href="#" class="btn-primary">Book a demo →</a>
+          <a href="#platform" class="btn-text">See the platform</a>
+        </div>
+      </div>
+      <aside class="final-aside">
+        <div class="final-aside-h">— What you'll see in 30 minutes</div>
+        <p>We'll map your current AI stack to the governance mesh and show you exactly where your Slack approvals and spreadsheets break down.</p>
+        <p>No pitch deck. Just your architecture.</p>
+      </aside>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <span class="logo-mark serif">AL Ops</span>
+        <p>Agentic Ops for engineering organisations running AI in production.</p>
+      </div>
+      <div class="foot-col">
+        <div class="foot-col-h">— Platform</div>
+        <a href="#platform">API</a>
+        <a href="#platform">AI</a>
+        <a href="#platform">Data</a>
+        <a href="#platform">Enterprise</a>
+        <a href="#governance">Governance Mesh</a>
+      </div>
+      <div class="foot-col">
+        <div class="foot-col-h">— Company</div>
+        <a href="#">Customers</a>
+        <a href="#docs">Docs</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#">Status</a>
+        <a href="#">Trust</a>
+      </div>
+      <div class="foot-col">
+        <div class="foot-col-h">— Legal</div>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">DPDP</a>
+        <a href="#">GDPR</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+    <div class="foot-row-bottom">
+      <div>© 2026 AL Ops · Agentic Ops for engineering organisations</div>
+      <div>v4.2.1 · build 2026.05.02</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

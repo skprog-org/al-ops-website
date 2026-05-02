@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AL Ops · AI-SDLC Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script
+      src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+      integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+      integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+      integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+      crossorigin="anonymous"
+    ></script>
+
+    <style>
+      :root {
+        /* Brand — crimson, evolved from the screenshots */
+        --crimson-50: #eef0fa;
+        --crimson-100: #dbe0f4;
+        --crimson-200: #b6c0e8;
+        --crimson-300: #8593d2;
+        --crimson-400: #4f63b8;
+        --crimson-500: #2a3da0;
+        --crimson-600: #1a2a8a;
+        --crimson-700: #000080;
+        --crimson-800: #000066;
+        --crimson-900: #00004d;
+
+        /* Neutrals */
+        --ink-950: #0c0d10;
+        --ink-900: #16181d;
+        --ink-800: #22262e;
+        --ink-700: #353a44;
+        --ink-600: #525866;
+        --ink-500: #717787;
+        --ink-400: #9aa0ad;
+        --ink-300: #c4c8d0;
+        --ink-200: #e3e5ea;
+        --ink-100: #eef0f3;
+        --ink-50: #f6f7f9;
+
+        /* Surface */
+        --surface: #ffffff;
+        --surface-muted: #f6f7f9;
+        --surface-tinted: #fafbfc;
+
+        /* Accents */
+        --emerald-500: #10b981;
+        --emerald-600: #059669;
+        --emerald-50: #ecfdf5;
+        --amber-500: #f59e0b;
+        --amber-50: #fffbeb;
+        --violet-500: #7c3aed;
+        --violet-50: #f5f3ff;
+        --sky-500: #0ea5e9;
+        --sky-50: #f0f9ff;
+
+        /* Type */
+        --font-sans: "Open Sans", ui-sans-serif, system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+        /* Radii */
+        --r-sm: 6px;
+        --r-md: 10px;
+        --r-lg: 14px;
+        --r-xl: 20px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--surface-muted);
+        color: var(--ink-900);
+        font-family: var(--font-sans);
+        font-feature-settings: "ss01", "cv11";
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        cursor: pointer;
+      }
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      ::selection {
+        background: var(--crimson-200);
+      }
+
+      /* Scrollbars (light) */
+      *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      *::-webkit-scrollbar-thumb {
+        background: var(--ink-200);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+      }
+      *::-webkit-scrollbar-thumb:hover {
+        background: var(--ink-300);
+        background-clip: content-box;
+        border: 2px solid transparent;
+      }
+
+      .dotted-card {
+        background: #fff;
+        border: 1px dashed var(--ink-300);
+        border-radius: var(--r-lg);
+      }
+      .solid-card {
+        background: #fff;
+        border: 1px solid var(--ink-200);
+        border-radius: var(--r-lg);
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .mono {
+        font-family: var(--font-mono);
+        font-feature-settings: "ss01";
+      }
+      .serif {
+        font-family: var(--font-sans);
+        font-weight: 700;
+        letter-spacing: -0.015em;
+      }
+
+      .hide-scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scroll {
+        scrollbar-width: none;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes pulseDot {
+        0%,
+        100% {
+          opacity: 0.45;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.15);
+        }
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: -200px 0;
+        }
+        100% {
+          background-position: 200px 0;
+        }
+      }
+      @keyframes flow {
+        0% {
+          stroke-dashoffset: 24;
+        }
+        100% {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      .pulse-dot {
+        animation: pulseDot 1.6s ease-in-out infinite;
+      }
+
+      #root {
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Tweak defaults: must be a single, parseable JSON literal -->
+    <script>
+      window.__TWEAKS__ = /*EDITMODE-BEGIN*/{
+        "brand": "crimson",
+        "density": "compact",
+        "marketplaceLayout": "list",
+        "showTags": true,
+        "showPerf": true,
+        "cardStyle": "solid",
+        "showGovernance": true,
+        "animateFlow": true
+      }/*EDITMODE-END*/;
+    </script>
+
+    <script type="text/babel" src="tweaks-panel.jsx"></script>
+    <script type="text/babel" src="data.jsx"></script>
+    <script type="text/babel" src="data-connectors.jsx"></script>
+    <script type="text/babel" src="ui.jsx"></script>
+    <script type="text/babel" src="views/gate-config.jsx"></script>
+    <script type="text/babel" src="views/pipeline.jsx"></script>
+    <script type="text/babel" src="views/marketplace.jsx"></script>
+    <script type="text/babel" src="views/detail.jsx"></script>
+    <script type="text/babel" src="views/composer.jsx"></script>
+    <script type="text/babel" src="views/run.jsx"></script>
+    <script type="text/babel" src="views/plan-groom.jsx"></script>
+    <script type="text/babel" src="app.jsx"></script>
+  </body>
+</html>
