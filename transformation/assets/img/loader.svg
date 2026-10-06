@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-36 -33 98 98" role="img" aria-label="Loading">
+  <style>
+    .ink{fill:#0B1018}
+    @media (prefers-color-scheme: dark){.ink{fill:#F5F3ED}}
+    /* The bar is the rod, pinned at the centre of the A; the O is the bob.
+       Rest frame (0deg) is the logo; it makes a full clockwise turn, under, left, over the top and home. */
+    .bob{transform-origin:13px 16px;animation:swing 1.6s cubic-bezier(.45,.05,.55,.95) infinite}
+    @keyframes swing{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion: reduce){.bob{animation-duration:4s}}
+  </style>
+  <path class="ink" d="M9.6 0h6.8L26 32h-6.6L13 9.6 6.6 32H0z"/>
+  <g class="bob">
+    <rect x="11" y="14.5" width="18" height="3" fill="#77A9FF"/>
+    <path class="ink" fill-rule="evenodd" d="M44 0a16 16 0 1 1 0 32a16 16 0 1 1 0-32zm0 6.4a9.6 9.6 0 1 0 0 19.2a9.6 9.6 0 1 0 0-19.2z"/>
+  </g>
+  <circle cx="13" cy="16" r="2" fill="#77A9FF"/>
+</svg>

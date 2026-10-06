@@ -4,1082 +4,537 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>AL Ops — Agentic Ops platform</title>
+<meta name="description" content="AL Ops runs your AI pipelines and governs every one of them from a single control plane." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --ink: #f3eedf;          /* primary text on dark */
-    --ink-2: #ffffff;
-    --paper: #07100c;        /* base dark */
-    --paper-2: #0c1814;      /* slightly lighter dark */
-    --rule: rgba(255,255,255,0.08);
-    --rule-strong: rgba(255,255,255,0.18);
-    --muted: #9aa6a0;
-    --muted-2: #5f6a64;
-    --navy: #7C9BFF;         /* on dark, use the soft blue as the navy accent */
-    --navy-deep: #3B6DFF;
-    --blue: #3B6DFF;
-    --blue-soft: #7C9BFF;
-    --green: #6cd6a3;        /* live / running accent */
-    --gold: #d6b65a;
-    --gold-deep: #f3d77a;    /* on dark, gold reads brighter */
-    --serif: "Source Serif 4", "Iowan Old Style", "Apple Garamond", Georgia, serif;
-    --sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --black: #03141e;         /* abyss: page base */
+    --ink-900: #061e2b;
+    --ink-800: #082636;
+    --ink-700: #0c2e40;
+    --line: #14394c;
+    --line-soft: #0f3043;
+    --grey-500: #6f95a0;
+    --grey-400: #8db0b8;
+    --grey-300: #b4d0d4;
+    --white: #eaf6f4;         /* foam: primary text */
+    --paper: #e3f0ee;         /* shallows: light bands */
+    --paper-line: #bcd5d4;
+    --paper-muted: #3e6672;
+    --signal: #5ee0cf;        /* seafoam accent: buttons and live states */
+    --signal-ink: #03141e;
+    --display: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+    --gutter: clamp(16px, 4vw, 48px);
+    --max: 1440px;
   }
   *{ box-sizing: border-box; }
   html{ scroll-behavior: smooth; }
-  html,body{ margin:0; padding:0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  html,body{ margin:0; padding:0; }
   body{
-    background:
-      radial-gradient(900px 600px at 50% 50%, rgba(59,109,255,0.10), transparent 60%),
-      radial-gradient(1200px 700px at 50% 60%, rgba(27,61,170,0.18), transparent 70%),
-      var(--paper);
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
   a{ color: inherit; text-decoration: none; }
   button{ font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
-  img{ max-width:100%; display:block; }
+  ::selection{ background: var(--signal); color: var(--signal-ink); }
+  :focus-visible{ outline: 1px solid var(--white); outline-offset: 3px; }
+
+  .wrap{ max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
 
   /* ===== Type ===== */
-  .serif{ font-family: var(--serif); font-feature-settings: "ss01","liga","kern"; }
-  .mono{ font-family: var(--mono); }
-  .h-display{
-    font-family: var(--serif);
-    font-weight: 500;
-    line-height: 1.02;
-    letter-spacing: -0.02em;
-    font-size: clamp(44px, 7.2vw, 104px);
-    margin: 0;
-  }
-  .h-display em{ font-style: italic; color: var(--blue-soft); font-weight: 500; }
-  .h-display .gold{ font-style: italic; color: var(--blue-soft); }
-  .h-section{
-    font-family: var(--serif);
-    font-weight: 500;
-    line-height: 1.06;
-    letter-spacing: -0.018em;
-    font-size: clamp(36px, 4.6vw, 64px);
-    margin: 0;
-  }
-  .h-section em{ font-style: italic; color: var(--blue-soft); font-weight: 500; }
-  .h-section .gold{ font-style: italic; color: var(--blue-soft); }
-  .h-3{
-    font-family: var(--serif);
-    font-weight: 500;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    font-size: clamp(22px, 2vw, 28px);
-    margin: 0;
-  }
-  .eyebrow{
+  .label{
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.18em;
+    font-size: 12px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--grey-500);
   }
-  .eyebrow .pip{
-    display:inline-block; width:6px; height:6px; border-radius:50%;
-    background: var(--blue-soft); margin-right: 8px; vertical-align: 1px;
+  .h-hero{
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(44px, 7.4vw, 120px);
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+    margin: 0;
   }
-  .lede{
-    font-family: var(--serif);
-    font-size: clamp(18px, 1.4vw, 22px);
-    line-height: 1.5;
-    color: rgba(243,238,223,0.78);
-    max-width: 620px;
+  .h-xl{
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(36px, 5vw, 76px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 0;
   }
-  .body-p{ font-size: 16px; line-height: 1.62; color: rgba(243,238,223,0.78); }
-  .body-p.muted{ color: var(--muted); }
+  .h-l{
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(28px, 3.2vw, 48px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .h-m{
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(20px, 1.6vw, 24px);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .dim{ color: var(--grey-500); }
+  .lede{ font-size: clamp(17px, 1.3vw, 20px); line-height: 1.5; color: var(--grey-300); margin: 0; max-width: 56ch; }
 
-  /* ===== Layout primitives ===== */
-  .container{ max-width: 1240px; margin: 0 auto; padding: 0 28px; }
-  .rule{ height:1px; background: var(--rule); width: 100%; }
-  .rule-strong{ height:1px; background: var(--rule-strong); width: 100%; }
-  .section{ padding: 110px 0; position: relative; }
-  .section-tight{ padding: 72px 0; }
+  /* ===== Buttons ===== */
+  .btn{
+    display: inline-flex; align-items: center; justify-content: space-between; gap: 28px;
+    height: 48px; padding: 0 18px;
+    font-family: var(--body); font-size: 14px; font-weight: 500; letter-spacing: 0.01em;
+    border: 1px solid var(--white);
+    transition: background .2s, color .2s;
+  }
+  .btn .arr{ transition: transform .2s; }
+  .btn:hover .arr{ transform: translateX(4px); }
+  .btn-solid{ background: var(--signal); color: var(--signal-ink); border-color: var(--signal); }
+  .btn-solid:hover{ background: transparent; color: var(--signal); }
+  .btn-ghost{ background: transparent; color: var(--white); border-color: rgba(234,246,244,0.35); }
+  .btn-ghost:hover{ border-color: var(--white); }
+  .on-paper .btn-solid{ background: var(--black); color: var(--white); border-color: var(--black); }
+  .on-paper .btn-solid:hover{ background: transparent; color: var(--black); }
+  .link-arrow{
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 500;
+    border-bottom: 1px solid currentColor; padding-bottom: 2px;
+  }
+  .link-arrow .arr{ transition: transform .2s; }
+  .link-arrow:hover .arr{ transform: translateX(4px); }
 
-  /* ===== Scroll reveal ===== */
-  .reveal{ opacity: 0; transform: translateY(18px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
-  .reveal.in{ opacity: 1; transform: none; }
+  /* ===== Announcement bar ===== */
+  .announce{
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    background: var(--black);
+    position: relative; z-index: 60;
+  }
+  .announce .wrap{ display:flex; align-items:center; justify-content:space-between; gap: 16px; height: 40px; }
+  .announce .label{ color: var(--white); }
+  .announce a{ color: var(--grey-300); white-space: nowrap; }
+  .announce a:hover{ color: var(--white); }
+  .announce-text{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--grey-300); }
 
   /* ===== Nav ===== */
   .nav{
     position: sticky; top: 0; z-index: 50;
-    background: rgba(7,16,12,0.82);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--rule);
+    background: rgba(3,20,30,0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
   }
-  .nav-row{
-    display: grid; grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    padding: 14px 0;
-  }
-  .logo{ display: inline-flex; align-items: baseline; gap: 8px; }
+  .nav .wrap{ display:flex; align-items:center; height: 64px; gap: 40px; }
+  .logo{ display:flex; align-items:center; gap: 12px; flex-shrink: 0; }
   .logo-mark{
-    font-family: var(--serif); font-weight: 600; font-style: italic;
-    font-size: 22px; letter-spacing: -0.02em; color: var(--ink-2);
+    width: 22px; height: 22px; position: relative; display:block;
   }
-  .logo-mark::after{
-    content: "."; color: var(--blue-soft); margin-left: 1px;
+  .logo-mark::before, .logo-mark::after{
+    content:""; position:absolute; inset: 0; border: 1.5px solid var(--white);
   }
-  .logo-tag{
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em;
-    color: var(--muted); text-transform: uppercase;
-  }
-  .nav-links{ display: flex; gap: 30px; justify-content: center; }
-  .nav-links a{
-    position: relative;
-    font-size: 13.5px; color: var(--ink); font-weight: 500;
-    padding: 4px 0;
-  }
-  .nav-links a::after{
-    content:""; position:absolute; left:0; right:100%; bottom:-2px;
-    height:1px; background: var(--blue-soft);
-    transition: right .25s cubic-bezier(.2,.7,.2,1);
-  }
-  .nav-links a:hover{ color: var(--blue-soft); }
-  .nav-links a:hover::after{ right:0; }
-  .nav-right{ display: flex; justify-content: flex-end; gap: 14px; align-items: center; }
-  .nav-link-quiet{ font-size: 13.5px; color: var(--muted); }
-  .nav-link-quiet:hover{ color: var(--ink); }
-  .nav-cta{
-    padding: 9px 16px; font-size: 13px; font-weight: 600;
-    color: #fff; background: var(--blue);
-    border-radius: 4px;
-    transition: background .15s, transform .15s;
-  }
-  .nav-cta:hover{ background: var(--blue-soft); transform: translateY(-1px); }
-
-  /* ===== HERO ===== */
-  .hero{
-    padding: 80px 0 0;
-    position: relative;
-    overflow: hidden;
-  }
-  /* animated aurora mesh behind hero */
-  .hero-aurora{
-    position: absolute; inset: -10% -20% 0 -20%;
-    z-index: 0; pointer-events: none;
-    background:
-      radial-gradient(600px 420px at 18% 20%, rgba(59,109,255,0.20), transparent 60%),
-      radial-gradient(620px 460px at 82% 18%, rgba(108,214,163,0.12), transparent 62%),
-      radial-gradient(700px 520px at 60% 70%, rgba(27,61,170,0.22), transparent 66%);
-    filter: blur(8px);
-    animation: aurora 18s ease-in-out infinite alternate;
-  }
-  @keyframes aurora{
-    0%{ transform: translate3d(0,0,0) scale(1); opacity: .85; }
-    50%{ transform: translate3d(-2%,1.5%,0) scale(1.06); opacity: 1; }
-    100%{ transform: translate3d(2%,-1%,0) scale(1.02); opacity: .9; }
-  }
-  /* faint moving grid */
-  .hero-grid-lines{
-    position: absolute; inset: 0; z-index: 0; pointer-events: none;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(900px 600px at 60% 30%, #000 30%, transparent 75%);
-    -webkit-mask-image: radial-gradient(900px 600px at 60% 30%, #000 30%, transparent 75%);
-    animation: griddrift 32s linear infinite;
-  }
-  @keyframes griddrift{ to{ background-position: 56px 56px, 56px 56px; } }
-
-  .hero-grid{
-    position: relative; z-index: 1;
-    display: grid; grid-template-columns: 1.05fr 1fr;
-    gap: 64px; align-items: end;
-    padding-bottom: 72px;
-  }
-  .hero-left .eyebrow{ margin-bottom: 28px; display: inline-flex; align-items: center; gap: 10px; }
-  .hero-badge{
-    display:inline-flex; align-items:center; gap:8px;
-    font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase;
-    color: var(--green);
-    border:1px solid rgba(108,214,163,0.3); border-radius: 999px;
-    padding: 5px 12px; margin-bottom: 26px;
-    background: rgba(108,214,163,0.06);
-  }
-  .hero-badge .live{
-    width:7px; height:7px; border-radius:50%; background: var(--green);
-    box-shadow: 0 0 0 0 rgba(108,214,163,0.5); animation: pulse 2s infinite;
-  }
-  @keyframes pulse{
-    0%{ box-shadow: 0 0 0 0 rgba(108,214,163,0.5); }
-    70%{ box-shadow: 0 0 0 7px rgba(108,214,163,0); }
-    100%{ box-shadow: 0 0 0 0 rgba(108,214,163,0); }
-  }
-  .hero-left .h-display{ margin-bottom: 28px; }
-  .hero-sub{
-    font-family: var(--serif);
-    font-size: clamp(18px, 1.4vw, 22px);
-    line-height: 1.5; color: rgba(243,238,223,0.82);
-    max-width: 540px;
-    margin: 0 0 36px;
-  }
-  .cta-row{ display:flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-  .btn-primary{
-    padding: 13px 22px; font-size: 14px; font-weight: 600;
-    color: #fff; background: var(--blue);
-    border-radius: 4px; letter-spacing: -0.005em;
-    transition: background .15s, transform .15s, box-shadow .15s;
-  }
-  .btn-primary:hover{ background: var(--blue-soft); transform: translateY(-1px); box-shadow: 0 10px 30px -12px rgba(59,109,255,0.7); }
-  .btn-text{
-    font-size: 14px; font-weight: 600; color: var(--ink);
-    padding: 13px 4px; border-bottom: 1px solid var(--ink);
-    transition: color .15s, border-color .15s;
-  }
-  .btn-text:hover{ color: var(--blue-soft); border-color: var(--blue-soft); }
-  .hero-trust{
-    margin-top: 44px;
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.16em; color: var(--muted);
-    text-transform: uppercase;
-    border-top: 1px solid var(--rule);
-    padding-top: 18px;
-    max-width: 540px;
-  }
-
-  /* Hero product mock — dark surface */
-  .hero-mock{
-    position: relative;
-    transform: translateY(-20px);
-    animation: float 7s ease-in-out infinite;
-  }
-  @keyframes float{
-    0%,100%{ transform: translateY(-20px); }
-    50%{ transform: translateY(-30px); }
-  }
-  .hero-mock::before{
-    content: "";
-    position: absolute; inset: -40px -120px -60px 20px;
-    background:
-      radial-gradient(450px 300px at 50% 50%, rgba(59,109,255,0.18), transparent 70%),
-      linear-gradient(180deg, rgba(214,182,90,0.06), transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .hero-mock-inner{
-    position: relative; z-index: 1;
-    background: #0d1a16;
-    border: 1px solid var(--rule-strong);
-    border-radius: 6px;
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.04) inset,
-      0 22px 60px -20px rgba(0,0,0,0.7),
-      0 8px 18px -6px rgba(0,0,0,0.5);
-    overflow: hidden;
-    font-family: var(--sans);
-    color: var(--ink);
-  }
-  /* animated scan line sweeping the mock */
-  .hero-mock-inner::after{
-    content:""; position:absolute; left:0; right:0; top:0; height:140px; z-index: 3;
-    background: linear-gradient(180deg, rgba(124,155,255,0.10), transparent 70%);
-    pointer-events:none;
-    animation: scan 6s ease-in-out infinite;
-  }
-  @keyframes scan{
-    0%{ transform: translateY(-160px); opacity: 0; }
-    20%{ opacity: 1; }
-    80%{ opacity: 1; }
-    100%{ transform: translateY(620px); opacity: 0; }
-  }
-  .mock-titlebar{
-    display: flex; align-items: center; gap: 10px;
-    padding: 11px 14px;
-    border-bottom: 1px solid var(--rule);
-    background: rgba(255,255,255,0.02);
-  }
-  .mock-dots i{ width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,0.18); display:inline-block; }
-  .mock-dots{ display: inline-flex; gap: 6px; }
-  .mock-tab{
-    font-family: var(--mono); font-size: 11px;
-    color: var(--muted); letter-spacing: 0.06em;
-    margin-left: 12px;
-  }
-  .mock-tab strong{ color: var(--ink); font-weight: 600; }
-  .mock-status{
-    margin-left: auto; display:inline-flex; align-items:center; gap:6px;
-    font-family: var(--mono); font-size: 10.5px;
-    color: #6cd6a3; letter-spacing: 0.08em;
-  }
-  .mock-status .dot{
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #6cd6a3; box-shadow: 0 0 0 3px rgba(108,214,163,0.18);
-    animation: pulse 2s infinite;
-  }
-  .mock-body{
-    display: grid; grid-template-columns: 180px 1fr;
-    min-height: 480px;
-  }
-  .mock-side{
-    background: rgba(255,255,255,0.02);
-    border-right: 1px solid var(--rule);
-    padding: 18px 14px;
-    font-size: 12.5px;
-  }
-  .mock-side-h{
-    font-family: var(--mono); font-size: 10px;
-    letter-spacing: 0.16em; color: var(--muted-2);
-    text-transform: uppercase;
-    margin: 8px 6px 10px;
-  }
-  .mock-nav-item{
-    padding: 7px 8px; border-radius: 4px;
-    color: rgba(243,238,223,0.78); display: flex; align-items: center; gap: 8px;
-  }
-  .mock-nav-item.active{ background: var(--blue); color: #fff; }
-  .mock-nav-item .ic{
-    width: 14px; height: 14px; border: 1px solid currentColor; border-radius: 3px;
-    opacity: 0.65;
-  }
-  .mock-main{ padding: 22px 24px; }
-  .mock-main-h{
-    font-family: var(--serif); font-weight: 500; font-size: 19px;
-    letter-spacing: -0.01em; margin: 0 0 4px; color: var(--ink-2);
-  }
-  .mock-main-sub{
-    font-family: var(--mono); font-size: 11px;
-    color: var(--muted); letter-spacing: 0.08em;
-  }
-  .mock-stats{
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    margin-top: 18px;
-  }
-  .mock-stat{ padding: 14px 0; }
-  .mock-stat + .mock-stat{ border-left: 1px solid var(--rule); padding-left: 14px; }
-  .mock-stat-label{
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
-    color: var(--muted-2); text-transform: uppercase;
-  }
-  .mock-stat-val{
-    font-family: var(--serif); font-weight: 500; font-size: 24px;
-    margin-top: 4px; letter-spacing: -0.01em; color: var(--ink-2);
-  }
-  .mock-stat-val .delta{ font-family: var(--mono); font-size: 11px; color: #6cd6a3; margin-left: 6px; letter-spacing: 0.04em; }
-  .mock-table{ margin-top: 18px; }
-  .mock-row{
-    display: grid; grid-template-columns: 18px 1.5fr 1fr 0.8fr 0.7fr;
-    align-items: center; gap: 12px;
-    padding: 11px 0;
-    font-size: 12.5px;
-    border-bottom: 1px solid var(--rule);
-  }
-  .mock-row.head{
-    font-family: var(--mono); font-size: 10px;
+  .logo-mark::after{ inset: 6px; background: var(--white); border: 0; }
+  .logo-word{
+    font-family: var(--display); font-weight: 600; font-size: 17px;
     letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--muted-2); padding: 8px 0;
   }
-  .mock-row .pid{
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #6cd6a3;
+  .nav-links{ display:flex; gap: 28px; font-size: 14px; color: var(--grey-300); }
+  .nav-links a{ position: relative; padding: 22px 0; }
+  .nav-links a:hover{ color: var(--white); }
+  .nav-links a::after{
+    content:""; position:absolute; left:0; right:0; bottom: -1px; height: 1px;
+    background: var(--white); transform: scaleX(0); transform-origin: left; transition: transform .25s;
   }
-  .mock-row .pid.warn{ background: var(--gold-deep); }
-  .mock-row .pid.idle{ background: var(--muted-2); }
-  .mock-row .pid.run{ animation: pulse 2s infinite; }
-  .mock-row .pname{ font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
-  .mock-row .ptype{ color: var(--muted); }
-  .mock-row .ptokens{ font-family: var(--mono); font-size: 11.5px; color: var(--ink); }
-  .mock-row .pgate{
-    font-family: var(--mono); font-size: 10.5px;
-    padding: 3px 7px; border-radius: 3px;
-    border: 1px solid var(--rule-strong);
-    color: var(--muted); letter-spacing: 0.06em;
-    text-transform: uppercase;
-    justify-self: end;
+  .nav-links a:hover::after{ transform: scaleX(1); }
+  .nav-right{ margin-left: auto; display:flex; align-items:center; gap: 24px; font-size: 14px; }
+  .nav-right .quiet{ color: var(--grey-300); }
+  .nav-right .quiet:hover{ color: var(--white); }
+  .nav-cta{
+    height: 36px; padding: 0 14px; display:inline-flex; align-items:center; gap: 10px;
+    background: var(--signal); color: var(--signal-ink); font-weight: 500;
+    border: 1px solid var(--signal); transition: background .2s, color .2s;
   }
-  .mock-row .pgate.ok{ color: #6cd6a3; border-color: rgba(108,214,163,0.35); background: rgba(108,214,163,0.08); }
-  .mock-row .pgate.hitl{ color: var(--blue-soft); border-color: rgba(124,155,255,0.40); background: rgba(59,109,255,0.10); }
-  .mock-foot{
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 24px;
-    border-top: 1px solid var(--rule);
-    background: rgba(255,255,255,0.02);
-    font-family: var(--mono); font-size: 11px; color: var(--muted);
-    letter-spacing: 0.06em;
-  }
-  .mock-cap{ font-family: var(--mono); font-size: 11px; color: var(--ink); letter-spacing: 0.04em; }
-  .mock-cap b{ color: var(--blue-soft); font-weight: 600; }
+  .nav-cta:hover{ background: transparent; color: var(--signal); }
+  .nav-burger{ display:none; width: 36px; height: 36px; margin-left: auto; position: relative; }
+  .nav-burger span{ position:absolute; left: 8px; right: 8px; height: 1px; background: var(--white); }
+  .nav-burger span:nth-child(1){ top: 14px; } .nav-burger span:nth-child(2){ top: 21px; }
 
-  /* annotation lines around the mock */
-  .mock-annot{
-    position: absolute; z-index: 4;
-    font-family: var(--mono); font-size: 10.5px;
-    letter-spacing: 0.10em; text-transform: uppercase;
-    color: var(--muted);
-    display: flex; align-items: center; gap: 8px;
-  }
-  .mock-annot .l{
-    width: 36px; height: 1px; background: var(--rule-strong);
-  }
-  .mock-annot.a1{ top: 70px; right: -150px; }
-  .mock-annot.a2{ bottom: 110px; right: -160px; }
-  .mock-annot.a3{ top: 280px; left: -140px; flex-direction: row-reverse; }
-
-  /* ===== LOGO / SOCIAL PROOF STRIP ===== */
-  .logos{
-    position: relative; z-index: 1;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    padding: 30px 0;
-    background: rgba(255,255,255,0.012);
-  }
-  .logos-inner{ display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center; }
-  .logos-label{
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em;
-    text-transform: uppercase; color: var(--muted); max-width: 150px; line-height: 1.6;
-  }
-  .logos-row{ display: flex; gap: 44px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-  .logos-row span{
-    font-family: var(--serif); font-style: italic; font-weight: 500;
-    font-size: 19px; color: rgba(243,238,223,0.55);
-    letter-spacing: -0.01em; transition: color .2s;
-  }
-  .logos-row span:hover{ color: var(--ink-2); }
-
-  /* ===== MARQUEE ===== */
-  .marquee{
-    overflow: hidden; border-bottom: 1px solid var(--rule);
-    background: var(--paper-2);
-    padding: 22px 0;
+  /* ===== Hero ===== */
+  .hero{
     position: relative;
-  }
-  .marquee::before, .marquee::after{
-    content:""; position:absolute; top:0; bottom:0; width:120px; z-index:2;
-  }
-  .marquee::before{ left:0; background: linear-gradient(90deg, var(--paper-2), transparent); }
-  .marquee::after{ right:0; background: linear-gradient(270deg, var(--paper-2), transparent); }
-  .marquee-track{
-    display: inline-flex; gap: 28px; white-space: nowrap;
-    will-change: transform; animation: marquee 26s linear infinite;
-  }
-  .marquee-track span{
-    font-family: var(--serif); font-style: italic; font-weight: 500;
-    font-size: clamp(22px, 2.6vw, 34px); letter-spacing: -0.01em;
-    color: rgba(243,238,223,0.30);
-  }
-  .marquee-track span b{ color: var(--blue-soft); font-weight: 500; font-style: italic; }
-  .marquee-track .star{ color: var(--muted-2); font-style: normal; }
-  @keyframes marquee{ to{ transform: translateX(-50%); } }
-
-  /* ===== VALUE-ADD FEATURE CARDS ===== */
-  .values{ padding: 120px 0 110px; }
-  .values-head{
-    display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px;
-    align-items: end; margin-bottom: 56px;
-  }
-  .vcards{
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-  }
-  .vcard{
-    position: relative;
-    border: 1px solid var(--rule);
-    border-radius: 8px;
-    padding: 26px 24px 28px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0));
-    transition: transform .25s cubic-bezier(.2,.7,.2,1), border-color .25s, background .25s;
+    min-height: calc(100svh - 104px);
+    display: flex; flex-direction: column;
+    border-bottom: 1px solid var(--line);
     overflow: hidden;
+    background: radial-gradient(120% 70% at 50% 100%, rgba(32,140,160,0.28), transparent 65%), var(--black);
   }
-  .vcard::before{
-    content:""; position:absolute; left:0; top:0; height:2px; width:0;
-    background: linear-gradient(90deg, var(--blue), var(--blue-soft));
-    transition: width .35s cubic-bezier(.2,.7,.2,1);
+  .hero canvas{ position:absolute; inset: 0; width: 100%; height: 100%; display:block; }
+  .hero::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background: linear-gradient(180deg, rgba(3,20,30,0.7) 0%, rgba(3,20,30,0) 28%, rgba(3,20,30,0) 55%, rgba(3,20,30,0.85) 92%);
   }
-  .vcard:hover{ transform: translateY(-4px); border-color: var(--rule-strong); background: linear-gradient(180deg, rgba(59,109,255,0.06), rgba(255,255,255,0)); }
-  .vcard:hover::before{ width: 100%; }
-  .vcard-ic{
-    width: 38px; height: 38px; border-radius: 8px;
-    border: 1px solid var(--rule-strong);
-    display: grid; place-items: center; margin-bottom: 18px;
-    color: var(--blue-soft);
-    background: rgba(59,109,255,0.08);
+  .hero-top{ position: relative; z-index: 2; padding-top: 28px; }
+  .hero-top .wrap{ display:flex; justify-content: space-between; gap: 24px; }
+  .hero-readout{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grey-500); line-height: 1.9; }
+  .hero-readout b{ color: var(--white); font-weight: 500; }
+  .hero-readout .live::before{
+    content:""; display:inline-block; width: 6px; height: 6px; background: var(--signal); margin-right: 8px; vertical-align: 1px;
+    animation: blink 1.6s steps(2, start) infinite;
   }
-  .vcard-ic svg{ width: 20px; height: 20px; }
-  .vcard-num{
-    position: absolute; top: 22px; right: 22px;
-    font-family: var(--mono); font-size: 11px; color: var(--muted-2); letter-spacing: 0.06em;
-  }
-  .vcard-h{
-    font-family: var(--serif); font-weight: 500; font-size: 21px;
-    line-height: 1.2; letter-spacing: -0.012em; margin: 0 0 10px; color: var(--ink-2);
-  }
-  .vcard-p{
-    font-size: 14px; line-height: 1.6; color: rgba(243,238,223,0.7); margin: 0;
-  }
-  .vcard-meta{
-    margin-top: 16px; font-family: var(--mono); font-size: 10px;
-    letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue-soft);
-  }
+  .hero-readout.r{ text-align: right; }
+  @keyframes blink{ to{ visibility: hidden; } }
+  .hero-body{ position: relative; z-index: 2; margin-top: auto; padding-bottom: 56px; }
+  .hero-body .wrap{ display:grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: end; }
+  .hero .label{ margin-bottom: 28px; display:block; color: var(--grey-300); }
+  .hero-side p{ margin: 0 0 28px; color: var(--grey-300); font-size: 17px; line-height: 1.5; }
+  .hero-ctas{ display:flex; flex-direction: column; gap: 10px; }
+  .hero-ctas .btn{ width: 100%; }
 
-  /* ===== PAIN STRIP — inverted to paper-2 panel for contrast ===== */
-  .pain{
-    background: var(--paper-2);
-    color: var(--ink);
-    padding: 96px 0;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
+  /* ticker strip */
+  .strip{ position: relative; z-index: 2; border-top: 1px solid var(--line); background: rgba(3,20,30,0.75); }
+  .strip-row{ display:grid; grid-template-columns: repeat(6, 1fr); }
+  .strip-cell{
+    padding: 18px var(--gutter) 18px 0; border-right: 1px solid var(--line);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grey-500);
   }
-  .pain .container{ position: relative; }
-  .pain-h{
-    font-family: var(--serif); font-weight: 500;
-    font-size: clamp(28px, 3vw, 40px); line-height: 1.15;
-    letter-spacing: -0.015em; max-width: 720px;
-    margin: 0 0 64px;
-    color: var(--ink-2);
-  }
-  .pain-h em{ font-style: italic; color: var(--blue-soft); }
-  .pain-cols{
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 0;
-  }
-  .pain-col{
-    padding: 0 36px 0 0;
-    border-left: 1px solid var(--rule-strong);
-    padding-left: 28px;
-  }
-  .pain-col:first-child{ border-left: 0; padding-left: 0; }
-  .pain-num{
-    font-family: var(--mono); font-size: 11px;
-    color: rgba(243,238,223,0.5);
-    letter-spacing: 0.18em; margin-bottom: 18px;
-  }
-  .pain-bold{
-    font-family: var(--serif); font-weight: 500;
-    font-size: 22px; line-height: 1.25;
-    letter-spacing: -0.012em; margin: 0 0 12px;
-    color: var(--ink-2);
-  }
-  .pain-p{
-    font-size: 14.5px; line-height: 1.6;
-    color: rgba(243,238,223,0.65);
-    margin: 0;
-  }
-  .pain-foot{
-    margin-top: 64px; padding-top: 28px;
-    border-top: 1px solid var(--rule-strong);
-    display: grid; grid-template-columns: auto 1fr; gap: 28px;
-    align-items: baseline;
-  }
-  .pain-foot-eyebrow{
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.18em; color: var(--blue-soft);
-    text-transform: uppercase;
-  }
-  .pain-foot-text{
-    font-family: var(--serif); font-size: 22px;
-    line-height: 1.35; max-width: 720px; color: var(--ink-2);
-  }
-  .pain-foot-text em{ font-style: italic; color: var(--blue-soft); }
+  .strip-cell + .strip-cell{ padding-left: 20px; }
+  .strip-cell:last-child{ border-right: 0; }
+  .strip-cell b{ display:block; color: var(--white); font-family: var(--display); font-size: 15px; font-weight: 500; letter-spacing: -0.005em; text-transform: none; margin-top: 4px; }
 
-  /* ===== TWO THINGS ===== */
-  .two{ padding: 130px 0; }
-  .two-head{
-    display: grid; grid-template-columns: 1fr 1.4fr; gap: 56px;
-    align-items: end;
-    margin-bottom: 64px;
+  /* ===== Section scaffolding ===== */
+  section{ position: relative; }
+  .sec{ padding: clamp(80px, 11vw, 160px) 0; border-bottom: 1px solid var(--line); }
+  .sec-head{
+    display:grid; grid-template-columns: 1fr 2fr; gap: 48px;
+    padding-bottom: clamp(48px, 6vw, 88px);
   }
-  .two-cols{
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 0;
-    border-top: 1px solid var(--rule-strong);
-  }
-  .two-col{
-    padding: 36px 36px 36px 0;
-  }
-  .two-col + .two-col{
-    border-left: 1px solid var(--rule-strong);
-    padding-left: 36px;
-  }
-  .two-tag{
-    display: inline-block;
-    font-family: var(--mono); font-size: 10.5px;
-    letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--blue-soft); margin-bottom: 18px;
-  }
-  .two-col.govern .two-tag{ color: var(--blue-soft); }
-  .two-h{
-    font-family: var(--serif); font-weight: 500;
-    font-size: 30px; line-height: 1.15;
-    letter-spacing: -0.018em; margin: 0 0 16px;
-    color: var(--ink-2);
-  }
-  .two-h em{ font-style: italic; }
-  .two-p{
-    font-size: 15.5px; line-height: 1.62;
-    color: rgba(243,238,223,0.78); margin: 0;
-    max-width: 460px;
-  }
-  .two-diagram{
-    margin-top: 28px;
-  }
-  .two-foot{
-    margin-top: 56px; padding-top: 28px;
-    border-top: 1px solid var(--rule);
-    text-align: left;
-    font-family: var(--serif);
-    font-size: 22px; color: var(--ink-2);
-    letter-spacing: -0.005em;
-  }
-  .two-foot strong{ font-weight: 600; font-style: italic; }
+  .sec-head .label{ padding-top: 10px; }
+  .sec-head .h-xl + .lede{ margin-top: 28px; }
+  .on-paper{ background: var(--paper); color: var(--black); border-bottom-color: var(--paper-line); }
+  .on-paper .label{ color: var(--paper-muted); }
+  .on-paper .lede{ color: var(--paper-muted); }
+  .on-paper .dim{ color: var(--paper-muted); }
 
-  /* ===== REPLACES TABLE — panel ===== */
-  .replaces{
-    background: var(--paper-2);
-    padding: 110px 0;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
+  /* ===== Offerings (Palantir-style product tiles) ===== */
+  .tiles{ display:grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .tile{
+    position: relative; display:flex; flex-direction: column;
+    min-height: 520px; padding: 28px;
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--black); overflow: hidden;
+    transition: background .3s;
   }
-  .repl-table{ border-top: 2px solid var(--ink); }
-  .repl-row .repl-tool .strike{
-    text-decoration: line-through;
-    text-decoration-thickness: 1.5px;
-    text-decoration-color: rgba(243,238,223,0.4);
-    color: var(--muted);
-    font-style: italic;
+  .tile:hover{ background: var(--ink-800); }
+  .tile-top{ display:flex; justify-content: space-between; align-items: baseline; }
+  .tile-name{
+    font-family: var(--display); font-weight: 500; font-size: clamp(34px, 3vw, 48px);
+    letter-spacing: -0.03em; line-height: 1; margin: 28px 0 0;
   }
-  .repl-foot{ border-top: 2px solid var(--ink); }
-  .repl-head{
-    display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
-    align-items: end; margin-bottom: 56px;
+  .tile-art{ flex: 1; display:flex; align-items:center; justify-content:center; padding: 24px 0; }
+  .tile-art svg{ width: 100%; max-width: 240px; height: auto; overflow: visible; }
+  .tile-art svg *{ vector-effect: non-scaling-stroke; }
+  .tile p{ margin: 0 0 24px; color: var(--grey-400); font-size: 15px; line-height: 1.5; }
+  .tile .link-arrow{ align-self: flex-start; }
+  .tile .spin{ transform-origin: 120px 120px; animation: spin 40s linear infinite; }
+  .tile:hover .spin{ animation-duration: 12s; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  .tile .pulse{ animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity: .25; } 50%{ opacity: 1; } }
+  .tile .flow{ stroke-dasharray: 4 6; animation: flow 1.8s linear infinite; }
+  @keyframes flow{ to{ stroke-dashoffset: -20; } }
+
+  /* ===== Statement (white) ===== */
+  .statement .h-xl{ max-width: 18ch; }
+  .pain-grid{ display:grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--black); margin-top: clamp(56px, 7vw, 104px); }
+  .pain{ padding: 28px 32px 0 0; }
+  .pain + .pain{ padding-left: 32px; border-left: 1px solid var(--paper-line); }
+  .pain .num{ font-family: var(--mono); font-size: 12px; letter-spacing: .08em; color: var(--paper-muted); }
+  .pain h3{ margin: 40px 0 14px; }
+  .pain p{ margin: 0; color: var(--paper-muted); }
+  .conclusion{
+    margin-top: clamp(64px, 8vw, 120px);
+    display:grid; grid-template-columns: 1fr 2fr; gap: 48px; align-items: start;
+    border-top: 1px solid var(--paper-line); padding-top: 32px;
   }
-  .repl-table{
-    border-top: 2px solid var(--ink);
+  .conclusion .h-l{ max-width: 24ch; }
+
+  /* ===== Product UI frame ===== */
+  .product{ background: var(--black); }
+  .frame{ border: 1px solid var(--line); background: var(--ink-900); font-family: var(--body); }
+  .frame-bar{
+    display:flex; align-items:center; gap: 16px; height: 44px; padding: 0 16px;
+    border-bottom: 1px solid var(--line); font-size: 12px; color: var(--grey-400);
   }
+  .frame-bar .crumbs{ font-family: var(--mono); letter-spacing: .02em; }
+  .frame-bar .crumbs b{ color: var(--white); font-weight: 500; }
+  .frame-bar .state{ margin-left: auto; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--white); }
+  .frame-bar .state::before{ content:""; display:inline-block; width:6px; height:6px; background: var(--signal); margin-right: 8px; vertical-align: 1px; }
+  .frame-body{ display:grid; grid-template-columns: 220px 1fr 300px; min-height: 480px; }
+  .f-side{ border-right: 1px solid var(--line); padding: 16px 0; font-size: 13px; }
+  .f-side h4{ margin: 8px 16px 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--grey-500); font-weight: 400; text-transform: uppercase; }
+  .f-side div{ padding: 7px 16px; color: var(--grey-400); border-left: 2px solid transparent; }
+  .f-side div.on{ color: var(--white); background: var(--ink-700); border-left-color: var(--signal); }
+  .f-main{ padding: 20px 24px; min-width: 0; }
+  .f-main h3{ margin: 0; font-family: var(--display); font-weight: 500; font-size: 20px; letter-spacing: -0.01em; }
+  .f-main .sub{ font-family: var(--mono); font-size: 11px; color: var(--grey-500); letter-spacing: .06em; margin-top: 4px; }
+  .f-graph{ margin: 20px 0; border: 1px solid var(--line); background:
+      linear-gradient(var(--line-soft) 1px, transparent 1px) 0 0/24px 24px,
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px) 0 0/24px 24px; }
+  .f-graph svg{ display:block; width: 100%; height: auto; }
+  .f-table{ font-size: 12px; }
+  .f-row{ display:grid; grid-template-columns: 1.4fr 1.4fr .8fr .6fr; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line-soft); align-items:center; }
+  .f-row.head{ font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--grey-500); text-transform: uppercase; }
+  .f-row .n{ color: var(--white); font-family: var(--mono); }
+  .f-row .t{ color: var(--grey-400); }
+  .f-row .k{ color: var(--grey-300); font-family: var(--mono); text-align: right; }
+  .f-row .g{ font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-align: right; color: var(--grey-400); }
+  .f-row .g.hitl{ color: var(--black); background: var(--signal); padding: 2px 6px; justify-self: end; }
+  .f-aside{ border-left: 1px solid var(--line); padding: 20px; display:flex; flex-direction: column; gap: 0; }
+  .f-stat{ padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+  .f-stat:first-child{ padding-top: 0; }
+  .f-stat .l{ font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--grey-500); }
+  .f-stat .v{ font-family: var(--display); font-size: 28px; letter-spacing: -0.02em; margin-top: 4px; }
+  .f-stat .v small{ font-family: var(--mono); font-size: 11px; color: var(--grey-400); margin-left: 8px; letter-spacing: .04em; }
+  .f-bar{ height: 2px; background: var(--line); margin-top: 10px; position: relative; }
+  .f-bar i{ position:absolute; left:0; top:0; bottom:0; width: 56%; background: var(--signal); }
+  .f-foot{ margin-top: auto; font-family: var(--mono); font-size: 10px; color: var(--grey-500); letter-spacing: .06em; padding-top: 16px; }
+  .callouts{ display:grid; grid-template-columns: repeat(3, 1fr); margin-top: 0; border-left: 1px solid var(--line); }
+  .callout{ border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 24px; }
+  .callout .label{ display:block; margin-bottom: 10px; }
+  .callout p{ margin: 0; color: var(--grey-300); font-size: 15px; }
+
+  /* ===== Capabilities index ===== */
+  .index{ border-top: 1px solid var(--line); }
+  .index-row{
+    display:grid; grid-template-columns: 80px 1.1fr 1.6fr 1fr 32px; gap: 32px; align-items: start;
+    padding: 32px 0; border-bottom: 1px solid var(--line);
+    transition: background .25s, padding .25s;
+  }
+  .index-row:hover{ background: var(--ink-900); }
+  .index-row .num{ font-family: var(--mono); font-size: 12px; color: var(--grey-500); padding-top: 6px; }
+  .index-row p{ margin: 0; color: var(--grey-400); }
+  .index-row .meta{ font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--grey-500); text-transform: uppercase; padding-top: 6px; line-height: 1.8; }
+  .index-row .arr{ padding-top: 2px; color: var(--grey-500); transition: transform .25s, color .25s; font-size: 20px; }
+  .index-row:hover .arr{ transform: translateX(6px); color: var(--white); }
+
+  /* ===== Run / Govern split ===== */
+  .split{ display:grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+  .split-col{ padding: 40px 40px 40px 0; }
+  .split-col + .split-col{ padding: 40px 0 40px 40px; border-left: 1px solid var(--line); }
+  .split-col .label{ display:block; margin-bottom: 40px; }
+  .split-col .h-l{ margin-bottom: 20px; }
+  .split-col p{ color: var(--grey-400); margin: 0 0 40px; max-width: 52ch; }
+  .split-col svg{ width: 100%; height: auto; display:block; }
+  .split-foot{ border-top: 1px solid var(--line); padding-top: 32px; display:flex; justify-content: space-between; gap: 24px; align-items: baseline; flex-wrap: wrap; }
+
+  /* ===== Replaces ===== */
+  .repl{ border-top: 1px solid var(--black); }
   .repl-row{
-    display: grid; grid-template-columns: 1fr 2fr auto;
-    gap: 32px; align-items: baseline;
-    padding: 22px 0;
-    border-bottom: 1px solid var(--rule);
-    transition: background .2s, padding-left .2s;
+    display:grid; grid-template-columns: 1fr 2fr auto; gap: 32px; align-items: baseline;
+    padding: 28px 0; border-bottom: 1px solid var(--paper-line);
   }
-  .repl-row:hover{ background: rgba(255,255,255,0.015); }
-  .repl-tool{
-    font-family: var(--serif); font-weight: 500;
-    font-size: 22px; letter-spacing: -0.01em;
-    color: var(--ink-2);
-  }
-  .repl-rep{
-    font-size: 15.5px; line-height: 1.55; color: rgba(243,238,223,0.78);
-  }
-  .repl-arrow{
-    font-family: var(--mono); font-size: 11px;
-    color: var(--muted); letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-  .repl-foot{
-    margin-top: 48px; padding-top: 24px;
-    display: grid; grid-template-columns: auto 1fr auto; gap: 32px;
-    align-items: center;
-  }
-  .repl-foot-text{
-    font-family: var(--serif); font-size: 24px;
-    letter-spacing: -0.012em; color: var(--ink-2);
-  }
-  .repl-foot-text em{ font-style: italic; color: var(--blue-soft); }
+  .repl-row .tool{ font-family: var(--display); font-size: clamp(22px, 2.2vw, 32px); letter-spacing: -0.02em; color: var(--paper-muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+  .repl-row .what{ color: var(--paper-muted); }
+  .repl-row .to{ font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+  .repl-result{ display:flex; justify-content: space-between; align-items: end; gap: 32px; flex-wrap: wrap; margin-top: clamp(56px, 7vw, 96px); }
 
-  /* ===== PLATFORM (six domains, asymmetric) ===== */
-  .platform{ padding: 130px 0; }
-  .pf-head{
-    display: grid; grid-template-columns: 1fr; gap: 24px;
-    margin-bottom: 64px; max-width: 920px;
-  }
-  .pf-grid{
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 28px 32px;
-    border-top: 1px solid var(--rule);
-    padding-top: 28px;
-  }
-  .pf-item{
-    border-top: 1px solid var(--rule-strong);
-    padding-top: 22px;
-    padding-right: 16px;
-  }
-  /* Asymmetric column spans break the grid feel */
-  .pf-item.s1{ grid-column: span 5; }
-  .pf-item.s2{ grid-column: span 7; }
-  .pf-item.s3{ grid-column: span 4; }
-  .pf-item.s4{ grid-column: span 4; }
-  .pf-item.s5{ grid-column: span 4; }
-  .pf-item.s6{ grid-column: span 12; padding-top: 32px; margin-top: 16px; border-top: 2px solid var(--ink-2); }
-  .pf-tag{
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.16em; color: var(--blue-soft);
-    text-transform: uppercase; margin-bottom: 10px;
-  }
-  .pf-num{
-    font-family: var(--mono); font-size: 11px;
-    color: var(--muted-2); float: right;
-    letter-spacing: 0.06em;
-  }
-  .pf-h{
-    font-family: var(--serif); font-weight: 500;
-    font-size: 24px; line-height: 1.18;
-    letter-spacing: -0.014em; margin: 0 0 12px;
-    color: var(--ink-2);
-  }
-  .pf-p{
-    font-size: 14.5px; line-height: 1.62;
-    color: rgba(243,238,223,0.72); margin: 0; max-width: 540px;
-  }
-  .pf-item.s6 .pf-h{ font-size: 32px; max-width: 720px; }
-  .pf-item.s6 .pf-p{ font-size: 16px; max-width: 720px; }
-  .pf-item.s6 .pf-tag{ color: var(--blue-soft); }
+  /* ===== Domains grid ===== */
+  .domains{ display:grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .domain{ padding: 32px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-height: 300px; display:flex; flex-direction: column; }
+  .domain .top{ display:flex; justify-content: space-between; margin-bottom: auto; padding-bottom: 48px; }
+  .domain h3{ margin-bottom: 14px; }
+  .domain p{ margin: 0; color: var(--grey-400); font-size: 15px; }
+  .domain.spine{ background: var(--paper); color: var(--black); }
+  .domain.spine .label{ color: var(--paper-muted); }
+  .domain.spine p{ color: var(--paper-muted); }
 
-  /* ===== HOW (3 steps, panel) ===== */
-  .how{
-    background: var(--paper-2); color: var(--ink);
-    padding: 130px 0;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-  }
-  .how-head{
-    display: grid; grid-template-columns: 1fr 1.3fr; gap: 56px;
-    align-items: end; margin-bottom: 80px;
-  }
-  .how-head .h-section{ color: var(--ink-2); }
-  .how-head .h-section em{ color: var(--blue-soft); }
-  .how-head .lede{ color: rgba(243,238,223,0.7); }
-  .how-steps{
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
-    border-top: 1px solid var(--rule-strong);
-  }
-  .how-step{
-    padding: 36px 32px 36px 0;
-    position: relative;
-  }
-  .how-step + .how-step{ border-left: 1px solid var(--rule-strong); padding-left: 32px; }
-  .how-num{
-    font-family: var(--serif); font-style: italic;
-    font-weight: 500; font-size: 56px;
-    color: var(--blue-soft); line-height: 1;
-    margin-bottom: 24px;
-  }
-  .how-h{
-    font-family: var(--serif); font-weight: 500;
-    font-size: 22px; line-height: 1.2;
-    letter-spacing: -0.012em; margin: 0 0 12px;
-    color: var(--ink-2);
-  }
-  .how-p{
-    font-size: 14.5px; line-height: 1.62;
-    color: rgba(243,238,223,0.72);
-    margin: 0 0 18px;
-  }
-  .how-meta{
-    font-family: var(--mono); font-size: 10.5px;
-    letter-spacing: 0.12em; color: var(--blue-soft);
-    text-transform: uppercase;
-  }
+  /* ===== How ===== */
+  .steps{ display:grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+  .step{ padding: 32px 32px 0 0; }
+  .step + .step{ padding-left: 32px; border-left: 1px solid var(--line); }
+  .step .big{ font-family: var(--display); font-weight: 300; font-size: clamp(72px, 8vw, 128px); line-height: .9; letter-spacing: -0.05em; color: var(--grey-500); margin-bottom: 48px; }
+  .step p{ color: var(--grey-400); margin: 14px 0 24px; }
 
-  /* ===== DEPTH (Agentic Ops nervous system) ===== */
-  .depth{ padding: 130px 0; }
-  .depth-head{ max-width: 880px; margin-bottom: 56px; }
-  .depth-grid{
-    display: grid; grid-template-columns: 1.15fr 1fr; gap: 64px;
-    align-items: start;
-  }
-  .depth-body p{
-    font-family: var(--serif);
-    font-size: 19px; line-height: 1.55;
-    color: var(--ink); margin: 0 0 20px;
-  }
-  .depth-body p:first-child::first-letter{
-    font-family: var(--serif); font-style: italic;
-    font-weight: 500; font-size: 64px;
-    float: left; line-height: 0.85;
-    margin: 8px 10px 0 -2px; color: var(--blue-soft);
-  }
-  .depth-body em{ font-style: italic; color: var(--blue-soft); }
-  .depth-aside{
-    border-top: 2px solid var(--ink-2);
-    padding-top: 18px;
-  }
-  .depth-aside-h{
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 18px;
-  }
-  .depth-list{ list-style: none; padding: 0; margin: 0; counter-reset: d; }
-  .depth-list li{
-    padding: 14px 0;
-    border-bottom: 1px solid var(--rule);
-    display: grid; grid-template-columns: 32px 1fr;
-    gap: 12px;
-    font-size: 14px; line-height: 1.55;
-    color: var(--ink);
-  }
-  .depth-list li::before{
-    content: counter(d, decimal-leading-zero);
-    counter-increment: d;
-    font-family: var(--mono); font-size: 10.5px;
-    color: var(--muted-2); letter-spacing: 0.06em;
-  }
+  /* ===== Depth ===== */
+  .depth-grid{ display:grid; grid-template-columns: 1fr 2fr; gap: 48px; }
+  .depth-body p{ font-family: var(--display); font-size: clamp(20px, 1.8vw, 26px); line-height: 1.35; letter-spacing: -0.01em; margin: 0 0 28px; color: var(--grey-300); }
+  .depth-body p strong{ color: var(--white); font-weight: 500; }
+  .depth-list{ list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); counter-reset: d; }
+  .depth-list li{ counter-increment: d; display:grid; grid-template-columns: 48px 1fr; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--grey-300); }
+  .depth-list li::before{ content: counter(d, decimal-leading-zero); font-family: var(--mono); font-size: 12px; color: var(--grey-500); padding-top: 2px; }
 
-  /* ===== COMPLIANCE — panel ===== */
-  .comp{
-    background: var(--paper-2);
-    padding: 110px 0;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-  }
-  .comp-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
-  .comp-list{
-    list-style: none; padding: 0; margin: 0;
-    border-top: 2px solid var(--ink-2);
-  }
-  .comp-list li{
-    display: grid; grid-template-columns: 1fr auto;
-    align-items: baseline;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--rule);
-    font-family: var(--serif);
-    font-size: 22px; letter-spacing: -0.01em;
-    color: var(--ink-2);
-  }
-  .comp-list li.feature{ color: var(--blue-soft); font-style: italic; font-weight: 500; }
-  .comp-list .meta{
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.14em; color: var(--muted);
-    text-transform: uppercase;
-    font-style: normal;
-  }
+  /* ===== Compliance ===== */
+  .certs{ display:grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid var(--black); border-left: 1px solid var(--paper-line); }
+  .cert{ padding: 28px 20px; border-right: 1px solid var(--paper-line); border-bottom: 1px solid var(--paper-line); min-height: 180px; display:flex; flex-direction: column; justify-content: space-between; }
+  .cert b{ font-family: var(--display); font-weight: 500; font-size: 22px; letter-spacing: -0.015em; }
+  .cert.feature{ background: var(--black); color: var(--white); }
+  .cert.feature b{ color: var(--signal); }
+  .cert.feature .label{ color: var(--grey-400); }
 
   /* ===== FAQ ===== */
-  .faq{ padding: 130px 0; }
-  .faq-head{
-    display: grid; grid-template-columns: 1fr 1.3fr; gap: 56px;
-    align-items: end; margin-bottom: 56px;
-  }
-  .faq-list{ border-top: 2px solid var(--ink-2); }
-  .faq-item{ border-bottom: 1px solid var(--rule); }
-  .faq-item summary{
+  .faq{ border-top: 1px solid var(--line); }
+  .faq details{ border-bottom: 1px solid var(--line); }
+  .faq summary{
     list-style: none; cursor: pointer;
-    display: flex; align-items: center; gap: 20px;
-    padding: 26px 0;
-    font-family: var(--serif); font-weight: 500;
-    font-size: clamp(19px, 2vw, 23px); letter-spacing: -0.012em;
-    color: var(--ink-2);
-    transition: color .15s;
+    display:grid; grid-template-columns: 80px 1fr 32px; gap: 32px; align-items: baseline;
+    padding: 28px 0;
+    font-family: var(--display); font-size: clamp(19px, 1.6vw, 24px); letter-spacing: -0.01em;
   }
-  .faq-item summary::-webkit-details-marker{ display: none; }
-  .faq-item summary:hover{ color: var(--blue-soft); }
-  .faq-item summary .q-no{
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
-    color: var(--muted-2); flex: none; width: 36px;
-  }
-  .faq-item summary .q-plus{
-    margin-left: auto; flex: none;
-    font-family: var(--mono); font-size: 22px; color: var(--blue-soft);
-    transition: transform .25s cubic-bezier(.2,.7,.2,1);
-  }
-  .faq-item[open] summary .q-plus{ transform: rotate(45deg); }
-  .faq-a{
-    padding: 0 0 26px 56px;
-    font-size: 15px; line-height: 1.65; color: rgba(243,238,223,0.74);
-    max-width: 760px;
-  }
-  .faq-a em{ color: var(--blue-soft); font-style: italic; }
+  .faq summary::-webkit-details-marker{ display:none; }
+  .faq summary .num{ font-family: var(--mono); font-size: 12px; color: var(--grey-500); letter-spacing: .04em; }
+  .faq summary .pm{ font-family: var(--mono); font-size: 20px; color: var(--grey-500); text-align: right; transition: transform .25s; }
+  .faq details[open] summary .pm{ transform: rotate(45deg); color: var(--white); }
+  .faq summary:hover{ color: var(--grey-300); }
+  .faq .ans{ display:grid; grid-template-columns: 80px 1fr 32px; gap: 32px; padding: 0 0 32px; }
+  .faq .ans p{ grid-column: 2; margin: 0; color: var(--grey-400); max-width: 70ch; }
 
-  /* ===== FINAL CTA ===== */
-  .final{
-    padding: 140px 0 80px;
-    background: var(--paper-2); color: var(--ink);
-    position: relative;
-    border-top: 1px solid var(--rule);
-  }
-  .final-grid{
-    display: grid; grid-template-columns: 1.3fr 1fr; gap: 64px;
-    align-items: end;
-  }
-  .final-h{
-    font-family: var(--serif); font-weight: 500;
-    font-size: clamp(40px, 5.6vw, 80px);
-    line-height: 1.02; letter-spacing: -0.022em;
-    color: var(--ink-2); margin: 0 0 28px;
-  }
-  .final-h em{ font-style: italic; color: var(--blue-soft); }
-  .final-sub{
-    font-family: var(--serif); font-size: 20px;
-    line-height: 1.5; color: rgba(243,238,223,0.78);
-    max-width: 540px; margin: 0 0 28px;
-  }
-  .final-urgency{
-    font-family: var(--mono); font-size: 12px;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--blue-soft); padding: 14px 0;
-    border-top: 1px solid var(--rule-strong);
-    border-bottom: 1px solid var(--rule-strong);
-    margin-bottom: 28px;
-    line-height: 1.7;
-  }
-  .final-urgency strong{ color: var(--ink-2); font-weight: 600; }
-  .final-ctas{ display: flex; gap: 14px; flex-wrap: wrap; }
-  .final .btn-text{ color: var(--ink); border-color: var(--rule-strong); }
-  .final .btn-text:hover{ color: var(--blue-soft); border-color: var(--blue-soft); }
-  .final-aside{
-    border-top: 2px solid var(--ink-2);
-    padding-top: 18px;
-  }
-  .final-aside-h{
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.16em; color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-  .final-aside p{
-    font-family: var(--serif); font-size: 16px;
-    line-height: 1.55; color: rgba(243,238,223,0.78);
-    margin: 0 0 12px;
-  }
+  /* ===== Pricing ===== */
+  .plans{ display:grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .plan{ padding: 32px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display:flex; flex-direction: column; min-height: 520px; }
+  .plan h3{ font-family: var(--display); font-weight: 400; font-size: 40px; letter-spacing: -0.03em; margin: 0 0 8px; }
+  .plan .for{ color: var(--grey-400); font-size: 15px; margin: 0 0 40px; }
+  .plan ul{ list-style: none; padding: 0; margin: 0 0 40px; border-top: 1px solid var(--line); }
+  .plan li{ padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--grey-300); display:flex; gap: 12px; }
+  .plan li::before{ content:"+"; font-family: var(--mono); color: var(--grey-500); }
+  .plan .btn{ margin-top: auto; }
+  .plan.featured{ background: var(--paper); color: var(--black); }
+  .plan.featured .label, .plan.featured .for{ color: var(--paper-muted); }
+  .plan.featured ul, .plan.featured li{ border-color: var(--paper-line); }
+  .plan.featured li{ color: var(--black); }
+  .plan.featured li::before{ color: var(--paper-muted); }
+  .plan.featured .btn-solid{ background: var(--black); color: var(--white); border-color: var(--black); }
+  .plan.featured .btn-solid:hover{ background: transparent; color: var(--black); }
+  .plan .top{ display:flex; justify-content: space-between; margin-bottom: 48px; }
 
-  /* ===== FOOTER ===== */
-  footer{
-    background: var(--paper); color: rgba(243,238,223,0.6);
-    padding: 56px 0 28px;
-    border-top: 1px solid var(--rule);
+  /* ===== Final CTA ===== */
+  .final{ position: relative; overflow: hidden; border-bottom: 1px solid var(--line); background: radial-gradient(90% 80% at 80% 100%, rgba(32,140,160,0.3), transparent 70%), var(--black); }
+  .final canvas{ position:absolute; inset:0; width:100%; height:100%; opacity: .7; }
+  .final::after{ content:""; position:absolute; inset:0; background: linear-gradient(90deg, rgba(3,20,30,.95) 0%, rgba(3,20,30,.6) 60%, rgba(3,20,30,.3) 100%); pointer-events: none; }
+  .final .wrap{ position: relative; z-index: 2; padding-top: clamp(96px, 12vw, 180px); padding-bottom: clamp(96px, 12vw, 180px); }
+  .final .h-hero{ font-size: clamp(40px, 6.2vw, 100px); max-width: 16ch; }
+  .final .h-hero span{ color: var(--grey-500); }
+  .final-row{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 48px; margin-top: 64px; border-top: 1px solid var(--line); padding-top: 28px; }
+  .final-row p{ margin: 8px 0 0; color: var(--grey-300); font-size: 15px; }
+  .final-row .ctas{ display:flex; flex-direction: column; gap: 10px; }
+
+  /* ===== Footer ===== */
+  footer{ padding: 72px 0 32px; }
+  .foot-grid{ display:grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 32px; padding-bottom: 72px; }
+  .foot-grid p{ color: var(--grey-500); font-size: 14px; max-width: 32ch; margin: 20px 0 0; }
+  .foot-col h4{ font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--grey-500); margin: 0 0 20px; }
+  .foot-col a{ display:block; font-size: 14px; color: var(--grey-300); padding: 5px 0; }
+  .foot-col a:hover{ color: var(--white); }
+  .foot-word{
+    font-family: var(--display); font-weight: 600; text-transform: uppercase;
+    font-size: clamp(64px, 19vw, 300px); line-height: .8; letter-spacing: -0.04em;
+    color: var(--ink-700); border-top: 1px solid var(--line); padding-top: 32px;
+    white-space: nowrap; overflow: hidden; user-select: none;
   }
-  .foot-grid{
-    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 48px; margin-bottom: 48px;
-  }
-  .foot-col{ display: flex; flex-direction: column; }
-  .foot-brand .logo-mark{ color: var(--ink-2); font-size: 26px; }
-  .foot-brand p{
-    font-family: var(--serif); font-size: 14.5px;
-    line-height: 1.55; max-width: 320px;
-    margin: 14px 0 0; color: rgba(243,238,223,0.65);
-  }
-  .foot-col-h{
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.16em; color: rgba(243,238,223,0.4);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-  .foot-col a{
-    display: block; font-size: 13.5px;
-    color: rgba(243,238,223,0.7);
-    padding: 5px 0;
-  }
-  .foot-col a:hover{ color: var(--ink-2); }
-  .foot-row-bottom{
-    display: flex; justify-content: space-between; align-items: center;
-    padding-top: 20px;
-    border-top: 1px solid var(--rule);
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.10em; color: rgba(243,238,223,0.45);
-    flex-wrap: wrap; gap: 14px;
+  .foot-bottom{ display:flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 24px; margin-top: 32px; }
+
+  /* ===== Reveal ===== */
+  .reveal{ opacity: 0; transform: translateY(16px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in{ opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    .reveal{ opacity: 1; transform: none; transition: none; }
+    .tile .spin, .tile .pulse, .tile .flow, .hero-readout .live::before{ animation: none; }
   }
 
   /* ===== Responsive ===== */
-  @media (max-width: 1080px){
-    .hero-grid, .two-head, .two-cols, .repl-head, .how-head, .depth-grid, .comp-grid, .price-head, .plans, .final-grid, .foot-grid, .values-head, .faq-head{
-      grid-template-columns: 1fr;
-    }
-    .hero-mock{ transform: none; margin-top: 32px; animation: none; }
-    .pain-cols{ grid-template-columns: 1fr; gap: 32px; }
-    .pain-col{ border-left: 0; padding-left: 0; }
-    .pain-col + .pain-col{ border-top: 1px solid rgba(255,255,255,0.16); padding-top: 28px; }
-    .how-steps{ grid-template-columns: 1fr; }
-    .how-step + .how-step{ border-left: 0; border-top: 1px solid rgba(255,255,255,0.16); padding-left: 0; padding-top: 28px; }
-    .pf-grid > *{ grid-column: span 12 !important; }
-    .nav-links{ display: none; }
+  @media (max-width: 1180px){
+    .tiles{ grid-template-columns: repeat(2, 1fr); }
+    .tile{ min-height: 440px; }
+    .frame-body{ grid-template-columns: 1fr 260px; }
+    .f-side{ display:none; }
+    .certs{ grid-template-columns: repeat(3, 1fr); }
+    .foot-grid{ grid-template-columns: repeat(4, 1fr); }
+    .foot-grid > :first-child{ grid-column: 1 / -1; }
+  }
+  @media (max-width: 960px){
+    .nav-links, .nav-right .quiet{ display:none; }
+    .hero-body .wrap{ grid-template-columns: 1fr; gap: 32px; }
+    .hero-top{ display:none; }
+    .hero-body{ padding-top: clamp(220px, 48vw, 360px); padding-bottom: 40px; }
+    .strip-row{ grid-template-columns: repeat(3, 1fr); }
+    .strip-cell:nth-child(3){ border-right: 0; }
+    .strip-cell:nth-child(n+4){ border-top: 1px solid var(--line); }
+    .strip-cell:nth-child(4){ padding-left: 0; }
+    .sec-head, .conclusion, .depth-grid{ grid-template-columns: 1fr; gap: 20px; }
+    .pain-grid, .steps, .split, .callouts{ grid-template-columns: 1fr; }
+    .pain, .pain + .pain, .step, .step + .step{ padding: 28px 0 32px; border-left: 0; border-bottom: 1px solid var(--paper-line); }
+    .step, .step + .step{ border-bottom-color: var(--line); }
+    .split-col, .split-col + .split-col{ padding: 32px 0; border-left: 0; }
+    .split-col + .split-col{ border-top: 1px solid var(--line); }
+    .domains, .plans{ grid-template-columns: 1fr; }
+    .domain{ min-height: 0; }
+    .plan{ min-height: 0; }
+    .index-row{ grid-template-columns: 48px 1fr; gap: 12px 20px; }
+    .index-row p, .index-row .meta{ grid-column: 2; }
+    .index-row .arr{ display:none; }
     .repl-row{ grid-template-columns: 1fr; gap: 8px; }
-    .plans{ display: block; }
-    .plan + .plan{ border-left: 0; border-top: 1px solid var(--rule-strong); padding-left: 0; padding-top: 28px; margin-top: 28px; }
-    .mock-annot{ display: none; }
-    .vcards{ grid-template-columns: 1fr; }
-    .logos-inner{ grid-template-columns: 1fr; gap: 18px; }
-    .logos-row{ justify-content: flex-start; gap: 28px; }
+    .frame-body{ grid-template-columns: 1fr; }
+    .f-aside{ border-left: 0; border-top: 1px solid var(--line); }
+    .final-row{ grid-template-columns: 1fr; gap: 24px; }
+    .faq summary, .faq .ans{ grid-template-columns: 40px 1fr 24px; gap: 16px; }
   }
-
-  /* ===== PRICING ===== */
-  .pricing{ padding: 130px 0; }
-  .price-head{
-    display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
-    align-items: end; margin-bottom: 56px;
-  }
-  .plans{
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    border-top: 2px solid var(--ink-2);
-  }
-  .plan{
-    padding: 32px 28px 32px 0;
-    display: flex; flex-direction: column; gap: 18px;
-    border-bottom: 1px solid var(--rule);
-  }
-  .plan + .plan{
-    border-left: 1px solid var(--rule-strong);
-    padding-left: 28px;
-  }
-  .plan.featured{ background: linear-gradient(180deg, rgba(214,182,90,0.06), transparent 60%); }
-  .plan-name{
-    font-family: var(--serif); font-weight: 500;
-    font-size: 28px; letter-spacing: -0.014em;
-    margin: 0; color: var(--ink-2);
-  }
-  .plan-name em{ color: var(--blue-soft); font-style: italic; }
-  .plan-tag{
-    font-family: var(--mono); font-size: 11px;
-    letter-spacing: 0.10em; color: var(--muted);
-    text-transform: uppercase;
-  }
-  .plan-list{ list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-  .plan-list li{
-    font-size: 14px; line-height: 1.5;
-    padding-left: 18px; position: relative;
-    color: rgba(243,238,223,0.80);
-  }
-  .plan-list li::before{ content: "—"; position: absolute; left: 0; color: var(--blue-soft); }
-  .plan-cta{
-    margin-top: auto;
-    padding: 12px 18px; font-size: 13px; font-weight: 600;
-    border: 1px solid var(--ink); color: var(--ink);
-    background: transparent;
-    border-radius: 4px;
-    align-self: flex-start;
-    transition: background .15s, color .15s, border-color .15s;
-  }
-  .plan-cta:hover{ background: var(--ink); color: var(--paper); }
-  .plan.featured .plan-cta{ background: var(--blue); color: #fff; border-color: var(--blue); }
-  .plan.featured .plan-cta:hover{ background: var(--blue-soft); border-color: var(--blue-soft); }
-
-  /* ===== Reduced motion ===== */
-  @media (prefers-reduced-motion: reduce){
-    *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-    .reveal{ opacity: 1; transform: none; }
-    .hero-mock{ transform: translateY(-20px); }
+  @media (max-width: 640px){
+    .announce-text{ display:none; }
+    .tiles{ grid-template-columns: 1fr; }
+    .tile{ min-height: 400px; }
+    .certs{ grid-template-columns: repeat(2, 1fr); }
+    .strip-row{ grid-template-columns: repeat(2, 1fr); }
+    .strip-cell{ border-right: 1px solid var(--line) !important; padding-left: 16px !important; border-top: 0 !important; }
+    .strip-cell:nth-child(odd){ padding-left: 0 !important; }
+    .strip-cell:nth-child(even){ border-right: 0 !important; }
+    .strip-cell:nth-child(n+3){ border-top: 1px solid var(--line) !important; }
+    .foot-grid{ grid-template-columns: repeat(2, 1fr); }
+    .f-row{ grid-template-columns: 1.3fr .9fr .6fr; }
+    .f-row > :nth-child(2){ display:none; }
   }
 </style>
 </head>
 <body>
 
+<!-- ===== ANNOUNCEMENT ===== -->
+<div class="announce">
+  <div class="wrap">
+    <span class="label">AL Ops v4.2</span>
+    <span class="announce-text">DPDP Act 2023 enforcement lands in Q3. Native consent, erasure, access and correction workflows are live.</span>
+    <a href="#compliance">Read more →</a>
+  </div>
+</div>
+
 <!-- ===== NAV ===== -->
 <header class="nav">
-  <div class="container nav-row">
-    <a href="#" class="logo">
-      <span class="logo-mark serif">AL Ops</span>
-      <span class="logo-tag">Agentic Ops</span>
+  <div class="wrap">
+    <a href="#" class="logo" aria-label="AL Ops home">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-word">AL Ops</span>
     </a>
     <nav class="nav-links" aria-label="Primary">
-      <a href="#values">Features</a>
-      <a href="#platform">Platform</a>
-      <a href="#governance">Governance</a>
+      <a href="#offerings">Platform</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#domains">Governance</a>
       <a href="#how">Process</a>
       <a href="#pricing">Pricing</a>
     </nav>
     <div class="nav-right">
-      <a href="signin.html" class="nav-link-quiet">Sign in</a>
-      <a href="#" class="nav-cta">Book demo →</a>
+      <a href="signin.html" class="quiet">Sign in</a>
+      <a href="#contact" class="nav-cta">Get started <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </header>
@@ -1088,596 +543,485 @@
 
   <!-- ===== HERO ===== -->
   <section class="hero">
-    <div class="hero-aurora" aria-hidden="true"></div>
-    <div class="hero-grid-lines" aria-hidden="true"></div>
-    <div class="container hero-grid">
-      <div class="hero-left">
-        <div class="hero-badge"><span class="live"></span>Agentic Ops Platform · v4.2 · Live</div>
-        <h1 class="h-display">Your engineering org<br/>is running AI.<br/><em>Five tools</em> are trying<br/>to govern it. <span class="gold">One platform</span><br/>should.</h1>
-        <p class="hero-sub">AL Ops is the unified agentic ops platform — built to run your AI pipelines and govern every one of them from a single control plane.</p>
-        <div class="cta-row">
-          <a href="#" class="btn-primary">Book a demo →</a>
-          <a href="#replaces" class="btn-text">See what it replaces</a>
+    <canvas id="terrain" aria-hidden="true"></canvas>
+    <div class="hero-top">
+      <div class="wrap">
+        <div class="hero-readout">
+          <div class="live"><b>Pipeline · claims-triage</b> · running</div>
+          <div>12 agents · orchestrator v3</div>
+          <div>Chain head · 0x7a4c…3b91</div>
         </div>
-        <div class="hero-trust">SOC 2 Type II · ISO 27001 · GDPR · DPDP Act 2023 · TLS 1.3 · AES-256</div>
+        <div class="hero-readout r">
+          <div>Tokens · 24h <b>1.42M</b></div>
+          <div>Cost · MTD <b>$2,840</b></div>
+          <div>Approvals <b>38 / 38 signed</b></div>
+        </div>
       </div>
-
-      <div class="hero-mock" aria-hidden="true">
-        <div class="mock-annot a1"><span>Live agent state</span><span class="l"></span></div>
-        <div class="mock-annot a2"><span>HITL gate, recorded</span><span class="l"></span></div>
-        <div class="mock-annot a3"><span class="l"></span><span>Token caps, hard-enforced</span></div>
-
-        <div class="hero-mock-inner">
-          <div class="mock-titlebar">
-            <span class="mock-dots"><i></i><i></i><i></i></span>
-            <span class="mock-tab"><strong>al-ops</strong> / pipelines / claims-triage</span>
-            <span class="mock-status"><span class="dot"></span>RUN · 00:14:32</span>
+    </div>
+    <div class="hero-body">
+      <div class="wrap">
+        <div>
+          <span class="label">Agentic Ops Platform</span>
+          <h1 class="h-hero">Run every agent.<br/>Govern every decision.</h1>
+        </div>
+        <div class="hero-side">
+          <p>Your engineering org is running AI, and five tools are trying to govern it. AL Ops runs your AI pipelines and governs every one of them from a single control plane.</p>
+          <div class="hero-ctas">
+            <a href="#contact" class="btn btn-solid">Book a demo <span class="arr" aria-hidden="true">→</span></a>
+            <a href="#replaces" class="btn btn-ghost">See what it replaces <span class="arr" aria-hidden="true">→</span></a>
           </div>
-          <div class="mock-body">
-            <aside class="mock-side">
-              <div class="mock-side-h">Workspace</div>
-              <div class="mock-nav-item active"><span class="ic"></span>Pipelines</div>
-              <div class="mock-nav-item"><span class="ic"></span>Agents</div>
-              <div class="mock-nav-item"><span class="ic"></span>Approvals</div>
-              <div class="mock-nav-item"><span class="ic"></span>Data contracts</div>
-              <div class="mock-side-h" style="margin-top:18px;">Governance</div>
-              <div class="mock-nav-item"><span class="ic"></span>Audit chain</div>
-              <div class="mock-nav-item"><span class="ic"></span>DPDP &amp; GDPR</div>
-              <div class="mock-nav-item"><span class="ic"></span>Cost centres</div>
-            </aside>
-            <div class="mock-main">
-              <h3 class="mock-main-h">Claims-triage / production</h3>
-              <div class="mock-main-sub">12 AGENTS · ORCHESTRATOR v3 · OWNER: data-platform</div>
-              <div class="mock-stats">
-                <div class="mock-stat">
-                  <div class="mock-stat-label">Tokens · 24h</div>
-                  <div class="mock-stat-val">1.42M<span class="delta">−18%</span></div>
-                </div>
-                <div class="mock-stat">
-                  <div class="mock-stat-label">Cost · MTD</div>
-                  <div class="mock-stat-val">$2,840<span class="delta">on track</span></div>
-                </div>
-                <div class="mock-stat">
-                  <div class="mock-stat-label">Approvals</div>
-                  <div class="mock-stat-val">38 / 38<span class="delta">signed</span></div>
-                </div>
-              </div>
-              <div class="mock-table">
-                <div class="mock-row head">
-                  <div></div><div>Agent</div><div>Role</div><div>Tokens</div><div>Gate</div>
-                </div>
-                <div class="mock-row">
-                  <span class="pid"></span>
-                  <span class="pname">intake-classifier</span>
-                  <span class="ptype">Routing · gpt-4o</span>
-                  <span class="ptokens">214,302</span>
-                  <span class="pgate ok">OK</span>
-                </div>
-                <div class="mock-row">
-                  <span class="pid run"></span>
-                  <span class="pname">policy-extract</span>
-                  <span class="ptype">Extraction · claude-3.5</span>
-                  <span class="ptokens">412,180</span>
-                  <span class="pgate ok">OK</span>
-                </div>
-                <div class="mock-row">
-                  <span class="pid warn"></span>
-                  <span class="pname">payout-decision</span>
-                  <span class="ptype">Decision · claude-3.5</span>
-                  <span class="ptokens">182,440</span>
-                  <span class="pgate hitl">HITL</span>
-                </div>
-                <div class="mock-row">
-                  <span class="pid"></span>
-                  <span class="pname">notify-customer</span>
-                  <span class="ptype">Email · gpt-4o-mini</span>
-                  <span class="ptokens">36,914</span>
-                  <span class="pgate ok">OK</span>
-                </div>
-                <div class="mock-row">
-                  <span class="pid idle"></span>
-                  <span class="pname">audit-writer</span>
-                  <span class="ptype">Logging · system</span>
-                  <span class="ptokens">—</span>
-                  <span class="pgate ok">CHAIN</span>
-                </div>
-              </div>
+        </div>
+      </div>
+    </div>
+    <div class="strip">
+      <div class="wrap strip-row">
+        <div class="strip-cell">Built for<b>Claims</b></div>
+        <div class="strip-cell">Built for<b>Disputes</b></div>
+        <div class="strip-cell">Built for<b>Lending</b></div>
+        <div class="strip-cell">Built for<b>Data Intelligence</b></div>
+        <div class="strip-cell">Built for<b>Risk &amp; Compliance</b></div>
+        <div class="strip-cell">Built for<b>Underwriting</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== OFFERINGS ===== -->
+  <section class="sec" id="offerings">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">Platform</span>
+        <div>
+          <h2 class="h-xl">One control plane for AI in production.</h2>
+          <p class="lede">Four layers that only exist together here. Run fast, govern everything, and keep a trail an auditor can query.</p>
+        </div>
+      </div>
+      <div class="tiles">
+        <a href="#capabilities" class="tile reveal">
+          <div class="tile-top"><span class="label">01 · Orchestrate</span></div>
+          <h3 class="tile-name">Run</h3>
+          <div class="tile-art" aria-hidden="true">
+            <svg viewBox="0 0 240 240" fill="none" stroke="#eaf6f4" stroke-width="1">
+              <g class="spin">
+                <circle cx="120" cy="120" r="96" stroke="#1d4a5e"/>
+                <circle cx="120" cy="24" r="5" fill="#03141e"/>
+                <circle cx="203" cy="168" r="5" fill="#03141e"/>
+                <circle cx="37" cy="168" r="5" fill="#03141e"/>
+              </g>
+              <circle cx="120" cy="120" r="56" stroke="#1d4a5e"/>
+              <path class="flow" d="M120 64 L120 120 L168 148 M120 120 L72 148"/>
+              <rect x="112" y="112" width="16" height="16" fill="#eaf6f4"/>
+            </svg>
+          </div>
+          <p>Multi-agent pipelines on a LangGraph orchestrator, with every state transition streamed live.</p>
+          <span class="link-arrow">Explore orchestration <span class="arr">→</span></span>
+        </a>
+        <a href="#domains" class="tile reveal">
+          <div class="tile-top"><span class="label">02 · Govern</span></div>
+          <h3 class="tile-name">Govern</h3>
+          <div class="tile-art" aria-hidden="true">
+            <svg viewBox="0 0 240 240" fill="none" stroke="#eaf6f4" stroke-width="1">
+              <path d="M20 60 H220" stroke="#1d4a5e"/>
+              <g stroke="#1d4a5e"><path d="M50 60 V100"/><path d="M95 60 V100"/><path d="M145 60 V100"/><path d="M190 60 V100"/></g>
+              <rect x="30" y="100" width="40" height="40"/>
+              <rect x="75" y="100" width="40" height="40"/>
+              <rect x="125" y="100" width="40" height="40" fill="#eaf6f4"/>
+              <rect x="170" y="100" width="40" height="40"/>
+              <path class="flow" d="M20 180 H220"/>
+              <circle class="pulse" cx="145" cy="180" r="4" fill="#5ee0cf" stroke="none"/>
+            </svg>
+          </div>
+          <p>One policy engine. Change a rule once and it propagates to gateways, contracts and approval gates.</p>
+          <span class="link-arrow">Explore the mesh <span class="arr">→</span></span>
+        </a>
+        <a href="#capabilities" class="tile reveal">
+          <div class="tile-top"><span class="label">03 · Contract</span></div>
+          <h3 class="tile-name">Data</h3>
+          <div class="tile-art" aria-hidden="true">
+            <svg viewBox="0 0 240 240" fill="none" stroke="#eaf6f4" stroke-width="1">
+              <ellipse cx="120" cy="60" rx="70" ry="18"/>
+              <path d="M50 60 V180 M190 60 V180" />
+              <path d="M50 100 C50 124 190 124 190 100" stroke="#1d4a5e"/>
+              <path d="M50 140 C50 164 190 164 190 140" stroke="#1d4a5e"/>
+              <path d="M50 180 C50 204 190 204 190 180"/>
+              <path class="flow" d="M120 78 V200"/>
+            </svg>
+          </div>
+          <p>Catalog, column-level lineage and data contracts that catch SLA violations before they reach a model.</p>
+          <span class="link-arrow">Explore data contracts <span class="arr">→</span></span>
+        </a>
+        <a href="#capabilities" class="tile reveal">
+          <div class="tile-top"><span class="label">04 · Prove</span></div>
+          <h3 class="tile-name">Audit</h3>
+          <div class="tile-art" aria-hidden="true">
+            <svg viewBox="0 0 240 240" fill="none" stroke="#eaf6f4" stroke-width="1">
+              <rect x="40" y="30" width="160" height="34"/>
+              <rect x="40" y="103" width="160" height="34"/>
+              <rect x="40" y="176" width="160" height="34" fill="#eaf6f4"/>
+              <path d="M90 64 V103 M150 64 V103 M90 137 V176 M150 137 V176" class="flow"/>
+              <g font-family="IBM Plex Mono" font-size="9" fill="#6f95a0" stroke="none">
+                <text x="50" y="51">0x91e2…a07c</text><text x="50" y="124">0x3b07…d4f1</text>
+              </g>
+              <text x="50" y="197" font-family="IBM Plex Mono" font-size="9" fill="#03141e" stroke="none">0x7a4c…3b91</text>
+            </svg>
+          </div>
+          <p>Every generation, approval and data access SHA-256 signed and chained, then queryable in seconds.</p>
+          <span class="link-arrow">Explore the audit chain <span class="arr">→</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STATEMENT (PAIN) ===== -->
+  <section class="sec on-paper statement">
+    <div class="wrap">
+      <span class="label reveal">The problem</span>
+      <h2 class="h-xl reveal" style="margin-top:28px;">Right now, your AI governance lives in Slack DMs and spreadsheets.</h2>
+      <div class="pain-grid">
+        <div class="pain reveal">
+          <div class="num">01 / HITL</div>
+          <h3 class="h-m">HITL approvals live in Slack DMs.</h3>
+          <p>Someone makes a decision. Nobody records it. Your next audit asks for a log that doesn't exist.</p>
+        </div>
+        <div class="pain reveal">
+          <div class="num">02 / COST</div>
+          <h3 class="h-m">LLM costs are tracked in a spreadsheet.</h3>
+          <p>One agent goes rogue and you find out at month-end when the bill arrives. No per-agent caps. No alerts.</p>
+        </div>
+        <div class="pain reveal">
+          <div class="num">03 / DATA</div>
+          <h3 class="h-m">Data quality breaks pipelines silently.</h3>
+          <p>Bad data reaches the model. Contracts get violated. Incidents pile up before anyone pages.</p>
+        </div>
+      </div>
+      <div class="conclusion reveal">
+        <span class="label">Conclusion</span>
+        <p class="h-l">This isn't a tooling problem. It's an architecture problem. AL Ops solves it at the infrastructure level, not the integration level.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PRODUCT ===== -->
+  <section class="sec product">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">In production</span>
+        <div>
+          <h2 class="h-xl">See every agent, gate and dollar as it happens.</h2>
+        </div>
+      </div>
+      <div class="frame reveal" aria-hidden="true">
+        <div class="frame-bar">
+          <span class="crumbs"><b>al-ops</b> / pipelines / claims-triage</span>
+          <span class="state">RUN · 00:14:32</span>
+        </div>
+        <div class="frame-body">
+          <aside class="f-side">
+            <h4>Workspace</h4>
+            <div class="on">Pipelines</div><div>Agents</div><div>Approvals</div><div>Data contracts</div>
+            <h4 style="margin-top:20px;">Governance</h4>
+            <div>Audit chain</div><div>DPDP &amp; GDPR</div><div>Cost centres</div>
+          </aside>
+          <div class="f-main">
+            <h3>Claims-triage / production</h3>
+            <div class="sub">12 AGENTS · ORCHESTRATOR v3 · OWNER: data-platform</div>
+            <div class="f-graph">
+              <svg viewBox="0 0 600 150" fill="none" stroke="#eaf6f4" stroke-width="1">
+                <g stroke="#2e6175"><path d="M100 75 H180 M260 75 H340 M420 75 H500"/><path d="M220 95 V125 H380 V95" stroke-dasharray="3 4"/></g>
+                <g fill="#03141e">
+                  <rect x="20" y="57" width="80" height="36"/><rect x="180" y="57" width="80" height="36"/>
+                  <rect x="340" y="57" width="80" height="36" stroke="#5ee0cf"/><rect x="500" y="57" width="80" height="36"/>
+                </g>
+                <g font-family="IBM Plex Mono" font-size="10" fill="#b4d0d4" stroke="none" text-anchor="middle" letter-spacing=".06em">
+                  <text x="60" y="79">INTAKE</text><text x="220" y="79">EXTRACT</text><text x="380" y="79" fill="#5ee0cf">HITL GATE</text><text x="540" y="79">NOTIFY</text>
+                  <text x="300" y="140" fill="#6f95a0" font-size="9">AUDIT CHAIN</text>
+                </g>
+              </svg>
+            </div>
+            <div class="f-table">
+              <div class="f-row head"><div>Agent</div><div>Role</div><div style="text-align:right">Tokens</div><div style="text-align:right">Gate</div></div>
+              <div class="f-row"><span class="n">intake-classifier</span><span class="t">Routing · gpt-4o</span><span class="k">214,302</span><span class="g">OK</span></div>
+              <div class="f-row"><span class="n">policy-extract</span><span class="t">Extraction · claude-3.5</span><span class="k">412,180</span><span class="g">OK</span></div>
+              <div class="f-row"><span class="n">payout-decision</span><span class="t">Decision · claude-3.5</span><span class="k">182,440</span><span class="g hitl">HITL</span></div>
+              <div class="f-row"><span class="n">notify-customer</span><span class="t">Email · gpt-4o-mini</span><span class="k">36,914</span><span class="g">OK</span></div>
+              <div class="f-row"><span class="n">audit-writer</span><span class="t">Logging · system</span><span class="k">—</span><span class="g">CHAIN</span></div>
             </div>
           </div>
-          <div class="mock-foot">
-            <span>SHA-256 chain head · 0x7a4c…3b91</span>
-            <span class="mock-cap">Cap <b>$5,000 / mo</b> · 56% used</span>
-          </div>
+          <aside class="f-aside">
+            <div class="f-stat"><div class="l">Tokens · 24h</div><div class="v">1.42M<small>−18%</small></div></div>
+            <div class="f-stat"><div class="l">Cost · MTD</div><div class="v">$2,840<small>on track</small></div></div>
+            <div class="f-stat"><div class="l">Approvals</div><div class="v">38 / 38<small>signed</small></div></div>
+            <div class="f-stat"><div class="l">Cap · $5,000 / mo</div><div class="v">56%<small>used</small></div><div class="f-bar"><i></i></div></div>
+            <div class="f-foot">SHA-256 CHAIN HEAD · 0x7a4c…3b91</div>
+          </aside>
         </div>
       </div>
-    </div>
-
-    <!-- ===== LOGO / SOCIAL PROOF STRIP ===== -->
-    <div class="logos">
-      <div class="container logos-inner">
-        <div class="logos-label">Built for engineering orgs running AI in production</div>
-        <div class="logos-row">
-          <span>Claims</span>
-          <span>Disputes</span>
-          <span>Lending</span>
-          <span>Data Intelligence</span>
-          <span>Risk &amp; Compliance</span>
-          <span>Underwriting</span>
-        </div>
+      <div class="callouts">
+        <div class="callout reveal"><span class="label">Live agent state</span><p>Streamed over Socket.IO, not a log you read after the fact.</p></div>
+        <div class="callout reveal"><span class="label">HITL gate, recorded</span><p>Approver, decision, timestamp and context, signed to the chain.</p></div>
+        <div class="callout reveal"><span class="label">Token caps, hard-enforced</span><p>The agent stops at the cap, before the bill arrives.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- ===== MARQUEE ===== -->
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track">
-      <span><b>Run</b></span><span class="star">✦</span>
-      <span><b>Govern</b></span><span class="star">✦</span>
-      <span><b>Audit</b></span><span class="star">✦</span>
-      <span><b>Orchestrate</b></span><span class="star">✦</span>
-      <span><b>Approve</b></span><span class="star">✦</span>
-      <span><b>Trace</b></span><span class="star">✦</span>
-      <span><b>Run</b></span><span class="star">✦</span>
-      <span><b>Govern</b></span><span class="star">✦</span>
-      <span><b>Audit</b></span><span class="star">✦</span>
-      <span><b>Orchestrate</b></span><span class="star">✦</span>
-      <span><b>Approve</b></span><span class="star">✦</span>
-      <span><b>Trace</b></span><span class="star">✦</span>
-    </div>
-  </div>
-
-  <!-- ===== VALUE-ADD FEATURES ===== -->
-  <section class="values" id="values">
-    <div class="container">
-      <div class="values-head reveal">
-        <div class="eyebrow"><span class="pip"></span>Why teams choose AL Ops</div>
-        <h2 class="h-section">Six capabilities that <em>only exist together</em> here.</h2>
+  <!-- ===== CAPABILITIES INDEX ===== -->
+  <section class="sec" id="capabilities">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">Capabilities</span>
+        <h2 class="h-xl">Six capabilities that only exist together here.</h2>
       </div>
-      <div class="vcards">
-        <article class="vcard reveal">
-          <div class="vcard-num">01</div>
-          <div class="vcard-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M5 8.2V12a2 2 0 0 0 2 2h3M19 8.2V12a2 2 0 0 1-2 2h-3"/></svg></div>
-          <h3 class="vcard-h">Live agent orchestration</h3>
-          <p class="vcard-p">A LangGraph orchestrator runs multi-agent pipelines in production and streams every state transition live over Socket.IO — not a log you read after the fact.</p>
-          <div class="vcard-meta">LangGraph · Socket.IO · Live state</div>
-        </article>
-
-        <article class="vcard reveal">
-          <div class="vcard-num">02</div>
-          <div class="vcard-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg></div>
-          <h3 class="vcard-h">HITL approval gates</h3>
-          <p class="vcard-p">Insert human checkpoints anywhere in a pipeline. Decisions are signed and recorded to the audit chain — never lost in a Slack DM that an auditor can't find.</p>
-          <div class="vcard-meta">Signed · Recorded · Auditable</div>
-        </article>
-
-        <article class="vcard reveal">
-          <div class="vcard-num">03</div>
-          <div class="vcard-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-6 4 4 7-8"/><path d="M3 21h18"/><path d="M14 7h6v6" /></svg></div>
-          <h3 class="vcard-h">Hard token &amp; cost caps</h3>
-          <p class="vcard-p">Per-agent and per-pipeline budgets that stop a runaway agent before the bill arrives — with overage alerts and cost-centre attribution, not a month-end surprise.</p>
-          <div class="vcard-meta">Per-agent caps · Cost centres · Alerts</div>
-        </article>
-
-        <article class="vcard reveal">
-          <div class="vcard-num">04</div>
-          <div class="vcard-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="3" width="16" height="6" rx="1.5"/><rect x="4" y="15" width="16" height="6" rx="1.5"/><path d="M8 9v6M16 9v6"/></svg></div>
-          <h3 class="vcard-h">Immutable audit chain</h3>
-          <p class="vcard-p">Every generation, approval, and data access is SHA-256 signed and chained. When auditors ask for the trail, you query it in seconds — not reconstruct it in weeks.</p>
-          <div class="vcard-meta">SHA-256 · Chain-verifiable · Queryable</div>
-        </article>
-
-        <article class="vcard reveal">
-          <div class="vcard-num">05</div>
-          <div class="vcard-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3z"/><path d="M4 7v10c0 1.7 3.6 3 8 3s8-1.3 8-3V7"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div>
-          <h3 class="vcard-h">Data contracts &amp; lineage</h3>
-          <p class="vcard-p">A built-in catalog with column-level lineage, quality rules, and data contracts that detect freshness, volume, schema and quality SLA violations before they reach a model.</p>
-          <div class="vcard-meta">Lineage · Quality SLAs · Contracts</div>
-        </article>
-
-        <article class="vcard reveal">
-          <div class="vcard-num">06</div>
-          <div class="vcard-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 3v5c0 4.5-3.2 8.3-8 10-4.8-1.7-8-5.5-8-10V6z"/><path d="M12 8v4M12 15h.01"/></svg></div>
-          <h3 class="vcard-h">Compliance, native</h3>
-          <p class="vcard-p">DPDP Act 2023 consent, erasure, access and correction workflows built in — alongside GDPR, SOC 2 Type II and ISO 27001. Privacy law as substrate, not retrofit.</p>
-          <div class="vcard-meta">DPDP · GDPR · SOC 2 · ISO 27001</div>
-        </article>
+      <div class="index">
+        <div class="index-row reveal"><span class="num">01</span><h3 class="h-m">Live agent orchestration</h3><p>A LangGraph orchestrator runs multi-agent pipelines in production and streams every state transition live over Socket.IO.</p><span class="meta">LangGraph<br/>Socket.IO · Live state</span><span class="arr" aria-hidden="true">→</span></div>
+        <div class="index-row reveal"><span class="num">02</span><h3 class="h-m">HITL approval gates</h3><p>Insert human checkpoints anywhere in a pipeline. Decisions are signed and recorded to the audit chain, never lost in a Slack DM.</p><span class="meta">Signed<br/>Recorded · Auditable</span><span class="arr" aria-hidden="true">→</span></div>
+        <div class="index-row reveal"><span class="num">03</span><h3 class="h-m">Hard token &amp; cost caps</h3><p>Per-agent and per-pipeline budgets that stop a runaway agent before the bill arrives, with overage alerts and cost-centre attribution.</p><span class="meta">Per-agent caps<br/>Cost centres · Alerts</span><span class="arr" aria-hidden="true">→</span></div>
+        <div class="index-row reveal"><span class="num">04</span><h3 class="h-m">Immutable audit chain</h3><p>Every generation, approval and data access is SHA-256 signed and chained. When auditors ask for the trail, you query it in seconds.</p><span class="meta">SHA-256<br/>Chain-verifiable · Queryable</span><span class="arr" aria-hidden="true">→</span></div>
+        <div class="index-row reveal"><span class="num">05</span><h3 class="h-m">Data contracts &amp; lineage</h3><p>A built-in catalog with column-level lineage, quality rules and contracts that detect freshness, volume, schema and quality SLA violations.</p><span class="meta">Lineage<br/>Quality SLAs · Contracts</span><span class="arr" aria-hidden="true">→</span></div>
+        <div class="index-row reveal"><span class="num">06</span><h3 class="h-m">Compliance, native</h3><p>DPDP Act 2023 consent, erasure, access and correction workflows built in, alongside GDPR, SOC 2 Type II and ISO 27001.</p><span class="meta">DPDP · GDPR<br/>SOC 2 · ISO 27001</span><span class="arr" aria-hidden="true">→</span></div>
       </div>
     </div>
   </section>
 
-  <!-- ===== PAIN ===== -->
-  <section class="pain">
-    <div class="container">
-      <h2 class="pain-h reveal">Right now, your AI governance <em>looks like this.</em></h2>
-      <div class="pain-cols">
-        <div class="pain-col reveal">
-          <div class="pain-num">— 01 ·  HITL</div>
-          <h3 class="pain-bold">HITL approvals live in Slack DMs.</h3>
-          <p class="pain-p">Someone makes a decision. Nobody records it. Your next audit asks for a log that doesn't exist.</p>
-        </div>
-        <div class="pain-col reveal">
-          <div class="pain-num">— 02 ·  COST</div>
-          <h3 class="pain-bold">LLM costs are tracked in a spreadsheet.</h3>
-          <p class="pain-p">One agent goes rogue, you find out at month-end when the bill arrives. No per-agent caps. No alerts.</p>
-        </div>
-        <div class="pain-col reveal">
-          <div class="pain-num">— 03 ·  DATA</div>
-          <h3 class="pain-bold">Data quality breaks pipelines silently.</h3>
-          <p class="pain-p">Bad data reaches the model. Contracts get violated. Incidents pile up before anyone pages.</p>
-        </div>
+  <!-- ===== RUN / GOVERN ===== -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">What it is</span>
+        <h2 class="h-xl">Two things no other platform does together.</h2>
       </div>
-      <div class="pain-foot reveal">
-        <div class="pain-foot-eyebrow">— Conclusion</div>
-        <div class="pain-foot-text">This isn't a tooling problem. It's an <em>architecture problem</em>. AL Ops solves it at the infrastructure level, not the integration level.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== TWO THINGS ===== -->
-  <section class="two">
-    <div class="container">
-      <div class="two-head reveal">
-        <div class="eyebrow"><span class="pip"></span>What it is</div>
-        <h2 class="h-section">AL Ops does <em>two things</em> no other platform does together.</h2>
-      </div>
-      <div class="two-cols">
-        <div class="two-col run reveal">
-          <div class="two-tag">— Run</div>
-          <h3 class="two-h">It runs your <em>agents.</em></h3>
-          <p class="two-p">Deploy pipelines, define approval checkpoints, and run multi-agent workflows — production-ready, not prototype-ready. Stream live agent state. Track every token. Cap every cost. Every output signed to an immutable audit chain.</p>
-          <!-- diagram: pipeline flow -->
-          <svg class="two-diagram" viewBox="0 0 460 110" width="100%" aria-hidden="true">
-            <g fill="none" stroke="#1B3DAA" stroke-width="1.2">
-              <circle cx="30" cy="55" r="18"/>
-              <circle cx="130" cy="55" r="18"/>
-              <circle cx="230" cy="55" r="18"/>
-              <circle cx="330" cy="55" r="18"/>
-              <circle cx="430" cy="55" r="18"/>
-              <line x1="48" y1="55" x2="112" y2="55"/>
-              <line x1="148" y1="55" x2="212" y2="55"/>
-              <line x1="248" y1="55" x2="312" y2="55"/>
-              <line x1="348" y1="55" x2="412" y2="55"/>
-            </g>
-            <g font-family="IBM Plex Mono" font-size="9" fill="#5b6661" letter-spacing="0.06em" text-anchor="middle">
-              <text x="30" y="93">INTAKE</text>
-              <text x="130" y="93">EXTRACT</text>
-              <text x="230" y="93">DECIDE</text>
-              <text x="330" y="93">NOTIFY</text>
-              <text x="430" y="93">AUDIT</text>
-            </g>
-            <g font-family="IBM Plex Mono" font-size="9" fill="#1B3DAA" text-anchor="middle">
-              <text x="30" y="59">①</text>
-              <text x="130" y="59">②</text>
-              <text x="230" y="59">③</text>
-              <text x="330" y="59">④</text>
-              <text x="430" y="59">⑤</text>
+      <div class="split">
+        <div class="split-col reveal">
+          <span class="label">A · Run</span>
+          <h3 class="h-l">It runs your agents.</h3>
+          <p>Deploy pipelines, define approval checkpoints and run multi-agent workflows that are production-ready, not prototype-ready. Stream live agent state. Track every token. Cap every cost. Every output signed to an immutable audit chain.</p>
+          <svg viewBox="0 0 460 90" fill="none" stroke="#eaf6f4" stroke-width="1" aria-hidden="true">
+            <g><rect x="0" y="20" width="36" height="36"/><rect x="106" y="20" width="36" height="36"/><rect x="212" y="20" width="36" height="36" fill="#eaf6f4"/><rect x="318" y="20" width="36" height="36"/><rect x="424" y="20" width="36" height="36"/></g>
+            <g stroke="#2e6175"><path d="M36 38 H106 M142 38 H212 M248 38 H318 M354 38 H424"/></g>
+            <g font-family="IBM Plex Mono" font-size="9" fill="#6f95a0" stroke="none" letter-spacing=".08em" text-anchor="middle">
+              <text x="18" y="80">INTAKE</text><text x="124" y="80">EXTRACT</text><text x="230" y="80">DECIDE</text><text x="336" y="80">NOTIFY</text><text x="442" y="80">AUDIT</text>
             </g>
           </svg>
         </div>
-        <div class="two-col govern reveal">
-          <div class="two-tag">— Govern</div>
-          <h3 class="two-h">It <em>governs</em> your agents.</h3>
-          <p class="two-p">HITL approval gates where decisions are recorded, not messaged. Data contracts with SLA violation detection. DPDP and GDPR consent and erasure workflows built in — not bolted on. One policy engine that enforces across every pipeline, every model, every data asset.</p>
-          <svg class="two-diagram" viewBox="0 0 460 110" width="100%" aria-hidden="true">
-            <g fill="none" stroke="#a88a2c" stroke-width="1.2">
-              <rect x="14" y="40" width="100" height="32" rx="2"/>
-              <rect x="124" y="40" width="100" height="32" rx="2"/>
-              <rect x="234" y="40" width="100" height="32" rx="2"/>
-              <rect x="344" y="40" width="100" height="32" rx="2"/>
-              <line x1="64" y1="20" x2="64" y2="40" stroke-dasharray="2 3"/>
-              <line x1="174" y1="20" x2="174" y2="40" stroke-dasharray="2 3"/>
-              <line x1="284" y1="20" x2="284" y2="40" stroke-dasharray="2 3"/>
-              <line x1="394" y1="20" x2="394" y2="40" stroke-dasharray="2 3"/>
-              <line x1="14" y1="20" x2="444" y2="20"/>
-            </g>
-            <g font-family="IBM Plex Mono" font-size="9" fill="#a88a2c" text-anchor="middle">
-              <text x="64" y="60">HITL</text>
-              <text x="174" y="60">CONTRACTS</text>
-              <text x="284" y="60">DPDP</text>
-              <text x="394" y="60">AUDIT</text>
-            </g>
-            <g font-family="IBM Plex Mono" font-size="8" fill="#5b6661" letter-spacing="0.06em">
-              <text x="14" y="14">— POLICY MESH</text>
+        <div class="split-col reveal">
+          <span class="label">B · Govern</span>
+          <h3 class="h-l">It governs your agents.</h3>
+          <p>HITL approval gates where decisions are recorded, not messaged. Data contracts with SLA violation detection. DPDP and GDPR consent and erasure workflows built in. One policy engine that enforces across every pipeline, model and data asset.</p>
+          <svg viewBox="0 0 460 90" fill="none" stroke="#eaf6f4" stroke-width="1" aria-hidden="true">
+            <path d="M0 10 H460" />
+            <g stroke="#2e6175" stroke-dasharray="2 3"><path d="M55 10 V34 M171 10 V34 M287 10 V34 M403 10 V34"/></g>
+            <g><rect x="0" y="34" width="110" height="30"/><rect x="116" y="34" width="110" height="30"/><rect x="232" y="34" width="110" height="30"/><rect x="348" y="34" width="110" height="30"/></g>
+            <g font-family="IBM Plex Mono" font-size="9" fill="#b4d0d4" stroke="none" letter-spacing=".08em" text-anchor="middle">
+              <text x="55" y="53">HITL</text><text x="171" y="53">CONTRACTS</text><text x="287" y="53">DPDP</text><text x="403" y="53">AUDIT</text>
+              <text x="230" y="86" fill="#6f95a0">POLICY MESH</text>
             </g>
           </svg>
         </div>
       </div>
-      <div class="two-foot reveal">That's what <strong>Agentic Ops</strong> means. Run fast. Govern everything.</div>
+      <div class="split-foot reveal">
+        <p class="h-m" style="margin:0;">That's what Agentic Ops means. Run fast. Govern everything.</p>
+        <a href="#domains" class="link-arrow">See the six domains <span class="arr">→</span></a>
+      </div>
     </div>
   </section>
 
   <!-- ===== REPLACES ===== -->
-  <section class="replaces" id="replaces">
-    <div class="container">
-      <div class="repl-head reveal">
-        <div>
-          <div class="eyebrow"><span class="pip"></span>What it replaces</div>
-        </div>
-        <div>
-          <h2 class="h-section">One AL Ops contract <em>replaces five.</em></h2>
-        </div>
+  <section class="sec on-paper" id="replaces">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">What it replaces</span>
+        <h2 class="h-xl">One AL Ops contract replaces five.</h2>
       </div>
-
-      <div class="repl-table">
-        <div class="repl-row reveal">
-          <div class="repl-tool"><span class="strike">LangSmith / W&amp;B</span></div>
-          <div class="repl-rep">Agent tracing, token budgets, cost forecasting, pipeline state.</div>
-          <div class="repl-arrow">→ AL Ops</div>
-        </div>
-        <div class="repl-row reveal">
-          <div class="repl-tool"><span class="strike">Collibra</span></div>
-          <div class="repl-rep">Data catalog, lineage, quality rules, contracts, profiling, glossary.</div>
-          <div class="repl-arrow">→ AL Ops</div>
-        </div>
-        <div class="repl-row reveal">
-          <div class="repl-tool"><span class="strike">Monte Carlo</span></div>
-          <div class="repl-rep">Observability, schema change detection, incident management.</div>
-          <div class="repl-arrow">→ AL Ops</div>
-        </div>
-        <div class="repl-row reveal">
-          <div class="repl-tool"><span class="strike">OneTrust</span></div>
-          <div class="repl-rep">DPDP Act 2023, GDPR consent, right to erasure, audit trail.</div>
-          <div class="repl-arrow">→ AL Ops</div>
-        </div>
-        <div class="repl-row reveal">
-          <div class="repl-tool"><span class="strike">Slack + spreadsheets</span></div>
-          <div class="repl-rep">HITL approval gates, recorded decisions, cost alerts.</div>
-          <div class="repl-arrow">→ AL Ops</div>
-        </div>
+      <div class="repl">
+        <div class="repl-row reveal"><span class="tool">LangSmith / W&amp;B</span><span class="what">Agent tracing, token budgets, cost forecasting, pipeline state.</span><span class="to">→ AL Ops</span></div>
+        <div class="repl-row reveal"><span class="tool">Collibra</span><span class="what">Data catalog, lineage, quality rules, contracts, profiling, glossary.</span><span class="to">→ AL Ops</span></div>
+        <div class="repl-row reveal"><span class="tool">Monte Carlo</span><span class="what">Observability, schema change detection, incident management.</span><span class="to">→ AL Ops</span></div>
+        <div class="repl-row reveal"><span class="tool">OneTrust</span><span class="what">DPDP Act 2023, GDPR consent, right to erasure, audit trail.</span><span class="to">→ AL Ops</span></div>
+        <div class="repl-row reveal"><span class="tool">Slack + spreadsheets</span><span class="what">HITL approval gates, recorded decisions, cost alerts.</span><span class="to">→ AL Ops</span></div>
       </div>
-
-      <div class="repl-foot reveal">
-        <div class="eyebrow"><span class="pip"></span>The result</div>
-        <div class="repl-foot-text">One control plane. One support team. <em>One audit trail.</em></div>
-        <a href="#" class="btn-primary">Book a demo →</a>
+      <div class="repl-result reveal">
+        <p class="h-l" style="margin:0;">One control plane. One support team. One audit trail.</p>
+        <a href="#contact" class="btn btn-solid">Book a demo <span class="arr" aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
 
-  <!-- ===== PLATFORM ===== -->
-  <section class="platform" id="platform">
-    <div class="container">
-      <div class="pf-head reveal">
-        <div class="eyebrow"><span class="pip"></span>The platform</div>
-        <h2 class="h-section">Every layer of your AI engineering org. <em>Governed.</em></h2>
-        <p class="lede">Six domains. One mesh. The platform you'd build if you had three years and a security team that says yes.</p>
+  <!-- ===== DOMAINS ===== -->
+  <section class="sec" id="domains">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">The platform</span>
+        <div>
+          <h2 class="h-xl">Every layer of your AI engineering org. Governed.</h2>
+          <p class="lede">Six domains. One mesh. The platform you'd build if you had three years and a security team that says yes.</p>
+        </div>
       </div>
-
-      <div class="pf-grid">
-        <article class="pf-item s1 reveal">
-          <div class="pf-tag">— API Platform <span class="pf-num">01</span></div>
-          <h3 class="pf-h">Every API in your org — gated, versioned, logged.</h3>
-          <p class="pf-p">Connect any service via OAuth. Every call auditable. Every outbound request safe. No integration escapes the mesh.</p>
-        </article>
-
-        <article class="pf-item s2 reveal">
-          <div class="pf-tag">— AI Platform <span class="pf-num">02</span></div>
-          <h3 class="pf-h">Deploy multi-agent pipelines and govern them in the same breath.</h3>
-          <p class="pf-p">Set token budgets that hard-cap before the bill arrives. Record every approval. Trace every output back to the data that produced it.</p>
-        </article>
-
-        <article class="pf-item s3 reveal">
-          <div class="pf-tag">— Data Platform <span class="pf-num">03</span></div>
-          <h3 class="pf-h">Stop managing your catalog separately from your AI stack.</h3>
-          <p class="pf-p">Lineage, quality rules, data contracts, and a natural-language SQL assistant — in the same platform your engineers use.</p>
-        </article>
-
-        <article class="pf-item s4 reveal">
-          <div class="pf-tag">— Enterprise Platform <span class="pf-num">04</span></div>
-          <h3 class="pf-h">Controls your security team needs.</h3>
-          <p class="pf-p">SSO, SCIM, role-based access, audit trails your compliance team can read. Cost-centre billing. Every sensitive action gated by role — not honour.</p>
-        </article>
-
-        <article class="pf-item s5 reveal">
-          <div class="pf-tag">— Infra &amp; Security <span class="pf-num">05</span></div>
-          <h3 class="pf-h">Privacy law is not a retrofit.</h3>
-          <p class="pf-p">Zero-trust defaults. Encrypted secrets on every connector. DPDP Act 2023 built in — consent, erasure, access rights.</p>
-        </article>
-
-        <article class="pf-item s6 reveal" id="governance">
-          <div class="pf-tag">— Governance Mesh <span class="pf-num">06 · the spine</span></div>
-          <h3 class="pf-h">One policy engine. Every domain. <em style="font-style:italic;color:var(--blue-soft);">Live.</em></h3>
-          <p class="pf-p">Change a rule in one place — it propagates to your API gateway, your data contracts, your model approval gates, and your audit chain. Simultaneously. No sync lag. This is the layer the other five pivot on.</p>
-        </article>
+      <div class="domains">
+        <article class="domain reveal"><div class="top"><span class="label">API Platform</span><span class="label">01</span></div><h3 class="h-m">Every API in your org, gated, versioned and logged.</h3><p>Connect any service via OAuth. Every call auditable. Every outbound request safe. No integration escapes the mesh.</p></article>
+        <article class="domain reveal"><div class="top"><span class="label">AI Platform</span><span class="label">02</span></div><h3 class="h-m">Deploy multi-agent pipelines and govern them in the same breath.</h3><p>Token budgets that hard-cap before the bill arrives. Every approval recorded. Every output traced back to the data that produced it.</p></article>
+        <article class="domain reveal"><div class="top"><span class="label">Data Platform</span><span class="label">03</span></div><h3 class="h-m">Stop managing your catalog separately from your AI stack.</h3><p>Lineage, quality rules, data contracts and a natural-language SQL assistant, in the same platform your engineers use.</p></article>
+        <article class="domain reveal"><div class="top"><span class="label">Enterprise Platform</span><span class="label">04</span></div><h3 class="h-m">Controls your security team needs.</h3><p>SSO, SCIM, role-based access, audit trails your compliance team can read. Cost-centre billing. Every sensitive action gated by role.</p></article>
+        <article class="domain reveal"><div class="top"><span class="label">Infra &amp; Security</span><span class="label">05</span></div><h3 class="h-m">Privacy law is not a retrofit.</h3><p>Zero-trust defaults. Encrypted secrets on every connector. DPDP Act 2023 built in: consent, erasure, access rights.</p></article>
+        <article class="domain spine reveal"><div class="top"><span class="label">Governance Mesh</span><span class="label">06 · The spine</span></div><h3 class="h-m">One policy engine. Every domain. Live.</h3><p>Change a rule in one place and it propagates to your API gateway, data contracts, model approval gates and audit chain at once. This is the layer the other five pivot on.</p></article>
       </div>
     </div>
   </section>
 
   <!-- ===== HOW ===== -->
-  <section class="how" id="how">
-    <div class="container">
-      <div class="how-head reveal">
+  <section class="sec" id="how">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">How it works</span>
         <div>
-          <div class="eyebrow" style="color:rgba(243,238,223,0.55);"><span class="pip" style="background:var(--gold-deep);"></span>How it works</div>
-          <h2 class="h-section" style="margin-top:14px;">Up and governed <em>before the sprint ends.</em></h2>
+          <h2 class="h-xl">Up and governed before the sprint ends.</h2>
+          <p class="lede">Most teams have their first stack mapped in week one and their first audit-ready pipeline in week two.</p>
         </div>
-        <p class="lede">Three steps. One sprint. Most teams have their first stack mapped in week one and their first audit-ready pipeline in week two.</p>
       </div>
-      <div class="how-steps">
-        <div class="how-step reveal">
-          <div class="how-num">i.</div>
-          <h3 class="how-h">Connect your stack.</h3>
-          <p class="how-p">Plug in your data warehouse, model registry, cloud provider, and CI/CD via OAuth connectors. AL Ops maps every asset automatically. No agents to deploy. No pipeline configuration to hand-write.</p>
-          <div class="how-meta">OAuth · SCIM · Auto-discovery</div>
-        </div>
-        <div class="how-step reveal">
-          <div class="how-num">ii.</div>
-          <h3 class="how-h">Define governance once.</h3>
-          <p class="how-p">Set data contracts, quality thresholds, HITL approval gates, token budgets, and compliance policies. The governance mesh pushes them everywhere — models, pipelines, data, APIs.</p>
-          <div class="how-meta">Policy-as-code · Live propagation</div>
-        </div>
-        <div class="how-step reveal">
-          <div class="how-num">iii.</div>
-          <h3 class="how-h">Ship with a complete audit trail.</h3>
-          <p class="how-p">Every generation, approval, data access, and model output — signed, chained, queryable. When your auditors ask, you answer in minutes.</p>
-          <div class="how-meta">SHA-256 chain · Queryable in seconds</div>
-        </div>
+      <div class="steps">
+        <div class="step reveal"><div class="big">01</div><h3 class="h-m">Connect your stack.</h3><p>Plug in your data warehouse, model registry, cloud provider and CI/CD via OAuth connectors. AL Ops maps every asset automatically. No agents to deploy.</p><span class="label">OAuth · SCIM · Auto-discovery</span></div>
+        <div class="step reveal"><div class="big">02</div><h3 class="h-m">Define governance once.</h3><p>Set data contracts, quality thresholds, HITL gates, token budgets and compliance policies. The mesh pushes them to models, pipelines, data and APIs.</p><span class="label">Policy-as-code · Live propagation</span></div>
+        <div class="step reveal"><div class="big">03</div><h3 class="h-m">Ship with a complete audit trail.</h3><p>Every generation, approval, data access and model output is signed, chained and queryable. When your auditors ask, you answer in minutes.</p><span class="label">SHA-256 chain · Queryable</span></div>
       </div>
     </div>
   </section>
 
   <!-- ===== DEPTH ===== -->
-  <section class="depth">
-    <div class="container">
-      <div class="depth-head reveal">
-        <div class="eyebrow"><span class="pip"></span>Agentic Ops</div>
-        <h2 class="h-section" style="margin-top:14px;">Your AI systems need a <em>nervous system,</em> not a dashboard.</h2>
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">Agentic Ops</span>
+        <h2 class="h-xl">Your AI systems need a nervous system, not a dashboard.</h2>
       </div>
       <div class="depth-grid">
-        <div class="depth-body reveal">
-          <p>Most governance tools watch from the outside. They show you what happened after it happened.</p>
-          <p>AL Ops is different. It's <em>the infrastructure your agents run on</em> — orchestration, state management, cost enforcement, approval routing — not a layer bolted on top.</p>
-          <p>When a pipeline breaks a data contract, AL Ops doesn't send you a Slack notification and wait. It opens an incident, routes it to the right approver, and records the decision. When an agent hits its token budget, it stops — not after the bill arrives, before.</p>
-          <p>That's what governance-native means. Not governance bolted on. <em>Governance as the substrate.</em></p>
-        </div>
-        <aside class="depth-aside reveal">
-          <div class="depth-aside-h">— What that gets you</div>
-          <ol class="depth-list">
+        <div></div>
+        <div>
+          <div class="depth-body reveal">
+            <p>Most governance tools watch from the outside. They show you what happened after it happened.</p>
+            <p>AL Ops is different. <strong>It's the infrastructure your agents run on</strong>: orchestration, state management, cost enforcement and approval routing, not a layer bolted on top.</p>
+            <p>When a pipeline breaks a data contract, AL Ops opens an incident, routes it to the right approver and records the decision. When an agent hits its token budget, it stops before the bill arrives.</p>
+            <p><strong>Governance as the substrate.</strong></p>
+          </div>
+          <ol class="depth-list reveal" aria-label="What that gets you">
             <li>LangGraph orchestrator with live Socket.IO state streaming.</li>
-            <li>HITL gates where approval decisions are signed and auditable — not messaged in Slack.</li>
+            <li>HITL gates where approval decisions are signed and auditable, not messaged in Slack.</li>
             <li>Per-agent token caps with overage alerts and hard enforcement.</li>
-            <li>Data contracts with SLA violation detection — freshness, volume, schema, quality.</li>
+            <li>Data contracts with SLA violation detection: freshness, volume, schema, quality.</li>
             <li>Immutable audit chain: every action SHA-256 signed, chain-verifiable.</li>
-            <li>DPDP Act 2023 sections 6, 8, 11, 12 — consent, erasure, access, correction.</li>
+            <li>DPDP Act 2023 sections 6, 8, 11, 12: consent, erasure, access, correction.</li>
           </ol>
-        </aside>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ===== COMPLIANCE ===== -->
-  <section class="comp">
-    <div class="container comp-grid">
-      <div class="reveal">
-        <div class="eyebrow"><span class="pip"></span>Compliance</div>
-        <h2 class="h-section" style="margin-top:14px;">Built for regulated industries <em>from line one.</em></h2>
-        <p class="lede" style="margin-top:24px;">The only AI operations platform with native DPDP Act 2023 support — alongside GDPR, SOC 2 Type II, and ISO 27001. Every control auditable. Every secret encrypted. Every action logged.</p>
+  <section class="sec on-paper" id="compliance">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">Compliance</span>
+        <div>
+          <h2 class="h-xl">Built for regulated industries from line one.</h2>
+          <p class="lede">Native DPDP Act 2023 support alongside GDPR, SOC 2 Type II and ISO 27001. Every control auditable. Every secret encrypted. Every action logged.</p>
+        </div>
       </div>
-      <ul class="comp-list reveal">
-        <li>SOC 2 <span class="meta">Type II · audited</span></li>
-        <li>ISO 27001 <span class="meta">Information security</span></li>
-        <li class="feature">DPDP Act 2023 <span class="meta">Native · India</span></li>
-        <li>GDPR <span class="meta">Erasure ready</span></li>
-        <li>TLS 1.3 <span class="meta">In transit</span></li>
-        <li>AES-256 <span class="meta">At rest</span></li>
-      </ul>
+      <div class="certs">
+        <div class="cert reveal"><span class="label">Type II · audited</span><b>SOC 2</b></div>
+        <div class="cert reveal"><span class="label">Information security</span><b>ISO 27001</b></div>
+        <div class="cert feature reveal"><span class="label">Native · India</span><b>DPDP Act 2023</b></div>
+        <div class="cert reveal"><span class="label">Erasure ready</span><b>GDPR</b></div>
+        <div class="cert reveal"><span class="label">In transit</span><b>TLS 1.3</b></div>
+        <div class="cert reveal"><span class="label">At rest</span><b>AES-256</b></div>
+      </div>
     </div>
   </section>
 
   <!-- ===== FAQ ===== -->
-  <section class="faq" id="faq">
-    <div class="container">
-      <div class="faq-head reveal">
+  <section class="sec" id="faq">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">FAQ</span>
         <div>
-          <div class="eyebrow"><span class="pip"></span>FAQ</div>
-          <h2 class="h-section" style="margin-top:14px;">Questions security <em>and</em> engineering ask.</h2>
+          <h2 class="h-xl">Questions security and engineering ask.</h2>
+          <p class="lede">The two reviews that decide whether AL Ops ships, and what both teams want to know first.</p>
         </div>
-        <p class="lede">The two reviews that decide whether AL Ops ships. Here's what both teams want to know first.</p>
       </div>
-      <div class="faq-list">
-        <details class="faq-item reveal" open>
-          <summary><span class="q-no">01</span>Does AL Ops replace my orchestration framework, or wrap it?</summary>
-          <div class="faq-a">AL Ops <em>is</em> the orchestration layer. Pipelines run on a LangGraph orchestrator with live Socket.IO state streaming, so you deploy multi-agent workflows directly — no separate runtime to babysit. If you already have agents, you connect them as steps and inherit gates, caps, and the audit chain.</div>
+      <div class="faq">
+        <details class="reveal" open>
+          <summary><span class="num">01</span><span>Does AL Ops replace my orchestration framework, or wrap it?</span><span class="pm" aria-hidden="true">+</span></summary>
+          <div class="ans"><p>AL Ops is the orchestration layer. Pipelines run on a LangGraph orchestrator with live Socket.IO state streaming, so you deploy multi-agent workflows directly with no separate runtime to babysit. If you already have agents, you connect them as steps and inherit gates, caps and the audit chain.</p></div>
         </details>
-        <details class="faq-item reveal">
-          <summary><span class="q-no">02</span>How are HITL approvals actually recorded?</summary>
-          <div class="faq-a">Each approval gate captures the approver, decision, timestamp and context, signs it, and writes it to an immutable SHA-256 audit chain. Nothing lives in a Slack DM. When an auditor asks for the decision trail, you <em>query</em> it — you don't reconstruct it.</div>
+        <details class="reveal">
+          <summary><span class="num">02</span><span>How are HITL approvals actually recorded?</span><span class="pm" aria-hidden="true">+</span></summary>
+          <div class="ans"><p>Each approval gate captures the approver, decision, timestamp and context, signs it, and writes it to an immutable SHA-256 audit chain. Nothing lives in a Slack DM. When an auditor asks for the decision trail, you query it rather than reconstruct it.</p></div>
         </details>
-        <details class="faq-item reveal">
-          <summary><span class="q-no">03</span>Can token budgets really stop a runaway agent?</summary>
-          <div class="faq-a">Yes — caps are enforced at run time, per agent and per pipeline, with overage alerts before the limit and a hard stop at it. Spend is attributed to cost centres, so the bill is never the first time you hear about a problem.</div>
+        <details class="reveal">
+          <summary><span class="num">03</span><span>Can token budgets really stop a runaway agent?</span><span class="pm" aria-hidden="true">+</span></summary>
+          <div class="ans"><p>Yes. Caps are enforced at run time, per agent and per pipeline, with overage alerts before the limit and a hard stop at it. Spend is attributed to cost centres, so the bill is never the first time you hear about a problem.</p></div>
         </details>
-        <details class="faq-item reveal">
-          <summary><span class="q-no">04</span>What makes the DPDP / GDPR support "native"?</summary>
-          <div class="faq-a">Consent, erasure, access and correction are workflows in the platform — wired to the same governance mesh that enforces your pipelines and data contracts — not a bolted-on consent banner. The mesh propagates a policy change to your API gateway, contracts, and approval gates <em>simultaneously</em>.</div>
+        <details class="reveal">
+          <summary><span class="num">04</span><span>What makes the DPDP / GDPR support "native"?</span><span class="pm" aria-hidden="true">+</span></summary>
+          <div class="ans"><p>Consent, erasure, access and correction are workflows in the platform, wired to the same governance mesh that enforces your pipelines and data contracts. The mesh propagates a policy change to your API gateway, contracts and approval gates simultaneously.</p></div>
         </details>
-        <details class="faq-item reveal">
-          <summary><span class="q-no">05</span>Can we self-host or stay in our own cloud?</summary>
-          <div class="faq-a">AL Ops deploys to your cloud with zero-trust defaults, encrypted secrets on every connector, SSO/SCIM and role-based access. Enterprise contracts include a dedicated environment and audit support. Talk to us if your security review is the long part.</div>
+        <details class="reveal">
+          <summary><span class="num">05</span><span>Can we self-host or stay in our own cloud?</span><span class="pm" aria-hidden="true">+</span></summary>
+          <div class="ans"><p>AL Ops deploys to your cloud with zero-trust defaults, encrypted secrets on every connector, SSO/SCIM and role-based access. Enterprise contracts include a dedicated environment and audit support.</p></div>
         </details>
-        <details class="faq-item reveal">
-          <summary><span class="q-no">06</span>How long until the first audit-ready pipeline?</summary>
-          <div class="faq-a">Most teams map their stack in week one via OAuth connectors and ship their first governed, audit-ready pipeline in week two — one sprint, no agents to hand-deploy.</div>
+        <details class="reveal">
+          <summary><span class="num">06</span><span>How long until the first audit-ready pipeline?</span><span class="pm" aria-hidden="true">+</span></summary>
+          <div class="ans"><p>Most teams map their stack in week one via OAuth connectors and ship their first governed, audit-ready pipeline in week two: one sprint, no agents to hand-deploy.</p></div>
         </details>
       </div>
     </div>
   </section>
 
   <!-- ===== PRICING ===== -->
-  <section class="pricing" id="pricing">
-    <div class="container">
-      <div class="price-head reveal">
+  <section class="sec" id="pricing">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="label">Pricing</span>
         <div>
-          <div class="eyebrow"><span class="pip"></span>Pricing</div>
-          <h2 class="h-section" style="margin-top:14px;">Priced for teams. Built for <em>enterprises.</em></h2>
+          <h2 class="h-xl">Priced for teams. Built for enterprises.</h2>
+          <p class="lede">Three plans. Annual contracts. Volume discounts on tokens, connectors and seats.</p>
         </div>
-        <p class="lede">Three plans. Annual contracts. Volume discounts on tokens, connectors, and seats. Talk to us if your security review is the long part.</p>
       </div>
       <div class="plans">
         <article class="plan reveal">
-          <div>
-            <h3 class="plan-name">Starter</h3>
-            <div class="plan-tag">— Teams shipping their first AI features</div>
-          </div>
-          <ul class="plan-list">
-            <li>Core platform</li>
-            <li>3 connectors</li>
-            <li>5 users</li>
-            <li>Community support</li>
-          </ul>
-          <a href="#" class="plan-cta">Start free trial</a>
+          <div class="top"><span class="label">Plan A</span></div>
+          <h3>Starter</h3>
+          <p class="for">Teams shipping their first AI features.</p>
+          <ul><li>Core platform</li><li>3 connectors</li><li>5 users</li><li>Community support</li></ul>
+          <a href="#contact" class="btn btn-ghost">Start free trial <span class="arr" aria-hidden="true">→</span></a>
         </article>
         <article class="plan featured reveal">
-          <div>
-            <h3 class="plan-name">Scale <em>· most popular</em></h3>
-            <div class="plan-tag">— Engineering orgs with multiple AI products</div>
-          </div>
-          <ul class="plan-list">
-            <li>All six domains</li>
-            <li>Unlimited connectors</li>
-            <li>50 users</li>
-            <li>HITL gates · Data contracts</li>
-            <li>DPDP module</li>
-            <li>Priority support</li>
-          </ul>
-          <a href="#" class="plan-cta">Talk to sales →</a>
+          <div class="top"><span class="label">Plan B</span><span class="label">Most popular</span></div>
+          <h3>Scale</h3>
+          <p class="for">Engineering orgs with multiple AI products.</p>
+          <ul><li>All six domains</li><li>Unlimited connectors</li><li>50 users</li><li>HITL gates · Data contracts</li><li>DPDP module</li><li>Priority support</li></ul>
+          <a href="#contact" class="btn btn-solid">Talk to sales <span class="arr" aria-hidden="true">→</span></a>
         </article>
         <article class="plan reveal">
-          <div>
-            <h3 class="plan-name">Enterprise</h3>
-            <div class="plan-tag">— For regulated industries</div>
-          </div>
-          <ul class="plan-list">
-            <li>Everything in Scale</li>
-            <li>SSO / SCIM</li>
-            <li>Custom RBAC</li>
-            <li>Dedicated audit support</li>
-            <li>SLA · custom contract</li>
-          </ul>
-          <a href="#" class="plan-cta">Talk to us →</a>
+          <div class="top"><span class="label">Plan C</span></div>
+          <h3>Enterprise</h3>
+          <p class="for">For regulated industries.</p>
+          <ul><li>Everything in Scale</li><li>SSO / SCIM</li><li>Custom RBAC</li><li>Dedicated audit support</li><li>SLA · custom contract</li></ul>
+          <a href="#contact" class="btn btn-ghost">Talk to us <span class="arr" aria-hidden="true">→</span></a>
         </article>
       </div>
     </div>
   </section>
 
   <!-- ===== FINAL ===== -->
-  <section class="final">
-    <div class="container final-grid">
-      <div class="reveal">
-        <h2 class="final-h">You're already running AI in production.<br/><em>Start governing it like you are.</em></h2>
-        <div class="final-urgency">
-          <strong>Q3 deadline.</strong> &nbsp;DPDP enforcement makes Q3 the forcing function for most of our customers. Most teams take 3 weeks to connect their first stack. Starting now matters.
-        </div>
-        <div class="final-ctas">
-          <a href="#" class="btn-primary">Book a demo →</a>
-          <a href="#platform" class="btn-text">See the platform</a>
+  <section class="final" id="contact">
+    <canvas id="terrain2" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <span class="label reveal" style="display:block;margin-bottom:28px;color:var(--grey-300);">Get started</span>
+      <h2 class="h-hero reveal">You're already running AI in production. <span>Start governing it like you are.</span></h2>
+      <div class="final-row reveal">
+        <div><span class="label">Q3 deadline</span><p>DPDP enforcement makes Q3 the forcing function for most of our customers. Most teams take three weeks to connect their first stack.</p></div>
+        <div><span class="label">What you'll see in 30 minutes</span><p>We map your current AI stack to the governance mesh and show where your Slack approvals and spreadsheets break down. No pitch deck. Just your architecture.</p></div>
+        <div class="ctas">
+          <a href="#" class="btn btn-solid">Book a demo <span class="arr" aria-hidden="true">→</span></a>
+          <a href="#offerings" class="btn btn-ghost">See the platform <span class="arr" aria-hidden="true">→</span></a>
         </div>
       </div>
-      <aside class="final-aside reveal">
-        <div class="final-aside-h">— What you'll see in 30 minutes</div>
-        <p>We'll map your current AI stack to the governance mesh and show you exactly where your Slack approvals and spreadsheets break down.</p>
-        <p>No pitch deck. Just your architecture.</p>
-      </aside>
     </div>
   </section>
 
@@ -1685,46 +1029,27 @@
 
 <!-- ===== FOOTER ===== -->
 <footer>
-  <div class="container">
+  <div class="wrap">
     <div class="foot-grid">
-      <div class="foot-brand">
-        <span class="logo-mark serif">AL Ops</span>
+      <div>
+        <a href="#" class="logo" aria-label="AL Ops home"><span class="logo-mark" aria-hidden="true"></span><span class="logo-word">AL Ops</span></a>
         <p>Agentic Ops for engineering organisations running AI in production.</p>
       </div>
-      <div class="foot-col">
-        <div class="foot-col-h">— Platform</div>
-        <a href="#values">Features</a>
-        <a href="#platform">API</a>
-        <a href="#platform">AI</a>
-        <a href="#platform">Data</a>
-        <a href="#governance">Governance Mesh</a>
-      </div>
-      <div class="foot-col">
-        <div class="foot-col-h">— Company</div>
-        <a href="#">Customers</a>
-        <a href="#docs">Docs</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#">Status</a>
-        <a href="#">Trust</a>
-      </div>
-      <div class="foot-col">
-        <div class="foot-col-h">— Legal</div>
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">DPDP</a>
-        <a href="#">GDPR</a>
-        <a href="#">Security</a>
-      </div>
+      <div class="foot-col"><h4>Platform</h4><a href="#offerings">Run</a><a href="#offerings">Govern</a><a href="#offerings">Data</a><a href="#offerings">Audit</a><a href="#domains">Governance Mesh</a></div>
+      <div class="foot-col"><h4>Capabilities</h4><a href="#capabilities">Orchestration</a><a href="#capabilities">HITL gates</a><a href="#capabilities">Cost caps</a><a href="#capabilities">Data contracts</a><a href="#compliance">Compliance</a></div>
+      <div class="foot-col"><h4>Company</h4><a href="#">Customers</a><a href="#">Docs</a><a href="#pricing">Pricing</a><a href="#">Status</a><a href="#">Trust</a></div>
+      <div class="foot-col"><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a><a href="#">DPDP</a><a href="#">GDPR</a><a href="#">Security</a></div>
     </div>
-    <div class="foot-row-bottom">
-      <div>© 2026 AL Ops · Agentic Ops for engineering organisations</div>
-      <div>v4.2.1 · build 2026.05.02</div>
+    <div class="foot-word" aria-hidden="true">AL Ops</div>
+    <div class="foot-bottom">
+      <span class="label">© 2026 AL Ops</span>
+      <span class="label">v4.2.1 · build 2026.05.02</span>
     </div>
   </div>
 </footer>
 
 <script>
-  // Scroll reveal — progressive enhancement, content is visible without JS via the .in fallback below
+  // Scroll reveal: progressive enhancement; content is visible without JS or with reduced motion
   (function(){
     var els = document.querySelectorAll('.reveal');
     if(!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches){
@@ -1738,6 +1063,61 @@
     }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
     els.forEach(function(el){ io.observe(el); });
   })();
+
+  // Point-cloud terrain: a perspective field of dots rolling like data over land
+  function terrain(canvas, opts){
+    if(!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var w, h, dpr, t = opts.t0 || 0, raf = null, visible = true;
+    var COLS = opts.cols || 90, ROWS = opts.rows || 46;
+
+    function size(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.clientWidth; h = canvas.clientHeight;
+      canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function field(x, z, t){
+      return Math.sin(x * 0.18 + t * 0.6) * 0.55
+           + Math.sin(z * 0.23 - t * 0.4 + x * 0.05) * 0.75
+           + Math.sin((x + z) * 0.09 + t * 0.25) * 1.1
+           + Math.cos(x * 0.41 - z * 0.13) * 0.18;
+    }
+    function draw(){
+      ctx.clearRect(0, 0, w, h);
+      var horizon = h * (opts.horizon || 0.34), f = w * 0.55, camH = 3.2;
+      for(var r = ROWS - 1; r >= 0; r--){
+        var z = 2.2 + r * 0.55;                    // world depth, near rows first in screen space
+        var depthA = 1 - r / ROWS;                 // 1 near, 0 far
+        for(var c = 0; c < COLS; c++){
+          var x = (c - COLS / 2) * 0.42;
+          var y = field(c, r + t * 6, t);          // terrain height, scrolling toward the viewer
+          var sx = w / 2 + x * f / z;
+          var sy = horizon + (camH - y * 1.1) * f / z * 0.34;
+          if(sx < -4 || sx > w + 4 || sy < 0 || sy > h + 4) continue;
+          var peak = Math.max(0, (y - 1.1) / 1.3);
+          var a = (0.1 + 0.75 * depthA) * (0.5 + 0.6 * peak);
+          var s = Math.max(0.7, 2.2 * depthA);
+          var hot = peak > 0.8 && (c * 7 + r * 3) % 23 === 0;
+          ctx.fillStyle = hot ? 'rgba(94,224,207,' + Math.min(1, a + 0.35) + ')' : 'rgba(160,232,224,' + Math.min(0.85, a) + ')';
+          ctx.fillRect(sx, sy, s, s);
+        }
+      }
+    }
+    function loop(){ t += 0.006; draw(); raf = visible ? requestAnimationFrame(loop) : null; }
+    size(); draw();
+    window.addEventListener('resize', function(){ size(); draw(); });
+    if(reduce) return;
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){
+        visible = es[0].isIntersecting;
+        if(visible && !raf) raf = requestAnimationFrame(loop);
+      }).observe(canvas);
+    } else { raf = requestAnimationFrame(loop); }
+  }
+  terrain(document.getElementById('terrain'), { horizon: 0.3 });
+  terrain(document.getElementById('terrain2'), { horizon: 0.2, t0: 40, cols: 80, rows: 36 });
 </script>
 
 </body>
