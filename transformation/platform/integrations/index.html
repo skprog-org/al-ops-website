@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Enterprise AI Integrations | AL Ops</title>
+<meta name="description" content="Compare ingestion, synchronization, federated access and document indexing, and keep read access separate from write authority.">
+<link rel="canonical" href="https://www.example.com/platform/integrations/">
+<meta property="og:url" content="https://www.example.com/platform/integrations/">
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Enterprise AI Integrations | AL Ops">
+<meta property="og:description" content="Compare ingestion, synchronization, federated access and document indexing, and keep read access separate from write authority.">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#03141E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2303141E'/%3E%3Cg transform='translate(4 9.6) scale(.4)' fill='%23EAF6F4'%3E%3Cpath d='M9.6 0h6.8L26 32h-6.6L13 9.6 6.6 32H0z'/%3E%3Crect x='11' y='14.5' width='18' height='3' fill='%235EE0CF'/%3E%3Cpath fill-rule='evenodd' d='M44 0a16 16 0 1 1 0 32a16 16 0 1 1 0-32zm0 6.4a9.6 9.6 0 1 0 0 19.2a9.6 9.6 0 1 0 0-19.2z'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="../../assets/fonts/inter-tight-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>(function(){var r=document.documentElement,t=null;r.classList.add('js');try{t=localStorage.getItem('theme')}catch(e){}r.setAttribute('data-theme',t==='light'?'light':'dark')})();</script>
+<link rel="stylesheet" href="../../assets/site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "BreadcrumbList", "@id": "https://www.example.com/platform/integrations/#breadcrumbs", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.example.com/"}, {"@type": "ListItem", "position": 2, "name": "Our platform", "item": "https://www.example.com/platform/"}, {"@type": "ListItem", "position": 3, "name": "Technical overview", "item": "https://www.example.com/platform/architecture/"}, {"@type": "ListItem", "position": 4, "name": "Integrations", "item": "https://www.example.com/platform/integrations/"}]}]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="draft" role="note"><div class="wrap"><b>Draft</b><span>Draft for review. Proposed positioning and copy. Platform capabilities, service deliverables, scenarios and trust statements are pending business, product, security and legal approval.</span></div></div>
+<header class="site-header">
+  <div class="wrap hdr">
+    <a class="brand" href="../../" aria-label="AL Ops home"><svg class="brand-mark" viewBox="0 0 60 32" fill="currentColor" aria-hidden="true"><path d="M9.6 0h6.8L26 32h-6.6L13 9.6 6.6 32H0z"/><rect class="brand-bar" x="11" y="14.5" width="18" height="3"/><path fill-rule="evenodd" d="M44 0a16 16 0 1 1 0 32a16 16 0 1 1 0-32zm0 6.4a9.6 9.6 0 1 0 0 19.2a9.6 9.6 0 1 0 0-19.2z"/></svg><span class="brand-word" aria-hidden="true">AL Ops</span></a>
+    <nav class="primary-nav" id="primary-nav" aria-label="Primary"><a href="../../transformation/">Transformation</a><a href="../../platform/" aria-current=page>Our Platform</a><a href="../../capabilities/artificial-intelligence/">AI &amp; What&rsquo;s Next</a><a href="../../approach/">Our Approach</a><a href="../../perspectives/">Perspectives</a><a class="m-only" href="../../about/">About</a><a class="m-only" href="../../trust/">Trust Center</a></nav>
+    <div class="hdr-right">
+      <nav class="util-nav" aria-label="Utility"><a href="../../about/">About</a><a href="../../trust/">Trust Center</a></nav>
+      <button class="theme-btn" type="button" data-theme-toggle>Theme: Dark</button>
+      <a class="btn" href="../../contact/">Discuss your next move</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+<section class="page-hero"><div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="../../">Home</a></li><li><a href="../../platform/">Our platform</a></li><li><a href="../../platform/architecture/">Technical overview</a></li><li><a href="../../platform/integrations/" aria-current=page>Integrations</a></li></ol></nav><p class="eyebrow">Platform &middot; Integrations</p><h1 class="h1">Connect the systems your decisions depend on.</h1><p class="lede">Review authentication, source coverage, data movement, and action support for each connector. Identify gaps early instead of assuming every integration has identical capabilities.</p><div class="actions"><a class="btn" href="../../contact/">Discuss your systems</a></div></div></section><section class="section tint"><div class="wrap"><p class="eyebrow">Integration paths</p><h2 class="h2">Inspect the supported integration paths.</h2><div style="margin-top:24px"><div class="table-wrap"><table><thead><tr><th scope="col">Path</th><th scope="col">What moves</th><th scope="col">Use when</th><th scope="col">Review before connecting</th></tr></thead><tbody><tr><td>Ingestion</td><td>Data is copied into the platform on a schedule or stream</td><td>You need history, joins across systems or low query latency</td><td>What is stored, where, and for how long</td></tr><tr><td>Synchronization</td><td>Changes are mirrored as they happen</td><td>Operational objects must stay current</td><td>Conflict handling and ordering</td></tr><tr><td>Federated access</td><td>Data stays in the source; queries run in place</td><td>Data must not leave its system</td><td>Source load, latency and policy translation</td></tr><tr><td>Document indexing</td><td>Documents are parsed and indexed for retrieval</td><td>Policies, contracts and case files inform decisions</td><td>What is embedded or cached, and how access maps</td></tr></tbody></table></div></div></div></section><section class="section"><div class="wrap"><div class="split"><div><p class="eyebrow">Actions</p><h2 class="h2">Separate read access from write authority.</h2><p class="lede">Reading from a system and changing it are different permissions. Write actions run through typed tools with scoped credentials, approval rules and receipts.</p></div><div><h3 class="h3">Connector catalog entry format</h3><div class="table-wrap"><table><thead><tr><th scope="col">Field</th><th scope="col">What it states</th></tr></thead><tbody><tr><td>System and versions</td><td>Exact product and tested versions</td></tr><tr><td>Read support</td><td>Objects and fields that can be read</td></tr><tr><td>Write support</td><td>Actions available as tools, if any</td></tr><tr><td>Authentication</td><td>Supported methods</td></tr><tr><td>Known limitations</td><td>Tested gaps and constraints</td></tr><tr><td>Last verified</td><td>Date of the most recent test</td></tr></tbody></table></div><p class="caption">Connector entries are published only after testing. No connector is listed as supported on this draft site.</p></div></div></div></section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="fgrid">
+      <div><a class="brand" href="../../"><svg class="brand-mark" viewBox="0 0 60 32" fill="currentColor" aria-hidden="true"><path d="M9.6 0h6.8L26 32h-6.6L13 9.6 6.6 32H0z"/><rect class="brand-bar" x="11" y="14.5" width="18" height="3"/><path fill-rule="evenodd" d="M44 0a16 16 0 1 1 0 32a16 16 0 1 1 0-32zm0 6.4a9.6 9.6 0 1 0 0 19.2a9.6 9.6 0 1 0 0-19.2z"/></svg>AL Ops</a>
+        <p>Business transformation, starting with AI. A technology platform, backed by advisory and implementation.</p></div>
+      <div class="fcol"><h2>Transformation</h2><ul><li><a href="../../transformation/">Overview</a></li><li><a href="../../transformation/growth/">Growth</a></li><li><a href="../../transformation/operations/">Operations</a></li><li><a href="../../transformation/customer-experience/">Customer experience</a></li><li><a href="../../industries/">Industries</a></li></ul></div>
+      <div class="fcol"><h2>Offer</h2><ul><li><a href="../../platform/">Our platform</a></li><li><a href="../../capabilities/artificial-intelligence/">AI &amp; What&rsquo;s Next</a></li><li><a href="../../approach/">Our approach</a></li><li><a href="../../platform/architecture/">Technical overview</a></li></ul></div>
+      <div class="fcol"><h2>Perspectives</h2><ul><li><a href="../../perspectives/">All perspectives</a></li><li><a href="../../perspectives/readiness-check/">Readiness self-check</a></li><li><a href="../../perspectives/glossary/">Glossary</a></li></ul></div>
+      <div class="fcol"><h2>Company</h2><ul><li><a href="../../about/">About</a></li><li><a href="../../trust/">Trust Center</a></li><li><a href="../../contact/">Contact</a></li></ul></div>
+    </div>
+    <div class="fword" aria-hidden="true">AL Ops</div>
+    <div class="fbottom"><span>&copy; 2026 AL Ops. Draft site.</span>
+      <ul><li><a href="../../legal/privacy-notice/">Privacy notice</a></li><li><a href="../../legal/terms/">Terms</a></li><li><a href="../../legal/data-processing-addendum/">Data processing</a></li><li><a href="../../legal/ai-use-policy/">AI-use policy</a></li><li><a href="../../legal/accessibility/">Accessibility</a></li></ul></div>
+  </div>
+</footer>
+<script src="../../assets/site.js" defer></script>
+</body>
+</html>
