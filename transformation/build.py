@@ -80,11 +80,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* layout */
 .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
 .section{padding:clamp(88px,10vw,152px) 0;border-top:1px solid var(--border)}
-/* tinted sections invert the active theme: shallows on the deep-sea site, deep water on the light one */
-.section.tint,.strip{--bg:#E3F0EE;--surface:#F3F9F8;--raised:#D3E6E4;--border:#BCD5D4;--outline:#6B8C93;--text:#04202B;--text-2:#234452;--muted:#4A6B75;
-  --accent:#0B6F6A;--accent-ink:#FFF;--blue:#1E5F86;--ok:#1C7A52;--warn:#8A5A00;--bad:#B42828;--glow:rgba(11,111,106,.2);background:var(--bg);color:var(--text);border-top-color:var(--border);color-scheme:light}
-:root[data-theme="light"] .section.tint,:root[data-theme="light"] .strip{--bg:#03141E;--surface:#061E2B;--raised:#0C2E40;--border:#14394C;--outline:#3F6878;--text:#EAF6F4;--text-2:#B4D0D4;
-  --muted:#7FA2AB;--accent:#5EE0CF;--accent-ink:#03141E;--blue:#8EC9F0;--ok:#8FD9B6;--warn:#F2C46D;--bad:#FF9292;--glow:rgba(94,224,207,.25);color-scheme:dark}
+/* tinted sections lay a light wash over the page grid, in the active theme */
+.section.tint{background:color-mix(in srgb,var(--surface) 60%,transparent)}
 .prose-w{max-width:72ch}
 .split{display:grid;grid-template-columns:5fr 7fr;gap:56px;align-items:start}
 .split.rev{grid-template-columns:7fr 5fr}
@@ -96,8 +93,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .h1{font-family:var(--display);font-weight:400;font-size:clamp(40px,5.6vw,84px);line-height:1;letter-spacing:-.035em;margin:0 0 28px;max-width:18ch}
 .h2{font-family:var(--display);font-weight:400;font-size:clamp(30px,3.6vw,56px);line-height:1.04;letter-spacing:-.03em;margin:0 0 24px;max-width:22ch}
 .h3{font-family:var(--display);font-weight:500;font-size:21px;line-height:1.25;letter-spacing:-.01em;margin:0 0 10px}
-.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 18px;display:flex;align-items:center;gap:10px}
-.eyebrow::before{content:"";width:6px;height:6px;background:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2);margin:0 0 22px;display:flex;align-items:center;gap:14px}
+.eyebrow::before{content:"";flex:none;width:36px;height:1px;background:var(--accent)}
 .lede{font-size:clamp(17px,1.35vw,19.5px);line-height:1.6;color:var(--text-2);max-width:62ch}
 .muted{color:var(--muted)}
 .t2{color:var(--text-2)}
@@ -161,8 +158,7 @@ button.btn::after,.hdr-right .btn::after{content:none}
 .hero{padding:72px 0 88px}
 .hero-grid{display:grid;grid-template-columns:5fr 7fr;gap:48px;align-items:start}
 .hero .support{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:15px;max-width:48ch}
-.page-hero{padding:clamp(72px,9vw,136px) 0 clamp(64px,7vw,104px);position:relative;overflow:hidden;background-image:radial-gradient(var(--border) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
-.page-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--bg) 35%,color-mix(in srgb,var(--bg) 55%,transparent));pointer-events:none}
+.page-hero{padding:clamp(72px,9vw,136px) 0 clamp(64px,7vw,104px);position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
 .page-hero .wrap{position:relative}
 .byline{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:18px}
 
@@ -900,12 +896,6 @@ JS = r"""
     };
     boxes.forEach(function(b){b.addEventListener('change',upd)});upd();
   }
-
-  // A/B landing test: a visitor who arrives through a variant keeps it for the session, and the contact form sends it
-  // with the enquiry ("a" for everyone who did not come through a variant page)
-  var variant=null;
-  try{var vq=/[?&]variant=([a-z0-9-]{1,20})(?:&|$)/i.exec(location.search);if(vq)sessionStorage.setItem('variant',vq[1].toLowerCase());variant=sessionStorage.getItem('variant')}catch(e){}
-  [].forEach.call(d.querySelectorAll('input[data-variant]'),function(i){i.value=variant||'a'});
 
   // forms: inline errors, data kept on failure, honest confirmation when delivery is not configured
   var FORM_ENDPOINT='';  // set to an HTTPS endpoint that accepts a JSON POST to deliver submissions
@@ -3120,11 +3110,7 @@ CTA = "Discuss your next move"
 @functools.lru_cache(maxsize=None)
 def asset_version():
     """Short hash of the CSS and JS, appended to their URLs so browsers fetch the new files after every change."""
-    return hashlib.sha256((CSS + JS).encode()).hexdigest()[:10]
-
-
-def home_b_version():
-    return hashlib.sha256((HOME_B_CSS + HOME_B_JS).encode()).hexdigest()[:10]
+    return hashlib.sha256((CSS + LOOK_CSS + JS + LOOK_JS).encode()).hexdigest()[:10]
 
 
 # runs before CSS paints: applies the saved theme and marks JS as available
@@ -3152,11 +3138,19 @@ def url(route):
 ORG = {"@type": "Organization", "@id": url("") + "#organization", "name": BRAND, "url": url("")}
 
 
-def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=None, variant_of=None, head="", footer_art=""):
+KEY_WORD = re.compile(r'(<(h1|h2) class="(?:display|h1|h2)[^"]*">)([^<]*?)((?:&[a-z]+;|[\w-])+[.?!]?)(</\2>)')
+
+
+def mark_key_words(body):
+    """Underline the last word of each page heading in the accent, as the homepage does by hand (headings with markup are left alone)."""
+    return KEY_WORD.sub(lambda m: m.group(1) + m.group(3) + "<mark>" + m.group(4) + "</mark>" + m.group(5), body)
+
+
+def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=None, variant_of=None, head="", footer_art=None):
     """route like 'platform/ai-agents/' ('' for home). crumbs: list of (name, route) after Home.
     variant_of: route this page is an A/B variant of; the variant is noindex, canonical to that route and left out of the sitemap.
     head: extra markup for <head>, such as a variant stylesheet.
-    footer_art: extra markup placed in the footer between the wordmark and the bottom bar."""
+    footer_art: markup placed in the footer between the wordmark and the bottom bar (the industries line by default)."""
     depth = route.count("/")
     P = "./" if depth == 0 else "../" * depth
     nav = "".join('<a href="%s%s"%s>%s</a>' % (P, r, " aria-current=page" if section == r else "", n) for r, n in NAV)
@@ -3172,6 +3166,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
         graph.append({"@type": "BreadcrumbList", "@id": url(route) + "#breadcrumbs",
                       "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": n, "item": url(r)}
                                           for i, (n, r) in enumerate(trail)]})
+    body = mark_key_words(body)
     body = body.replace("{CRUMBS}", crumb_html).replace("{P}", P).replace("{BRAND}", BRAND)
     ld = ""
     if graph:
@@ -3186,7 +3181,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
     draft = ""
     # closing call to action above the footer (the homepage and contact page already end with one)
     fcta = "" if route in ("", "contact/") or out is not None or variant_of is not None else (
-        '<section class="fcta"><div class="wrap"><h2>What should your business be able to do next?</h2>'
+        '<section class="fcta"><div class="wrap"><h2>What should your business be able to do <mark>next?</mark></h2>'
         '<a class="btn" href="%scontact/">%s</a></div></section>' % (P, CTA))
     html = """<!doctype html>
 <html lang="en" data-theme="dark">
@@ -3248,7 +3243,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
 """ % dict(av=asset_version(), title=title, desc=desc, meta="\n".join(meta), fav=FAVICON, P=P, init=HEAD_INIT, ld=ld, draft=draft,
            brand=BRAND, mark=BRAND_MARK, nav=nav, mutil=mutil, util=util, cta=CTA, body=body,
            regions=footer_regions(P), fcta=fcta, head=("\n" + head.replace("{P}", P)) if head else "",
-           fart=footer_art.replace("{P}", P))
+           fart=(FOOTER_ART if footer_art is None else footer_art).replace("{P}", P))
     PAGES.append((out or (route + "index.html"), html, route if out is None and variant_of is None else None))
 
 
@@ -3473,58 +3468,6 @@ def scenarios():
         % s for s in SCENARIOS)
 
 
-HOME = "".join([
-    '<section class="statement"><canvas data-terrain aria-hidden="true"></canvas><div class="wrap"><div class="statement-grid"><div>'
-    '<p class="eyebrow">A platform for business transformation</p>'
-    '<h1 class="display">The future of your business won&rsquo;t build itself.</h1></div><div>'
-    '<p class="lede">Build new sources of growth. Change how work gets done. Create better experiences for the people you serve. '
-    '{BRAND} connects business ambition with practical transformation, starting with AI and focused on what comes next.</p>'
-    '<p class="offer-line">A technology platform, backed by advisory and implementation, to turn business ambition into practical change.</p>',
-    acts(("Discuss your next move", "{P}contact/"), ("Explore the possibilities", "#pathways")),
-    '</div></div><p class="support">Business ambition first. Technology with purpose.</p></div></section>',
-    '<section class="band"><div class="wrap">' + illus("business-in-motion-3d.webp", "Illustration", eager=True, motion="hub3d") + '</div></section>',
-
-    sec('<div class="reveal">' + split(
-        '<h2 class="h2">Running today&rsquo;s business is not the same as building tomorrow&rsquo;s.</h2>',
-        '<p class="lede">You need to deliver today while creating room for what comes next. That may mean a new offering, a different '
-        'customer experience, or a way of working that can support the next stage of growth.</p>'
-        '<p class="big-q" style="margin-top:28px">The question is not which technology to buy. It is what needs to change in the business, '
-        'and what will make that change possible.</p>') + '</div>'),
-
-    sec('<div class="reveal"><p class="eyebrow">Transformation</p><h2 class="h2">Start with what your business needs to become.</h2>'
-        '<p class="lede">Define the opportunity before choosing the solution. Connect the commercial goal to the people, processes, and '
-        'capabilities needed to deliver it.</p>' + pathways() + '</div>', tint=True, id_="pathways"),
-
-    sec('<div class="reveal"><p class="eyebrow">Our platform</p><h2 class="h2">A foundation for change, not another isolated initiative.</h2>'
-        '<p class="lede">{BRAND} brings advisory, a technology platform, and implementation together around the change your business needs. '
-        'Define the opportunity, put the right capabilities in place, and make them part of how the business works.</p>'
-        + offer_trio()
-        + '<p class="t2" style="margin-top:28px;max-width:62ch">Start with a defined result. Use advisory to shape the change, the platform to '
-        'enable it, and implementation to put it into practice.</p>'
-        + acts(("Explore our platform", "{P}platform/")) + '</div>'),
-
-    sec('<div class="reveal">' + split(
-        '<p class="eyebrow">AI &amp; What&rsquo;s Next</p><h2 class="h2">AI is where we begin. Business transformation is why.</h2>',
-        '<p class="lede">Our starting focus is AI: helping teams use information, reshape repetitive work, and develop new ways to serve '
-        'customers. Every application starts with a business question and a result worth pursuing.</p>'
-        '<p class="t2">The ambition is broader than any one technology. As new capabilities become useful, the test stays the same: what '
-        'will they help your business do better, or do for the first time?</p>'
-        + acts(("Explore AI for your business", "{P}capabilities/artificial-intelligence/"))) + '</div>', tint=True),
-
-    sec('<div class="reveal"><p class="eyebrow">From intent to implementation</p><h2 class="h2">Make the next move real.</h2>'
-        '<p class="lede">A transformation should be more than a presentation or a disconnected pilot. Define the result, test the change, '
-        'prepare the people who will use it, and decide what deserves to scale.</p>' + steps(MOVES)
-        + acts(("See our approach", "{P}approach/")) + '</div>'),
-
-    sec('<div class="reveal"><p class="eyebrow">Evidence</p><h2 class="h2">See how a transformation could take shape.</h2>'
-        '<p class="lede">Each scenario shows the problem, the change, and how the result would be measured. These are illustrative '
-        'scenarios, not customer stories or reported results.</p>' + scenarios() + '</div>', tint=True),
-
-    sec('<div class="prose-w reveal"><h2 class="h2">What should your business be able to do next?</h2>'
-        '<p class="lede">Start with the opportunity you want to pursue or the constraint you need to remove. Let&rsquo;s define the change '
-        'before deciding what to build.</p>' + acts(("Discuss your next move", "{P}contact/")) + '</div>'),
-])
-
 # ---------------------------------------------------------------- transformation
 TRANSFORM_HUB = "".join([
     hero("Transformation", "Build the business your next chapter needs.",
@@ -3598,12 +3541,11 @@ def transform_body(x):
     ])
 
 
-# ---------------------------------------------------------------- homepage, variant B (A/B test)
-# A second homepage at /home-b/ for testing traction against the original. It reuses the homepage copy, the terrain field and the 3D
-# scenes in a line-drawing visual language: a full-height hero, underlined key words, a timeline of moves, a scroll-driven loop and a
-# footer where one line runs through five industries. It is noindex,
-# canonical to the homepage and left out of the sitemap; its calls to action carry ?variant=b so enquiries can be attributed.
-HOME_B_CTA = "{P}contact/?variant=b"
+# ---------------------------------------------------------------- homepage
+# The homepage reuses the terrain field and the 3D scenes in a line-drawing visual language: a full-height hero, underlined key words,
+# a timeline of moves, a scroll-driven loop and a footer where one line runs through five industries. The visual language (grid
+# background, underlined key words, line eyebrows, the footer) applies to every page; see LOOK_CSS.
+HOME_CTA = "{P}contact/"
 
 
 def vb_chip(text):
@@ -3740,10 +3682,10 @@ VB_FAQ = [
 def vb_cta(note):
     return ('<div class="vb-cta"><a class="vb-btn" href="%s">Discuss your next move</a><div><p><b>%s</b></p>'
             '<p class="vb-cta-sub">Start with the opportunity you want to pursue or the constraint you need to remove.</p></div></div>'
-            % (HOME_B_CTA, note))
+            % (HOME_CTA, note))
 
 
-HOME_B = "".join([
+HOME = "".join([
     # hero: the homepage 3D scene, sized to the hero height and fading into the page behind a measuring rail
     '<section class="vb-hero"><div class="vb-hero-art">'
     + illus("business-in-motion-3d.webp", "Illustration", eager=True, motion="hub3d")
@@ -3841,16 +3783,16 @@ HOME_B = "".join([
     + '<p class="vb-micro"><a href="{P}perspectives/readiness-check/">Or take the readiness checklist first</a></p></div></section>',
 ])
 
-HOME_B_CSS = r"""
-/* homepage variant B: layered on site.css, scoped to pages containing .vb */
-body:has(.vb){--hl:var(--accent);--hl-ink:var(--accent-ink);--grid:color-mix(in srgb,var(--border) 55%,transparent);--r:0px;--hh:68px}
-.vb{background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+LOOK_CSS = r"""
+/* the site's visual language, first drawn for the homepage: a grid behind the content, key words underlined in the accent */
+:root{--hl:var(--accent);--hl-ink:var(--accent-ink);--grid:color-mix(in srgb,var(--border) 55%,transparent);--r:0px;--hh:68px}
+main{background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
   background-size:28px 28px}
 /* key words: accent colour with a stroke that draws underneath when the heading comes into view */
-.vb mark{background:linear-gradient(var(--accent),var(--accent)) 0 96%/100% .06em no-repeat;color:var(--accent);padding:0;
+mark{background:linear-gradient(var(--accent),var(--accent)) 0 96%/100% .06em no-repeat;color:var(--accent);padding:0;
   -webkit-box-decoration-break:clone;box-decoration-break:clone;transition:background-size 1.2s var(--ease) .25s}
-html.js .vb mark{background-size:0% .06em}
-html.js .vb mark.on{background-size:100% .06em}
+html.js mark{background-size:0% .06em}
+html.js mark.on{background-size:100% .06em}
 .vb-chip{display:flex;align-items:center;gap:14px;margin:0 0 22px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2)}
 .vb-chip::before{content:"";flex:none;width:36px;height:1px;background:var(--accent)}
 .vb-h{font-family:var(--display);font-weight:400;font-size:clamp(44px,6.4vw,96px);line-height:.98;letter-spacing:-.045em;margin:0 0 28px;max-width:12ch}
@@ -3982,7 +3924,7 @@ html.js .vb-panel.on .vb-card::before{transform:none}
 .vb-built a{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor}
 .vb-terms{display:none}
 @media (min-width:1001px) and (prefers-reduced-motion:no-preference){
-  /* two steps in view: the cards sit on one track that glides with the scroll (eased in home-b.js, --s = steps scrolled),
+  /* two steps in view: the cards sit on one track that glides with the scroll (eased in site.js, --s = steps scrolled),
      fading in at the bottom edge and out at the top; the titles on the left ride a matching track */
   html.js .vb-loop{height:calc(var(--n)*60vh + 100vh);padding:0}
   html.js .vb-loop-in{position:sticky;top:0;height:100vh;display:flex;align-items:center}
@@ -4078,11 +4020,10 @@ html.js .vb-panel.on .vb-card::before{transform:none}
 }
 """
 
-HOME_B_JS = r"""
-// homepage variant B: underlined key words, the timeline, the signal lines, and the scroll-driven loop
+LOOK_JS = r"""
+// underlined key words, the timeline, the signal lines, and the scroll-driven loop
 (function(){
   var d=document,still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  try{sessionStorage.setItem('variant','b')}catch(e){}   // so an enquiry made later in the visit is attributed to B
   function bg(){return getComputedStyle(d.body).backgroundColor||'#03141E'}
   function accent(){return getComputedStyle(d.documentElement).getPropertyValue('--accent').trim()||'#5EE0CF'}
   function fit(cv){var r=Math.min(window.devicePixelRatio||1,2),w=cv.clientWidth,h=cv.clientHeight;cv.width=Math.round(w*r);cv.height=Math.round(h*r);
@@ -4095,7 +4036,7 @@ HOME_B_JS = r"""
   }
 
   // key words and the timeline draw in when they come into view
-  var drawn=[].slice.call(d.querySelectorAll('.vb mark,.vb-panel'));
+  var drawn=[].slice.call(d.querySelectorAll('mark,.vb-panel'));
   if('IntersectionObserver' in window&&!still){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}})},{rootMargin:'0px 0px -12% 0px'});
     drawn.forEach(function(el){io.observe(el)})}
   else drawn.forEach(function(el){el.classList.add('on')});
@@ -4144,9 +4085,9 @@ HOME_B_JS = r"""
 """
 
 
-# footer for variant B: one continuous line draws a port, a factory, power lines, finance towers and an airbase. A pulse travels along
+# footer: one continuous line draws a port, a factory, power lines, finance towers and an airbase. A pulse travels along
 # it, and as it reaches each industry the status line tells one illustrative decision from that industry (the same decisions the 3D
-# scenes show). Drawn as SVG so it stays sharp and follows the theme; home-b.js runs the draw-in, the pulse and the narration.
+# scenes show). Drawn as SVG so it stays sharp and follows the theme; site.js runs the draw-in, the pulse and the narration.
 VB_LINE = (
     "M0,300 L60,300 L70,280 L80,280 L80,262 L110,262 L110,280 L112,280 L112,250 L142,250 L142,280 L144,280 L144,262 L174,262 L174,280 "
     "L200,280 L210,300 L240,300 L240,176 L160,176 L160,215 L170,215 L170,230 L150,230 L150,215 L160,215 L160,176 L110,176 L110,170 "
@@ -4193,7 +4134,7 @@ VB_INDUSTRIES = [
     ("Defense &amp; intelligence", "industries/defense-intelligence/", .87, "AI recommends inspecting aircraft 207. The readiness planner overrules it and inspects 211 first."),
 ]
 
-HOME_B_FOOTER = (
+FOOTER_ART = (
     '<div class="vb-scape">'
     '<div class="vb-scape-head"><p class="vb-ftag">One way of working, <span>across the industries that keep the world running.</span></p>'
     '<p class="vb-say" aria-hidden="true"><span class="vb-say-k">%s</span><span class="vb-say-t">%s</span>'
@@ -4204,13 +4145,13 @@ HOME_B_FOOTER = (
               for i, (name, href, x, say) in enumerate(VB_INDUSTRIES))
     + '</nav></div>')
 
-HOME_B_CSS += r"""
+LOOK_CSS += r"""
 /* footer: the wordmark from the standard footer, then one line through five industries */
-body:has(.vb) .site-footer{padding-bottom:20px}
-body:has(.vb) .site-footer>.wrap{display:flex;flex-direction:column}
-body:has(.vb) .fgrid{order:1}
-body:has(.vb) .fregions{order:2}
-body:has(.vb) .fword{order:3}
+.site-footer{padding-bottom:20px}
+.site-footer>.wrap{display:flex;flex-direction:column}
+.fgrid{order:1}
+.fregions{order:2}
+.fword{order:3}
 .vb-scape{order:4;position:relative;margin-top:-.6em;font-size:clamp(72px,20vw,300px)}
 .vb-scape>*{font-size:1rem}
 .vb-scape-head{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 40px;margin-bottom:8px}
@@ -4256,7 +4197,7 @@ html.js .vb-scape.drawn .vb-win,html.js .vb-scape.drawn .vb-smoke,html.js .vb-sc
 .vb-scape-labels a::before{content:"";position:absolute;left:50%;bottom:100%;width:1px;height:10px;background:var(--border);transition:background .25s var(--ease)}
 .vb-scape-labels a:hover,.vb-scape-labels a.on{color:var(--text);border-color:var(--accent)}
 .vb-scape-labels a.on::before{background:var(--accent)}
-body:has(.vb) .fbottom{order:5;margin-top:28px}
+.fbottom{order:5;margin-top:28px}
 @media (prefers-reduced-motion:reduce){.vb-win,.vb-blades,.vb-dish,.vb-smoke,.vb-water{animation:none}}
 @media (max-width:900px){
   .vb-scape{margin-top:-.6em}
@@ -4267,7 +4208,7 @@ body:has(.vb) .fbottom{order:5;margin-top:28px}
 }
 """
 
-HOME_B_JS += r"""
+LOOK_JS += r"""
 // footer: draw the line in, then send a pulse along it and narrate the decision in each industry it passes
 (function(){
   var d=document,sc=d.querySelector('.vb-scape');if(!sc)return;
@@ -5235,7 +5176,6 @@ CONTACT = "".join([
     sec(split('<h2 class="h2">Tell us about your next move.</h2>' + NO_SENSITIVE
               + form_msgs("move", "Thank you.", "We have your message and will reply to the email address you provided.")
               + '<form class="form" id="move-form" data-form="move" novalidate>'
-              + '<input type="hidden" name="mv-variant" value="a" data-variant>'
               + '<div class="frow">' + field("mv-email", "Work email", "email", "Enter a valid work email.", auto="email")
               + field("mv-org", "Organization", required="Enter your organization.", auto="organization") + '</div>'
               + '<div class="frow">' + field("mv-role", "Role", required="Enter your role.", auto="organization-title")
@@ -5615,10 +5555,6 @@ def main():
     page("", "Business Transformation, Starting with AI | " + b,
          "Build new growth, better operations, and stronger customer experiences. %s connects business ambition with practical transformation, starting with AI." % b,
          HOME, schema=[org])
-    page("home-b/", "Business Transformation, Starting with AI | " + b,
-         "Build new growth, better operations, and stronger customer experiences. %s connects business ambition with practical transformation, starting with AI." % b,
-         '<div class="vb">' + HOME_B + '</div>', variant_of="", footer_art=HOME_B_FOOTER,
-         head='<link rel="stylesheet" href="{P}assets/home-b.css?v=%s">\n<script src="{P}assets/home-b.js?v=%s" defer></script>' % ((home_b_version(),) * 2))
     page("transformation/", "Business Transformation | " + b,
          "Transformation is a deliberate change in what your business can offer, how it operates, and how it creates value. Choose the outcome, then design the change.",
          TRANSFORM_HUB, crumbs=[("Transformation", "transformation/")], section="transformation/")
@@ -5707,12 +5643,10 @@ def main():
             fh.write(text)
         written.add(path)
 
-    w("assets/site.css", CSS.strip() + "\n")
-    w("assets/site.js", JS.strip() + "\n")
+    w("assets/site.css", CSS.strip() + "\n" + LOOK_CSS.strip() + "\n")
+    w("assets/site.js", JS.strip() + "\n" + LOOK_JS.strip() + "\n")
     w("assets/motion.js", MOTION.strip() + "\n")
     w("assets/night.js", NIGHT.strip() + "\n")
-    w("assets/home-b.css", HOME_B_CSS.strip() + "\n")
-    w("assets/home-b.js", HOME_B_JS.strip() + "\n")
     for name, (source, _) in SCENES.items():
         w("assets/%s.js" % name, source.strip() + "\n")
     for relpath, html, _ in PAGES:
