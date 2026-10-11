@@ -3588,80 +3588,90 @@ GLOSSARY_TERMS = [
 
 # the loop: (title, status, line, glossary term behind the step, mock panel)
 VB_LOOP = [
-    ("Deploy", "Isolated", "The platform runs where the data has to stay, including sites with no connection to outside networks.",
+    ("Secure", "Protected", "The platform runs where your information has to stay, including sites with no connection to outside networks.",
+     ("Data sovereignty", "Your information stays in the places and under the controls you choose, and never leaves without your say."),
      "air-gapped",
-     '<p class="vm-k">Deployment &middot; restricted site</p><dl class="vm-code"><dt>outside network</dt><dd>none</dd>'
-     '<dt>models</dt><dd>hosted on site</dd><dt>updates</dt><dd>offline, signed</dd><dt>status</dt><dd class="hi">demonstrated</dd></dl>'
+     '<p class="vm-k">Set-up &middot; restricted site</p><dl class="vm-code"><dt>data location</dt><dd>on site</dd>'
+     '<dt>outside access</dt><dd>none</dd><dt>updates</dt><dd>checked, then approved</dd><dt>status</dt><dd class="hi">demonstrated</dd></dl>'
      '<p class="vm-foot">Claimed only where it has been shown to work</p>'),
-    ("Connect", "Connected", "Each system&rsquo;s fields are mapped to shared business definitions, with lineage back to the source.",
+    ("Connect", "Connected", "Information from each system is matched to the terms your business already uses, and stays traceable to where it came from.",
+     ("Common language", "Every team works from the same definition of a customer, an order or a commitment, whichever system holds it."),
      "semantic-data-layer",
-     '<p class="vm-k">Source field &rarr; business meaning</p><ul class="vm-map"><li><code>erp.ord_dt</code><i></i><span>Order date</span></li>'
-     '<li><code>crm.acct_tier</code><i></i><span>Customer priority</span></li><li><code>svc.sla_hrs</code><i></i><span>Commitment</span></li></ul>'
-     '<p class="vm-foot">Lineage kept to every source field</p>'),
-    ("Understand", "In context", "Agents read a governed model of the business: its objects, how they relate, and the actions permitted on them.",
+     '<p class="vm-k">System record &rarr; business term</p><ul class="vm-map"><li><code>ERP order date</code><i></i><span>Order date</span></li>'
+     '<li><code>CRM account tier</code><i></i><span>Customer priority</span></li><li><code>Service hours</code><i></i><span>Commitment</span></li></ul>'
+     '<p class="vm-foot">Every figure traceable to its source</p>'),
+    ("Understand", "In context", "AI works from a map of how your business runs: who you serve, what you have promised, and what it is allowed to change.",
+     ("Operating model", "How the business fits together: its customers, orders, suppliers and contracts, and who may act on each."),
      "ontology",
-     '<p class="vm-k">Object &middot; Order 4471</p><ul class="vm-list"><li><span>placed by</span><b class="vm-tag">Customer &middot; priority</b></li>'
+     '<p class="vm-k">Order 4471</p><ul class="vm-list"><li><span>placed by</span><b class="vm-tag">Customer &middot; priority</b></li>'
      '<li><span>supplied by</span><b class="vm-tag">Supplier A &middot; delayed</b></li><li><span>governed by</span><b class="vm-tag">Contract &middot; 48 h</b></li></ul>'
-     '<p class="vm-foot">Permitted actions: reroute, split, notify</p>'),
-    ("Route", "Routed", "Every request passes through one gateway, where policy picks the approved model for its data and task.",
+     '<p class="vm-foot">Allowed changes: reroute, split, notify</p>'),
+    ("Choose", "Matched", "Each task goes to the approved AI model best suited to how sensitive the information is and what the work demands.",
+     ("Vendor choice", "No dependence on a single AI provider. Models can be swapped as better or cheaper ones arrive, without redoing the work."),
      "model-gateway",
-     '<p class="vm-k">Routing policy &middot; request r3</p><dl class="vm-code"><dt>data class</dt><dd>restricted</dd>'
-     '<dt>task</dt><dd>multi-step reasoning</dd><dt>route</dt><dd class="hi">in-region open model</dd><dt>fallback</dt><dd>in-region backup</dd></dl>'
-     '<p class="vm-foot">Swap the model without changing the workflow</p>'),
-    ("Reason", "Served", "The model runs on serving tuned for the workflow: fast enough to use, reliable enough to depend on, and priced to run at scale.",
+     '<p class="vm-k">Task &middot; supplier delay</p><dl class="vm-code"><dt>sensitivity</dt><dd>confidential</dd>'
+     '<dt>work</dt><dd>complex analysis</dd><dt>chosen</dt><dd class="hi">in-region model</dd><dt>backup</dt><dd>second provider</dd></dl>'
+     '<p class="vm-foot">Change provider without changing the process</p>'),
+    ("Analyze", "Answered", "Answers arrive fast enough to use in the moment, dependably enough to rely on, and at a cost that holds up at volume.",
+     ("Unit economics", "What each AI-assisted decision costs, and whether that cost still makes sense at thousands a day."),
      "inference-engineering",
-     '<p class="vm-k">Inference &middot; in-region open model</p><dl class="vm-code"><dt>time to first token</dt><dd>180 ms</dd>'
-     '<dt>p95 response</dt><dd>1.1 s</dd><dt>availability</dt><dd>99.99%</dd><dt>cost per 1,000 runs</dt><dd class="hi">&euro;3.80</dd></dl>'
-     '<p class="vm-foot">Batching, caching and quantisation tuned to the workload</p>'),
-    ("Trace", "Evidence found", "AI follows the connected records to find what caused the problem and what it puts at risk.",
+     '<p class="vm-k">Performance &middot; this process</p><dl class="vm-code"><dt>answer time</dt><dd>1 second</dd>'
+     '<dt>availability</dt><dd>99.99%</dd><dt>cost per 1,000 decisions</dt><dd class="hi">&euro;3.80</dd></dl>'
+     '<p class="vm-foot">Tuned to the volume and pace of the work</p>'),
+    ("Investigate", "Cause found", "AI follows the connected records to find what caused the problem and what it puts at risk.",
+     ("Root cause", "What actually started the problem, found by following the chain of events rather than guessing from symptoms."),
      "knowledge-graph",
-     '<p class="vm-k">Evidence paths &middot; Order 4471</p><svg class="vm-graph" viewBox="0 0 240 112" aria-hidden="true">'
+     '<p class="vm-k">What led here &middot; Order 4471</p><svg class="vm-graph" viewBox="0 0 240 112" aria-hidden="true">'
      '<path d="M120 56L40 22M120 56L40 92M120 56L200 22M120 56L200 92"/><path class="hi" d="M120 56L200 22M120 56L40 22"/>'
      '<circle cx="120" cy="56" r="6" class="hi"/><circle cx="40" cy="22" r="4" class="hi"/><circle cx="40" cy="92" r="4"/>'
      '<circle cx="200" cy="22" r="4" class="hi"/><circle cx="200" cy="92" r="4"/>'
      '<text x="120" y="78" text-anchor="middle">Order 4471</text><text x="40" y="10" text-anchor="middle">Supplier A late</text>'
      '<text x="40" y="108" text-anchor="middle">Customer</text><text x="200" y="10" text-anchor="middle">Supplier B stock</text>'
      '<text x="200" y="108" text-anchor="middle">Lane DE&ndash;UK</text></svg>'
-     '<p class="vm-foot">Two linked causes found across ERP and CRM</p>'),
+     '<p class="vm-foot">Two linked causes found across sales and supply</p>'),
     ("Recommend", "Ranked", "Each option is weighed against cost, commitments and constraints, then ranked. Waiting can be the right call.",
+     ("Decision support", "Options laid out side by side with their cost, risk and effect on commitments, so the owner can choose with confidence."),
      "decision-intelligence",
      '<p class="vm-k">Options &middot; Order 4471</p><div class="vm-rank"><span>Switch to supplier B</span><i style="--w:84%"></i>'
      '<span>Split the shipment</span><i style="--w:61%"></i><span>Wait for supplier A</span><i style="--w:38%"></i></div>'
      '<p class="vm-foot">Keeps the 48 h commitment, at +&euro;18,400</p>'),
-    ("Check", "Rule applied", "Approval rules run as versioned code outside the model, and decide whether a person must sign off.",
+    ("Check", "Rule applied", "Your approval rules are applied the same way every time, and decide whether a person must sign off.",
+     ("Approval limits", "Spending and sign-off limits written down once and applied every time, so it is always clear who must decide."),
      "policy-as-code",
-     '<p class="vm-k">Policy v12 &middot; supplier change</p><dl class="vm-code"><dt>cost change</dt><dd>+&euro;18,400</dd>'
+     '<p class="vm-k">Approval rule &middot; supplier change</p><dl class="vm-code"><dt>cost change</dt><dd>+&euro;18,400</dd>'
      '<dt>agreed limit</dt><dd>&euro;10,000</dd><dt>result</dt><dd class="hi">needs category manager</dd></dl>'
-     '<p class="vm-foot">The agent cannot change or skip this rule</p>'),
+     '<p class="vm-foot">AI cannot change or skip this rule</p>'),
     ("Approve", "Awaiting owner", "The accountable owner sees the recommendation, its evidence and its cost, then approves, edits or declines.",
+     ("Accountability", "A named person owns every consequential decision. AI prepares the decision; people make it."),
      "human-in-the-loop",
      '<p class="vm-k">Approval &middot; category manager</p><p class="vm-q">Switch order 4471 to supplier B</p>'
-     '<ul class="vm-list"><li><span>Evidence</span><b class="vm-tag">3 paths</b></li><li><span>Cost change</span><b class="vm-tag">+&euro;18,400</b></li></ul>'
+     '<ul class="vm-list"><li><span>Evidence</span><b class="vm-tag">3 sources</b></li><li><span>Cost change</span><b class="vm-tag">+&euro;18,400</b></li></ul>'
      '<div class="vm-btns"><b class="vm-btn">Approve</b><b class="vm-btn ghost">Edit</b><b class="vm-btn ghost">Decline</b></div>'),
-    ("Coordinate", "Planned", "Agents break the approved change into tasks and hand each to the right system or person, within the permissions they were given.",
+    ("Coordinate", "Planned", "The approved change is broken into tasks, and each goes to the right team or system, within agreed limits.",
+     ("Automation", "Routine follow-up work done for you, so people spend their time on the calls that need judgment."),
      "agentic-workflows",
-     '<p class="vm-k">Plan &middot; switch to supplier B</p><ul class="vm-list"><li><span>Update the PO</span><b class="vm-tag">Procurement agent</b></li>'
-     '<li><span>Confirm the new date</span><b class="vm-tag">Customer agent</b></li><li><span>Re-plan the dock slot</span><b class="vm-pill">Planner</b></li></ul>'
-     '<p class="vm-foot">Permissions checked at every step, outside the model</p>'),
-    ("Act", "Committed", "The approved change runs through the integrations approved for that workflow, and every step is traced.",
+     '<p class="vm-k">Plan &middot; switch to supplier B</p><ul class="vm-list"><li><span>Update the purchase order</span><b class="vm-tag">Automated</b></li>'
+     '<li><span>Confirm the new date</span><b class="vm-tag">Automated</b></li><li><span>Re-plan the delivery slot</span><b class="vm-pill">Planner</b></li></ul>'
+     '<p class="vm-foot">Limits checked at every step</p>'),
+    ("Act", "Completed", "The change is carried out in the systems approved for this process, and every step can be seen as it happens.",
+     ("Visibility", "Seeing what is being done, by whom or by what, and how long it takes, while the work is under way."),
      "observability",
-     '<p class="vm-k">Trace &middot; run 8f2c</p><div class="vm-trace"><span>model gateway</span><i style="--x:0%;--w:16%"></i>'
-     '<span>erp.update_po</span><i style="--x:16%;--w:42%"></i><span>crm.confirm_date</span><i style="--x:58%;--w:24%"></i>'
-     '<span>notify.planner</span><i style="--x:82%;--w:12%"></i></div><p class="vm-foot">1.9 s &middot; 4 tool calls &middot; 0 policy denials</p>'),
-    ("Record", "Evidence kept", "Context, policy decisions, approvals, tool calls and results are kept as one record of the run, ready for review.",
+     '<p class="vm-k">Progress &middot; change 8f2c</p><div class="vm-trace"><span>Option checked</span><i style="--x:0%;--w:16%"></i>'
+     '<span>Order updated</span><i style="--x:16%;--w:42%"></i><span>Customer told</span><i style="--x:58%;--w:24%"></i>'
+     '<span>Planner notified</span><i style="--x:82%;--w:12%"></i></div><p class="vm-foot">2 seconds &middot; 4 steps &middot; no rules broken</p>'),
+    ("Record", "Recorded", "What was known, what was decided, who approved it and what happened are kept together, ready for review.",
+     ("Audit trail", "A complete account of every decision and action, so you can answer any question about it later."),
      "evidence-record",
-     '<p class="vm-k">Evidence record &middot; run 8f2c</p><dl class="vm-code"><dt>context</dt><dd>3 sources, versioned</dd>'
-     '<dt>policy</dt><dd>v12 &rarr; owner approval</dd><dt>approved by</dt><dd class="hi">category manager, 14:02</dd>'
-     '<dt>tool calls</dt><dd>4 completed</dd></dl><p class="vm-foot">Kept for review and audit</p>'),
-    ("Learn", "Scored", "Outcomes are scored against tests and the baseline, and become test cases for the next cycle.",
+     '<p class="vm-k">Record &middot; change 8f2c</p><dl class="vm-code"><dt>information used</dt><dd>3 sources</dd>'
+     '<dt>rule</dt><dd>owner approval needed</dd><dt>approved by</dt><dd class="hi">category manager, 14:02</dd>'
+     '<dt>steps</dt><dd>4 completed</dd></dl><p class="vm-foot">Kept for review and audit</p>'),
+    ("Learn", "Measured", "Results are measured against the starting point, and what is learned improves the next decision.",
+     ("Measured results", "Every outcome checked against the baseline, so improvement is shown, not assumed."),
      "evals",
-     '<p class="vm-k">Eval suite &middot; supplier switch</p><ul class="vm-list"><li><span>Grounded in evidence</span><b class="vm-tag">97%</b></li>'
-     '<li><span>Policy adherence</span><b class="vm-tag">100%</b></li><li><span>Owner overrides</span><b class="vm-tag">6%</b></li></ul>'
-     '<p class="vm-foot">This outcome joins the test set for the next cycle</p>'),
+     '<p class="vm-k">Quality check &middot; supplier switch</p><ul class="vm-list"><li><span>Backed by evidence</span><b class="vm-tag">97%</b></li>'
+     '<li><span>Rules followed</span><b class="vm-tag">100%</b></li><li><span>Owner changed the call</span><b class="vm-tag">6%</b></li></ul>'
+     '<p class="vm-foot">This result shapes the next cycle</p>'),
 ]
-VB_TERMS = {k: (n, d) for k, n, d, _ in GLOSSARY_TERMS}
-VB_TERMS["semantic-data-layer"] = ("Semantic layer", VB_TERMS["semantic-data-layer"][1])   # fits the title on one line
-VB_TERMS["human-in-the-loop"] = ("Human in the loop", VB_TERMS["human-in-the-loop"][1])     # wraps between words, not at a hyphen
 
 VB_FAQ = [
     ("Do we have to start with AI?",
@@ -3727,8 +3737,7 @@ HOME = "".join([
     + '<div class="vb-loop-copy">' + vb_chip("Our platform / The loop")
     + '<h2 class="vb-h2 vb-loop-h">Thirteen steps from a signal to a <mark>verified change.</mark></h2>'
     '<div class="vb-terms" aria-hidden="true"><span class="vb-terms-k">Built on</span><div class="vb-terms-t">'
-    + "".join('<div class="vb-term%s"><b>%s</b><p>%s</p></div>' % ("", VB_TERMS[k][0], VB_TERMS[k][1])
-              for i, (_, _, _, k, _) in enumerate(VB_LOOP))
+    + "".join('<div class="vb-term"><b>%s</b><p>%s</p></div>' % term for _, _, _, term, _, _ in VB_LOOP)
     + '</div></div>'
     '<p class="vb-lede">Every step leaves a record, and consequential actions wait for a person.</p>'
     '<a class="vb-link" href="{P}platform/">Explore our platform</a>'
@@ -3738,8 +3747,8 @@ HOME = "".join([
     + "".join('<li class="vb-step%s"><div class="vb-step-top"><span>%02d / %02d</span><b class="vb-status">%s</b></div>'
               '<div class="vb-step-body"><div><h3>%s</h3><p>%s</p><p class="vb-built">Built on <a href="{P}perspectives/glossary/#%s">%s</a></p></div>'
               '<div class="vb-mock" aria-hidden="true">%s</div></div></li>'
-              % ("", i + 1, len(VB_LOOP), st, t, line, k, VB_TERMS[k][0].lower(), mock)
-              for i, (t, st, line, k, mock) in enumerate(VB_LOOP))
+              % ("", i + 1, len(VB_LOOP), st, t, line, k, term[0].lower(), mock)
+              for i, (t, st, line, term, k, mock) in enumerate(VB_LOOP))
     + '</ol></div></div></section>',
 
     # advisory, platform, implementation
