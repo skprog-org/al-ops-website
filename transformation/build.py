@@ -551,56 +551,6 @@ dl.glossary dd.ex{font-style:italic;color:var(--muted);font-size:15.5px}
 .diagram{border:1px solid var(--border);border-radius:0;background:#fff;padding:12px;overflow:auto}
 .diagram img{min-width:860px;width:100%;height:auto}
 
-/* platform stack (technical evaluators): high-level view, detail lives on the technical pages */
-.ps{display:grid;grid-template-columns:190px minmax(0,1fr) 190px;gap:28px 28px;margin-top:40px;font-size:13.5px}
-.ps h3,.ps-h{font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0}
-.ps-top{grid-column:2;position:relative;border:1px solid var(--border);background:var(--surface);padding:14px 16px 16px}
-.ps-top::after,.ps-cp::before{content:"";position:absolute;left:50%;bottom:-17px;width:10px;height:10px;margin-left:-5px;border-right:1px solid var(--accent);border-bottom:1px solid var(--accent);transform:rotate(45deg)}
-.ps-drivers{display:grid;grid-template-columns:repeat(4,1fr);margin-top:12px;border-top:1px solid var(--border)}
-.ps-drivers div{padding:12px 12px 0;border-left:1px solid var(--border)}
-.ps-drivers div:first-child{border-left:0;padding-left:0}
-.ps-drivers b{display:block;font-family:var(--display);font-weight:500;font-size:15px;color:var(--text)}
-.ps-drivers span{display:block;color:var(--muted);font-size:12.5px;line-height:1.4;margin-top:2px}
-.ps-side{grid-row:2;position:relative;border:1px solid var(--border);background:var(--surface);padding:14px;align-self:stretch}
-.ps-side>p{margin:4px 0 6px;color:var(--muted);font-size:12.5px;line-height:1.4}
-.ps-side ul{list-style:none;margin:0;padding:0}
-.ps-side li{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--border);color:var(--text-2);line-height:1.35}
-.ps-side li b{display:block;color:var(--text);font-weight:500}
-.ps-in{grid-column:1}
-.ps-out{grid-column:3;border-color:var(--accent)}
-.ps-out li{color:var(--text)}
-.ps-in::after,.ps-out::before{content:"";position:absolute;top:50%;right:-20px;width:10px;height:10px;margin-top:-5px;border-top:1px solid var(--accent);border-right:1px solid var(--accent);transform:rotate(45deg)}
-.ps-out::before{right:auto;left:-20px}
-.ps-core{grid-column:2;grid-row:2;display:flex;flex-direction:column;gap:10px}
-.ps-cols{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-.ps-col{position:relative;display:flex;flex-direction:column;border:1px solid var(--border);border-top:2px solid var(--accent);background:var(--bg);padding:16px 12px 14px}
-.ps-n{position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted)}
-.ps-col strong{display:block;margin-top:12px;font-family:var(--display);font-weight:500;font-size:16px;line-height:1.2;color:var(--text)}
-.ps-col em{display:block;margin-top:4px;font-style:normal;color:var(--muted);font-size:12.5px;line-height:1.4;min-height:3.6em}
-.ps-col ul{list-style:none;margin:10px 0 0;padding:0}
-.ps-col li{padding:7px 0 7px 14px;border-top:1px solid var(--border);color:var(--text-2);font-size:12.5px;line-height:1.35;position:relative}
-.ps-col li::before{content:"";position:absolute;left:0;top:13px;width:5px;height:5px;background:var(--accent)}
-.ps-col li.key{color:var(--text)}
-.ps-ico{display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--accent);color:var(--accent)}
-.ps-ico svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.ps-side .ps-ico{border-color:var(--border);color:var(--text-2)}
-.ps-out .ps-ico{border-color:var(--accent);color:var(--accent)}
-.ps-band{position:relative;border:1px solid var(--border);background:var(--surface);padding:12px 14px}
-.ps-band.ps-cp{border-color:var(--accent)}
-.ps-cp::before{top:-6px;bottom:auto;transform:rotate(-135deg)}
-.ps-band-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px}
-.ps-band-h span{color:var(--muted);font-size:12.5px}
-.ps-items{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:10px}
-.ps-items.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.ps-items div{display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:center;color:var(--text);font-size:12.5px;line-height:1.3}
-.ps-loop{grid-column:1/-1;border:1px solid var(--border);background:var(--surface);padding:16px;text-align:center}
-.ps-loop ol{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px}
-.ps-loop li{border:1px solid var(--border);background:var(--bg);padding:6px 10px;color:var(--text-2);font-size:12.5px}
-.ps-loop li.key{border-color:var(--accent);color:var(--text)}
-.ps-loop li small{color:var(--muted);font-size:11.5px}
-.ps-loop .sep{border:0;background:none;padding:0 2px;color:var(--accent)}
-.ps-loop .sep:last-child{font-size:18px;line-height:1}
-.ps-loop p{margin:10px 0 0;color:var(--muted);font-size:12.5px}
 .ps-note{margin:16px auto 0;text-align:center}
 
 /* footer */
@@ -635,10 +585,6 @@ dl.glossary dd.ex{font-style:italic;color:var(--muted);font-size:15.5px}
 .fbottom a:hover{color:var(--text)}
 
 /* responsive */
-@media (max-width:1100px){.ps{grid-template-columns:1fr 1fr;gap:20px}.ps-top{grid-column:1/-1}.ps-core{grid-column:1/-1;grid-row:3}.ps-in{grid-column:1;grid-row:2}.ps-out{grid-column:2;grid-row:2}
-  .ps-in::after,.ps-out::before{display:none}.ps-cols{grid-template-columns:repeat(3,minmax(0,1fr))}.ps-items{grid-template-columns:repeat(3,minmax(0,1fr))}.ps-items.c4{grid-template-columns:repeat(2,minmax(0,1fr))}.ps-col em{min-height:0}}
-@media (max-width:760px){.ps{grid-template-columns:1fr}.ps-in,.ps-out{grid-column:1}.ps-out{grid-row:4}.ps-core{grid-row:3}.ps-drivers{grid-template-columns:1fr 1fr}.ps-drivers div{border-left:0;padding-left:0}
-  .ps-cols,.ps-items,.ps-items.c4{grid-template-columns:1fr}}
 @media (max-width:1440px){.util-nav{display:none}}
 @media (max-width:1180px){
   .primary-nav{display:none}
@@ -4527,7 +4473,7 @@ ARCHITECTURE = "".join([
 ])
 
 # ---------------------------------------------------------------- platform (business-facing)
-# ---------------------------------------------------------------- platform stack (for technical evaluators)
+# ---------------------------------------------------------------- platform stack
 # The high-level view: business outcomes on top, five platform layers between your systems and the results, one control plane and
 # one infrastructure base under every layer, and a governed delivery loop around it. Layer detail lives on the technical pages.
 PS_ICONS = {
@@ -4559,58 +4505,305 @@ def ps_ico(name):
     return '<span class="ps-ico" aria-hidden="true"><svg viewBox="0 0 24 24">%s</svg></span>' % PS_ICONS[name]
 
 
-PS_DRIVERS = [("Growth", "New offers, channels and revenue"), ("Operations", "Faster, more reliable work"),
-              ("Customer experience", "Better service at every touchpoint"), ("Industry solutions", "Sector-specific workflows")]
-PS_SOURCES = [("doc", "Systems of record", "ERP, CRM, operations"), ("data", "Systems of data", "Warehouse, streams, IoT"),
-              ("layers", "Systems of knowledge", "Documents, policies, SOPs"), ("link", "Systems of meaning", "Master data, glossary")]
-# (number, icon, layer, the question it answers, three headline capabilities; a leading "!" marks a human decision point)
-PS_LAYERS = [
-    ("01", "screen", "Experience", "How do people and systems engage?",
-     ["Web, mobile and voice", "Workbenches and approvals", "Questions to data in plain language"]),
-    ("02", "agent", "Agents", "How does the work get done?",
-     ["Build in code, low-code or no-code", "Orchestrated, multi-step agents", "!People approve what matters"]),
-    ("03", "spark", "AI services", "What can be reused?",
-     ["Document and conversational AI", "Retrieval with citations", "Forecasting, risk and vision"]),
-    ("04", "model", "Models", "Which model, under which rules?",
-     ["One gateway, routed by policy", "Commercial, sovereign or your own", "Evaluated before and after release"]),
-    ("05", "data", "Data and context", "Does the data mean the same thing everywhere?",
-     ["Connected to systems in both directions", "Shared business ontology", "Lineage, quality and privacy tags"]),
-]
-PS_CONTROL = [("shield", "Guardrails and policy"), ("key", "Identity and access"), ("eye", "Observability and evaluation"),
-              ("coin", "Cost control"), ("record", "Evidence records")]
-PS_INFRA = [("cloud", "Public or sovereign cloud"), ("server", "Private cloud or on-premises"), ("edge", "Edge and field sites"),
-            ("key", "Your keys, your network")]
-PS_OUTCOMES = [("check", "Decisions people can trust"), ("bolt", "New workflows in weeks, not projects"),
-               ("layers", "Built once, reused everywhere"), ("record", "Audit-ready by default")]
+# Each box in the diagram is a button. Selecting one shows what that part does and what it changes for the business and for its
+# customers, and highlights the boxes it works with. node: id -> (title, subtitle, what it is, [for the business], [for customers],
+# example, [ids it works with]). Links are made two-way when the page is built.
+PS_NODES = {
+    # business outcomes
+    "g-growth": ("Growth", "New offers, channels and revenue", "New sources of revenue: offers, services and ways to reach customers.",
+                 ["Test a new service with real customers before committing to a full build",
+                  "Reuse the same platform pieces for the next offer, so each launch costs less"],
+                 ["New services that fit what they already buy", "Faster answers when they ask for something new"],
+                 "A specialist firm packages its expertise as a self-serve service and tests it with a small group of customers first.",
+                 ["experience", "agents", "ai"]),
+    "g-ops": ("Operations", "Faster, more reliable work", "Work that gets done with fewer handoffs, delays and surprises.",
+              ["Less time chasing information between teams", "People spend their time on the exceptions that need judgment"],
+              ["Problems resolved sooner, without being passed around", "Commitments kept more often"],
+              "Supplier delays are spotted, options compared and a recovery approved in one place instead of by email.",
+              ["agents", "data", "s-record", "s-data"]),
+    "g-cx": ("Customer experience", "Better service at every touchpoint", "Every interaction joined up with the operation behind it.",
+             ["One view of each customer across teams", "Service quality that can be measured and improved"],
+             ["Give their details once, not to four teams", "Consistent answers on every channel, day or night"],
+             "Onboarding is redesigned so details are captured once and shared with every team that needs them.",
+             ["experience", "ai", "data", "s-know", "s-mean"]),
+    "g-ind": ("Industry solutions", "Sector-specific workflows", "Workflows shaped around the rules and realities of your sector.",
+              ["Start from workflows built for your sector", "Meet sector regulation without custom engineering each time"],
+              ["Services that respect the rules of their industry", "Confidence that sensitive data is handled properly"],
+              "A utility schedules field inspections by risk, and each decision is recorded for the regulator.",
+              ["agents", "guard", "evidence", "edge"]),
+    # your systems
+    "s-record": ("Systems of record", "ERP, CRM, operations", "Where orders, customers and transactions already live. Connected, not replaced.",
+                 ["Keep the systems you have paid for and know", "AI acts through them, so they stay the single source of record"],
+                 ["Updates reach every system, so no one gets an out-of-date answer"],
+                 "An approved supplier switch updates the purchase order in the ERP and the delivery date in the CRM.",
+                 ["data", "agents"]),
+    "s-data": ("Systems of data", "Warehouse, streams, IoT", "Analytics, event streams and sensor readings.",
+               ["Live signals, not last month&rsquo;s report, inform decisions", "Existing data investments pay back in daily work"],
+               ["Issues spotted before they become customer problems"],
+               "A torque drift on a production line is flagged while the shift is still running.", ["data", "ai"]),
+    "s-know": ("Systems of knowledge", "Documents, policies, SOPs", "Contracts, policies and procedures written for people.",
+               ["Expertise held in documents becomes usable in everyday work", "Answers cite the policy they came from"],
+               ["Accurate answers that match your terms and policies"],
+               "A service agent&rsquo;s answer quotes the contract clause that applies, with a link to it.", ["ai", "data"]),
+    "s-mean": ("Systems of meaning", "Master data, glossary", "Agreed definitions of customers, products and terms.",
+               ["Teams and AI use the same definitions, so reports agree", "Less time reconciling numbers between departments"],
+               ["Recognized as the same customer on every channel"],
+               "&ldquo;Active customer&rdquo; means the same thing in the sales report, the service desk and the AI&rsquo;s answers.",
+               ["data"]),
+    # platform layers
+    "experience": ("Experience", "How do people and systems engage?",
+                   "The screens, channels and approval workbenches where people meet the platform.",
+                   ["Staff ask questions of data in plain language, without waiting for a report",
+                    "Approvals arrive with the evidence attached, so decisions are faster"],
+                   ["Help on the channel they prefer: web, mobile or voice", "Quicker responses, because staff have the answer to hand"],
+                   "A planner approves a recovery plan from a phone, with the cost and the evidence on one screen.",
+                   ["agents", "access"]),
+    "agents": ("Agents", "How does the work get done?",
+               "AI that carries out multi-step work within the limits you set, and stops for a person where it matters.",
+               ["Routine follow-up work handled for you", "New workflows in weeks, not long projects", "People still approve what matters"],
+               ["Requests handled end to end, not left in a queue", "Consistent service outside office hours"],
+               "After approval, agents update the order, confirm the new date with the customer and re-plan the delivery slot.",
+               ["ai", "guard", "evidence", "observ"]),
+    "ai": ("AI services", "What can be reused?",
+           "Reusable AI capabilities: reading documents, holding conversations, forecasting and spotting risk.",
+           ["Build a capability once and reuse it across teams", "Answers come with citations, so they can be checked"],
+           ["Faster, more accurate answers to their questions", "Fewer errors in the documents that concern them"],
+           "The same document-reading service handles invoices for finance and claims for customer service.", ["models"]),
+    "models": ("Models", "Which model, under which rules?",
+               "One gateway to commercial, sovereign or your own AI models, chosen by policy for each task.",
+               ["No lock-in to a single AI provider", "Cost matched to the task: smaller models for simple work",
+                "Every model tested before and after release"],
+               ["Sensitive data handled only by approved models, in the right region"],
+               "Confidential requests go to an in-region model; routine drafting goes to a lower-cost one.",
+               ["cost", "observ", "cloud"]),
+    "data": ("Data and context", "Does the data mean the same thing everywhere?",
+             "Connects your systems and gives their data one business meaning, with lineage, quality and privacy tags.",
+             ["Decisions use complete, current information", "Every figure traceable to where it came from"],
+             ["Their data used only as permitted", "No repeating details the business already has"],
+             "Order, supplier and contract records are linked, so a late delivery shows which customer promises are at risk.",
+             ["access", "onprem"]),
+    # control plane
+    "guard": ("Guardrails and policy", "Applied outside the AI", "Your rules, applied outside the AI, on every action.",
+              ["Spending and approval limits enforced every time", "Rules updated without rebuilding workflows"],
+              ["Fair, consistent treatment under the same rules"],
+              "Any supplier change over the agreed limit waits for the category manager.", ["evidence", "loop"]),
+    "access": ("Identity and access", "Least privilege", "Every person and agent acts with only the permissions it has been given.",
+               ["AI never sees or does more than the person it works for", "Access reviewed and revoked in one place"],
+               ["Their information seen only by those who need it"],
+               "A service agent can read an account and draft a refund, but cannot approve one.", ["agents", "keys"]),
+    "observ": ("Observability and evaluation", "Quality, speed, cost", "Every run is monitored and scored for quality, speed and cost.",
+               ["Problems caught early, before they reach customers", "Improvement shown against the starting point, not assumed"],
+               ["Reliable service that keeps getting better"],
+               "A drop in answer quality after a model update is flagged and rolled back the same day.", ["evidence", "loop"]),
+    "cost": ("Cost control", "Budgets and limits", "Budgets and usage limits for AI, by team and by workflow.",
+             ["Predictable AI spend, with no surprise bills", "Cost per decision visible, so value can be judged"],
+             ["Services that stay affordable as usage grows"],
+             "A team&rsquo;s monthly AI budget is set, and routine work moves to a lower-cost model before it is reached.", ["observ"]),
+    "evidence": ("Evidence records", "Tamper-evident", "A tamper-evident record of what was known, decided, approved and done.",
+                 ["Audit-ready by default, with no manual reconstruction", "Disputes settled from the record, not from memory"],
+                 ["Clear explanations of decisions that affect them"],
+                 "A regulator&rsquo;s question about a declined application is answered from the record.", ["loop"]),
+    # infrastructure
+    "cloud": ("Public or sovereign cloud", "Region of your choice", "Runs in a public cloud region or a sovereign cloud.",
+              ["Start quickly, without new hardware", "Choose the region your rules require"],
+              ["Their data kept in their country where required"], None, ["keys"]),
+    "onprem": ("Private cloud or on-premises", "Your data center", "Runs in your own data center or private cloud.",
+               ["Use your existing infrastructure and security", "Meet strict policies on where data may go"],
+               ["Sensitive data never leaves the organization"], None, ["keys"]),
+    "edge": ("Edge and field sites", "Works offline", "Runs at plants, depots and sites with poor or no connection.",
+             ["Decisions made where the work happens, even offline", "Field teams supported without a network"],
+             ["Fewer service interruptions in remote locations"], None, ["agents"]),
+    "keys": ("Your keys, your network", "You hold the keys", "Encryption keys and network controls stay with you.",
+             ["You decide who can unlock your data, including us", "Security teams keep their existing controls"],
+             ["Stronger protection for their personal data"], None, []),
+    # delivery
+    "loop": ("Governed delivery", "Plan to operate, continuously",
+             "Every change moves through Plan, Design, Build, Review, Test, Deploy and Operate. A person approves at Review.",
+             ["Changes ship quickly without skipping checks", "Every release traceable to the person who approved it"],
+             ["New features that work the first time", "No surprise changes to how they are served"],
+             "A new approval rule is tested against past cases before it goes live.", []),
+}
+PS_GOALS = ["g-growth", "g-ops", "g-cx", "g-ind"]
+PS_SOURCES = [("s-record", "doc"), ("s-data", "data"), ("s-know", "layers"), ("s-mean", "link")]
+# (id, icon, three headline capabilities; a leading "!" marks a human decision point)
+PS_LAYERS = [("experience", "screen", ["Web, mobile and voice", "Workbenches and approvals", "Plain-language questions"]),
+             ("agents", "agent", ["Code, low-code or no-code", "Multi-step orchestration", "!People approve what matters"]),
+             ("ai", "spark", ["Document and conversational AI", "Answers with citations", "Forecasting, risk and vision"]),
+             ("models", "model", ["One gateway, routed by policy", "Commercial, sovereign or your own", "Evaluated before release"]),
+             ("data", "data", ["Two-way system connections", "Shared business ontology", "Lineage, quality, privacy"])]
+PS_CONTROL = [("guard", "shield"), ("access", "key"), ("observ", "eye"), ("cost", "coin"), ("evidence", "record")]
+PS_INFRA = [("cloud", "cloud"), ("onprem", "server"), ("edge", "edge"), ("keys", "key")]
 PS_LOOP = ["Plan", "Design", "Build", "!Review", "Test", "Deploy", "Operate"]
+PS_KIND = {"g": "Business outcome", "s": "Your systems", "layer": "Platform layer", "control": "Control plane", "infra": "Runs on",
+           "loop": "Delivery"}
 
 
-def platform_stack():
-    drivers = "".join('<div><b>%s</b><span>%s</span></div>' % d for d in PS_DRIVERS)
-    src = "".join('<li>%s<span><b>%s</b>%s</span></li>' % (ps_ico(i), t, s) for i, t, s in PS_SOURCES)
-    cols = "".join(
-        '<div class="ps-col"><span class="ps-n">%s</span>%s<strong>%s</strong><em>%s</em><ul>%s</ul></div>'
-        % (n, ps_ico(ic), name, q, "".join('<li class="key">%s</li>' % x[1:] if x[0] == "!" else "<li>%s</li>" % x for x in items))
-        for n, ic, name, q, items in PS_LAYERS)
-    cp = "".join('<div>%s%s</div>' % (ps_ico(i), t) for i, t in PS_CONTROL)
-    infra = "".join('<div>%s%s</div>' % (ps_ico(i), t) for i, t in PS_INFRA)
-    out = "".join('<li>%s<span>%s</span></li>' % (ps_ico(i), t) for i, t in PS_OUTCOMES)
-    loop = '<li class="sep" aria-hidden="true">&rarr;</li>'.join(
-        '<li class="key">%s <small>(a person approves)</small></li>' % s[1:] if s[0] == "!" else "<li>%s</li>" % s for s in PS_LOOP)
+def platform_stack(start="agents"):
+    rel = {k: set(v[6]) for k, v in PS_NODES.items()}
+    for k, v in PS_NODES.items():
+        for r in v[6]:
+            rel[r].add(k)
+    kind = {k: "g" for k in PS_GOALS}
+    kind.update({k: "s" for k, _ in PS_SOURCES})
+    kind.update({k: "layer" for k, _, _ in PS_LAYERS})
+    kind.update({k: "control" for k, _ in PS_CONTROL})
+    kind.update({k: "infra" for k, _ in PS_INFRA})
+    kind["loop"] = "loop"
+    num = {k: "%02d" % i for i, (k, _, _) in enumerate(PS_LAYERS, start=1)}
+
+    def node(k, icon=None, cls="", extra=""):
+        t, sub = PS_NODES[k][:2]
+        return ('<button type="button" class="pd-n%s" data-id="%s" aria-pressed="false" aria-controls="pd-panel">%s'
+                '<span class="pd-t"><b>%s</b><small>%s</small></span>%s</button>'
+                % (cls, k, ps_ico(icon) if icon else "", t, sub, extra))
+
+    goals = "".join(node(k) for k in PS_GOALS)
+    src = "".join(node(k, i) for k, i in PS_SOURCES)
+    layers = "".join(node(k, i, " pd-layer", '<span class="pd-num">%s</span><ul>%s</ul>' % (num[k], "".join(
+        '<li class="key">%s</li>' % c[1:] if c[0] == "!" else "<li>%s</li>" % c for c in caps))) for k, i, caps in PS_LAYERS)
+    ctrl = "".join(node(k, i) for k, i in PS_CONTROL)
+    infra = "".join(node(k, i) for k, i in PS_INFRA)
+    stages = "".join('<li class="key">%s</li>' % s[1:] if s[0] == "!" else "<li>%s</li>" % s for s in PS_LOOP)
+    loop = ('<button type="button" class="pd-n pd-loop" data-id="loop" aria-pressed="false" aria-controls="pd-panel">'
+            '<span class="pd-t"><b>Governed delivery</b><small>Every change, continuously</small></span><ol>%s</ol></button>' % stages)
+
+    def info(k):
+        t, _, what, biz, cust, ex, _ = PS_NODES[k]
+        kick = PS_KIND[kind[k]] + (" " + num[k] if k in num else "")
+        links = "".join('<button type="button" data-go="%s">%s</button>' % (r, PS_NODES[r][0]) for r in PS_NODES if r in rel[k])
+        return ('<div class="pd-info" data-id="%s" data-rel="%s"><p class="pd-kick">%s</p><h3>%s</h3><p class="pd-what">%s</p>'
+                '<div class="pd-imp"><div><h4>For your business</h4><ul>%s</ul></div><div><h4>For your customers</h4><ul>%s</ul></div></div>'
+                '%s%s</div>'
+                % (k, " ".join(sorted(rel[k])), kick, t, what, "".join("<li>%s</li>" % x for x in biz),
+                   "".join("<li>%s</li>" % x for x in cust),
+                   '<p class="pd-ex"><span>For example</span>%s</p>' % ex if ex else "",
+                   '<div class="pd-rel"><span>Works with</span>%s</div>' % links if links else ""))
+
     return (
-        '<div class="ps">'
-        '<div class="ps-top"><h3>Business outcomes</h3><div class="ps-drivers">%s</div></div>'
-        '<aside class="ps-side ps-in"><h3>Your systems</h3><p>Connected, not replaced.</p><ul>%s</ul></aside>'
-        '<div class="ps-core"><div class="ps-cols">%s</div>'
-        '<div class="ps-band ps-cp"><div class="ps-band-h"><h3>Control plane</h3><span>Applies to every layer, enforced outside the agent</span></div>'
-        '<div class="ps-items">%s</div></div>'
-        '<div class="ps-band"><div class="ps-band-h"><h3>Infrastructure and deployment</h3><span>Runs where your data needs to stay</span></div>'
-        '<div class="ps-items c4">%s</div></div></div>'
-        '<aside class="ps-side ps-out"><h3>What changes</h3><p>For the business and for IT.</p><ul>%s</ul></aside>'
-        '<div class="ps-loop"><h3>Governed delivery, continuously</h3><ol>%s<li class="sep" aria-hidden="true">&#8634;</li></ol>'
-        '<p>Every change moves through the same gated stages, and every action leaves a linked, tamper-evident record.</p></div>'
+        '<div class="pd" data-pd data-start="%s"><div class="pd-map">'
+        '<div class="pd-goals"><span class="pd-k">Business outcomes</span><div class="pd-row4">%s</div></div>'
+        '<i class="pd-vw" aria-hidden="true"></i>'
+        '<div class="pd-mid">'
+        '<div class="pd-src"><span class="pd-k">Your systems</span><div class="pd-col">%s</div></div>'
+        '<div class="pd-hw" aria-hidden="true"><i></i><i></i><i></i><i></i></div>'
+        '<div class="pd-stack"><span class="pd-k">Platform layers</span><div class="pd-col">%s</div></div>'
+        '<div class="pd-rail"><span class="pd-k">Control plane</span><div class="pd-col">%s</div></div>'
         '</div>'
-    ) % (drivers, src, cols, cp, infra, out, loop)
+        '<i class="pd-vw" aria-hidden="true"></i>'
+        '<div class="pd-base"><span class="pd-k">Runs where your data needs to stay</span><div class="pd-row4">%s</div></div>'
+        '%s</div>'
+        '<aside class="pd-panel" id="pd-panel" aria-live="polite"><p class="pd-hint">Select any box to see what it changes</p>%s</aside>'
+        '</div>'
+    ) % (start, goals, src, layers, ctrl, infra, loop, "".join(info(k) for k in PS_NODES))
+
+
+CSS += r"""
+/* platform diagram: every box is a button; the panel shows what the selected part changes for the business and its customers */
+.pd{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;align-items:start;margin-top:44px;font-size:13.5px}
+.pd-map{display:flex;flex-direction:column;min-width:0}
+.pd-k{display:block;margin:0 0 10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pd-row4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.pd-col{display:flex;flex-direction:column;gap:8px;flex:1}
+.pd-n{position:relative;display:flex;align-items:center;gap:10px;width:100%;margin:0;padding:12px;border:1px solid var(--border);background:var(--surface);
+  color:var(--text);font:inherit;text-align:left;transition:border-color .25s var(--ease),opacity .3s var(--ease),box-shadow .25s var(--ease),background .25s var(--ease)}
+.pd-n:hover{border-color:var(--outline)}
+.pd-n:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pd-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pd-t b{font-family:var(--display);font-weight:500;font-size:14.5px;line-height:1.2}
+.pd-t small{color:var(--muted);font-size:12px;line-height:1.35}
+.pd .ps-ico{flex:none;display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--border);color:var(--text-2);transition:inherit}
+.pd .ps-ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* selection: the chosen box glows, the boxes it works with keep full strength, the rest recede */
+.pd.sel .pd-n{opacity:.42}
+.pd.sel .pd-n.rel{opacity:1;border-color:color-mix(in srgb,var(--accent) 55%,var(--border))}
+.pd.sel .pd-n.on{opacity:1;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface));
+  box-shadow:0 0 0 1px var(--accent),0 0 28px var(--glow)}
+.pd-n.on .ps-ico,.pd-n.rel .ps-ico{border-color:var(--accent);color:var(--accent)}
+.pd.sel .pd-n:hover{opacity:1}
+/* flowing connectors */
+.pd-vw{display:block;align-self:center;width:1px;height:26px;background:linear-gradient(var(--accent) 50%,transparent 0) 0 0/1px 8px repeat-y;
+  opacity:.7;animation:pd-v 1s linear infinite}
+.pd-hw{display:flex;flex-direction:column;justify-content:space-around;padding-top:24px}
+.pd-hw i{display:block;height:1px;background:linear-gradient(90deg,var(--accent) 50%,transparent 0) 0 0/8px 1px repeat-x;opacity:.7;animation:pd-h 1s linear infinite}
+@keyframes pd-v{to{background-position:0 8px}}
+@keyframes pd-h{to{background-position:8px 0}}
+.pd-mid{display:grid;grid-template-columns:minmax(130px,.7fr) 22px minmax(0,2.2fr) minmax(165px,.8fr);gap:0 10px}
+.pd-mid>div{display:flex;flex-direction:column}
+.pd-src .pd-n,.pd-rail .pd-n{flex:1}
+.pd-rail .pd-col{position:relative;padding:8px 8px 26px;border:1px dashed color-mix(in srgb,var(--accent) 50%,var(--border))}
+.pd-rail .pd-col::after{content:"On every layer";position:absolute;left:0;right:0;bottom:7px;text-align:center;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.pd-rail .pd-n{padding:9px 10px}
+.pd-rail .pd-t small{display:none}
+.pd-rail .pd-t b{font-size:13.5px}
+.pd-rail .ps-ico{width:26px;height:26px}
+.pd-layer{flex-wrap:wrap;align-items:flex-start;padding:12px 14px;background:var(--bg);border-left:2px solid var(--accent)}
+.pd-layer .pd-t{flex:1}
+.pd-num{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted)}
+.pd-layer ul{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:2px 0 0 40px;padding:0}
+.pd-layer li{padding:2px 7px;border:1px solid var(--border);font-size:11px;color:var(--text-2);white-space:nowrap}
+.pd-layer li.key{border-color:var(--accent);color:var(--text)}
+.pd-goals .pd-n,.pd-base .pd-n{height:100%}
+.pd-loop{margin-top:16px;flex-wrap:wrap;justify-content:space-between;gap:10px 18px}
+.pd-loop ol{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0;counter-reset:st}
+.pd-loop li{padding:4px 9px;border:1px solid var(--border);font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--text-2)}
+.pd-loop li.key{border-color:var(--accent);color:var(--accent)}
+.pd-loop li:not(:last-child)::after{content:"\2192";margin-left:12px;color:var(--muted)}
+/* the panel */
+.pd-panel{position:sticky;top:calc(var(--hh) + 20px);scroll-margin-top:calc(var(--hh) + 16px);border:1px solid var(--border);border-top:2px solid var(--accent);
+  background:var(--surface);padding:22px 22px 24px}
+.pd-hint{margin:0 0 16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+html.js .pd-info:not(.on){display:none}
+html:not(.js) .pd-info+.pd-info{margin-top:28px;padding-top:24px;border-top:1px solid var(--border)}
+.pd-info.on{animation:pd-in .35s var(--ease)}
+@keyframes pd-in{from{opacity:0;transform:translateY(6px)}}
+.pd-kick{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.pd-info h3{margin:6px 0 8px;font-family:var(--display);font-weight:400;font-size:30px;line-height:1.05;letter-spacing:-.03em}
+.pd-what{margin:0;color:var(--text-2);font-size:14.5px;line-height:1.5}
+.pd-imp{display:grid;gap:14px;margin-top:18px}
+.pd-imp>div{padding-top:12px;border-top:1px solid var(--border)}
+.pd-imp h4{margin:0 0 8px;font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
+.pd-imp ul{list-style:none;margin:0;padding:0}
+.pd-imp li{position:relative;padding:3px 0 3px 16px;color:var(--text-2);font-size:14px;line-height:1.45}
+.pd-imp li::before{content:"";position:absolute;left:0;top:11px;width:7px;height:1px;background:var(--accent)}
+.pd-ex{margin:16px 0 0;padding:12px 14px;border-left:2px solid var(--accent);background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.5}
+.pd-ex span{display:block;margin-bottom:4px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pd-rel{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:16px}
+.pd-rel span{width:100%;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pd-rel button{padding:4px 9px;border:1px solid var(--border);background:none;color:var(--text-2);font:inherit;font-size:12px;transition:border-color .2s,color .2s}
+.pd-rel button:hover{border-color:var(--accent);color:var(--text)}
+@media (prefers-reduced-motion:reduce){.pd-vw,.pd-hw i,.pd-info.on{animation:none}}
+@media (max-width:1180px){.pd{grid-template-columns:1fr}.pd-panel{position:relative;top:0}}
+@media (max-width:760px){
+  .pd-row4{grid-template-columns:1fr 1fr}
+  .pd-mid{grid-template-columns:1fr;gap:0}
+  .pd-hw{display:none}
+  .pd-mid>div+div{margin-top:24px}
+  .pd-layer ul{margin-left:0}
+}
+"""
+
+JS += r"""
+// platform diagram: select a box to show its impact and highlight the parts it works with
+(function(){
+  var d=document;
+  [].forEach.call(d.querySelectorAll('[data-pd]'),function(pd){
+    var nodes=[].slice.call(pd.querySelectorAll('.pd-n')),infos=[].slice.call(pd.querySelectorAll('.pd-info')),panel=pd.querySelector('.pd-panel');
+    function pick(id,user){
+      var info=null;infos.forEach(function(i){var on=i.getAttribute('data-id')===id;i.classList.toggle('on',on);if(on)info=i});
+      if(!info)return;var rel=info.getAttribute('data-rel').split(' ');
+      nodes.forEach(function(n){var k=n.getAttribute('data-id');n.classList.toggle('on',k===id);n.setAttribute('aria-pressed',k===id?'true':'false');
+        n.classList.toggle('rel',rel.indexOf(k)>-1)});
+      pd.classList.add('sel');
+      // stacked layout: bring the panel into view if it is off screen
+      if(user&&window.matchMedia('(max-width:1180px)').matches){var r=panel.getBoundingClientRect();
+        if(r.top<0||r.top>window.innerHeight*.7)panel.scrollIntoView({behavior:'smooth',block:'start'})}
+    }
+    pd.addEventListener('click',function(e){var b=e.target.closest('[data-go],.pd-n');if(b&&pd.contains(b))pick(b.getAttribute('data-go')||b.getAttribute('data-id'),true)});
+    pick(pd.getAttribute('data-start'),false);
+  });
+})();
+"""
 
 
 PLATFORM = "".join([
@@ -4641,9 +4834,9 @@ PLATFORM = "".join([
         '<p>Define who owns the new way of working, how performance will be reviewed, and what happens when conditions change. Build a '
         'foundation for the next improvement, not dependence on a single experiment.</p></div><span></span></div></div>'
         + acts(("Explore what you could build", "{P}contact/"))),
-    sec('<p class="eyebrow">For technical evaluators</p><h2 class="h2">The platform stack.</h2>'
+    sec('<p class="eyebrow">How it fits together</p><h2 class="h2">The platform stack.</h2>'
         '<p class="lede">Five layers between your existing systems and the outcomes you want, with one control plane and one infrastructure '
-        'base under all of them. Agents are run, supervised and recorded in one place, and people keep the decisions that matter.</p>'
+        'base under all of them. Select any part to see what it changes for your business and your customers.</p>'
         + platform_stack()
         + '<p class="caption ps-note">High-level reference architecture. Layers describe the target design; available capabilities and deployment options are '
         'confirmed per release.</p>'

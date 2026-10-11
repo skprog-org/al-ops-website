@@ -213,6 +213,26 @@
     });
   });
 })();
+
+// platform diagram: select a box to show its impact and highlight the parts it works with
+(function(){
+  var d=document;
+  [].forEach.call(d.querySelectorAll('[data-pd]'),function(pd){
+    var nodes=[].slice.call(pd.querySelectorAll('.pd-n')),infos=[].slice.call(pd.querySelectorAll('.pd-info')),panel=pd.querySelector('.pd-panel');
+    function pick(id,user){
+      var info=null;infos.forEach(function(i){var on=i.getAttribute('data-id')===id;i.classList.toggle('on',on);if(on)info=i});
+      if(!info)return;var rel=info.getAttribute('data-rel').split(' ');
+      nodes.forEach(function(n){var k=n.getAttribute('data-id');n.classList.toggle('on',k===id);n.setAttribute('aria-pressed',k===id?'true':'false');
+        n.classList.toggle('rel',rel.indexOf(k)>-1)});
+      pd.classList.add('sel');
+      // stacked layout: bring the panel into view if it is off screen
+      if(user&&window.matchMedia('(max-width:1180px)').matches){var r=panel.getBoundingClientRect();
+        if(r.top<0||r.top>window.innerHeight*.7)panel.scrollIntoView({behavior:'smooth',block:'start'})}
+    }
+    pd.addEventListener('click',function(e){var b=e.target.closest('[data-go],.pd-n');if(b&&pd.contains(b))pick(b.getAttribute('data-go')||b.getAttribute('data-id'),true)});
+    pick(pd.getAttribute('data-start'),false);
+  });
+})();
 // underlined key words, the timeline, the signal lines, and the scroll-driven loop
 (function(){
   var d=document,still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
