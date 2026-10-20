@@ -435,13 +435,7 @@ pre.policy{margin:0;padding:12px;border:1px solid var(--border);border-radius:0;
 .rc-areas output{font-family:var(--mono);font-size:12px;text-align:right;color:var(--muted)}
 .rc-next{margin:0 0 18px;padding:14px 16px;border-left:2px solid var(--accent);background:var(--bg);font-size:14.5px;color:var(--text-2)}
 .rc-next b{display:block;color:var(--text);font-weight:500;margin-bottom:4px}
-.rs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px}
-.rs-grid article{display:flex;flex-direction:column}
-.rs-grid .score{font-size:44px;margin:4px 0 10px}
-.rs-grid p{margin:0 0 10px;color:var(--text-2);font-size:15px}
-.rs-grid .src{margin-top:auto;padding-top:12px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
-.rs-grid .src a{color:var(--text)}
-@media (max-width:1100px){.rs-grid{grid-template-columns:1fr}.rc-panel{position:static}}
+@media (max-width:1100px){.rc-panel{position:static}}
 
 /* forms */
 .form{display:grid;gap:20px;max-width:680px}
@@ -3189,7 +3183,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
     </div>
     %(regions)s
     <div class="fword" aria-hidden="true">%(mark)s<span>%(fword)s</span></div>
-    %(fart)s<div class="fbottom"><span>&copy; 2026 %(brand)s. Draft site. <span class="flang">English (global)</span></span>
+    %(fart)s<div class="fbottom"><span>&copy; 2026 %(brand)s. <span class="flang">English (global)</span></span>
       <ul><li><a href="%(P)slegal/privacy-notice/">Privacy notice</a></li><li><a href="%(P)slegal/privacy-notice/#your-choices">Your privacy choices</a></li><li><a href="%(P)slegal/terms/">Terms</a></li><li><a href="%(P)slegal/data-processing-addendum/">Data processing</a></li><li><a href="%(P)slegal/ai-use-policy/">AI-use policy</a></li><li><a href="%(P)slegal/accessibility/">Accessibility</a></li></ul></div>
   </div>
 </footer>
@@ -5729,33 +5723,6 @@ def guide_body(kicker, title, dek, html):
     ])
 
 
-BCG_SRC = "https://www.bcg.com/press/30september2026-ai-starting-to-pay-off-companies-generate-value"
-BCG_1020_SRC = "https://media-publications.bcg.com/The-Widening-AI-Value-Gap-October-2025.pdf"
-MCK_SRC = "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai/"
-EY_SRC = ("https://www.ey.com/en_us/newsroom/2026/09/"
-          "ey-survey-finds-that-autonomous-ai-implementation-outpaces-oversight-yielding-an-ai-governance-gap")
-
-# (stat, finding, what it means for readiness, source title, source url)
-READINESS_RESEARCH = [
-    ("7.5%", "of 1,330 companies are future-built, with 2.3 times the shareholder return and 2.4 times the revenue growth of laggards. "
-     "Another 41% are scaling AI.",
-     "The leaders start with clarity on where AI creates value, reshape workflows end to end, invest in governance and the workforce "
-     "alongside the technology, and measure the impact in the P&amp;L. Only 5% of companies have the full set of AI controls in place.",
-     "BCG, Applied AI Index 2026, September 2026 (1,330 executives)", BCG_SRC),
-    ("37%", "of organizations say AI has added to their EBIT, unchanged from 2025, although 80% of respondents say it has made them "
-     "more productive.",
-     "AI high performers, 6% of respondents, are nearly three times as likely to have redesigned workflows around AI (nearly three-quarters, "
-     "against one-quarter of others). They are twice as likely to report senior leaders&rsquo; commitment and defined processes to measure impact.",
-     "McKinsey, <i>The state of AI in 2026: On the road to ROI</i>, August 2026 (1,719 respondents)", MCK_SRC),
-    ("36%", "of senior AI executives at large companies have had an AI incident that caused material harm, although 98% have formal "
-     "AI governance policies.",
-     "47% say their organization has skipped its governance process for urgent deployments. Among those using AI agents, 49% have not "
-     "updated governance for agents and 26% cannot detect unauthorized agents.",
-     "EY US, AI Risk and Governance Survey, September 2026 (202 senior AI executives)", EY_SRC),
-]
-READINESS_SOURCES = [(t, u) for _, _, _, t, u in READINESS_RESEARCH] + [
-    ("BCG, <i>The Widening AI Value Gap</i>, September 2025 (the 10-20-70 rule)", BCG_1020_SRC)]
-
 # (id, area, where to start if this is the weakest area, [(statement, basis)])
 READINESS_AREAS = [
     ("lead", "Leadership and ambition",
@@ -5801,18 +5768,14 @@ READINESS_AREAS = [
 READINESS_N = sum(len(a[3]) for a in READINESS_AREAS)
 
 READINESS_INTRO = sec('<h2 class="h2" id="readiness-check">How ready is your business to turn AI into results?</h2><p class="lede">%d checks in six areas, '
-    'based on 2026 research by BCG, McKinsey and EY into what separates the companies that get value from AI from those that do not. '
+    'based on 2026 industry research into what separates the companies that get value from AI from those that do not. '
     'Tick what is already true today. The score is calculated in your browser and nothing is sent or stored.</p>' % READINESS_N, id_="readiness-checklist")
 
 READINESS = "".join([
     READINESS_INTRO,
-    sec('<h2 class="h2">What the research says.</h2><p class="lede">More companies are getting value from AI, but most still cannot see it in '
-        'their profit. The difference is in leadership, workflows, people and controls more than in the models.</p><div class="rs-grid">'
-        + "".join('<article class="panel pad"><div class="score">%s</div><p><b>%s</b></p><p>%s</p><p class="src"><a href="%s" rel="noopener">%s</a></p></article>'
-                  % (s, f, m, u, t) for s, f, m, t, u in READINESS_RESEARCH) + '</div>'),
     sec(split('<div class="checks" id="readiness">' + "".join(
         '<fieldset data-area="%s" data-name="%s" data-next="%s"><legend><span>%s</span><output>0 / %d</output></legend>%s</fieldset>'
-        % (aid, name, nxt, name, len(qs), "".join('<label><input type="checkbox"><span>%s<small>Basis: %s</small></span></label>' % q for q in qs))
+        % (aid, name, nxt, name, len(qs), "".join('<label><input type="checkbox"><span>%s</span></label>' % q[0] for q in qs))
         for aid, name, nxt, qs in READINESS_AREAS) + '</div>',
         '<aside class="panel pad rc-panel" aria-live="polite"><p class="eyebrow">Your result</p><div class="score" id="rd-score">0 / %d</div>'
         '<div class="meter"><i id="rd-bar"></i></div><h2 class="h3" id="rd-h">Starting point</h2><p class="t2" id="rd-p">Tick the statements '
@@ -5822,13 +5785,11 @@ READINESS = "".join([
         + acts(("Discuss your result", "{P}contact/")) + '</aside>', "split rev"), tint=True),
     sec(split('<h2 class="h2">How we built this checklist.</h2>',
               '<p class="t2">Each check turns a practice that the research links to AI value into a statement you can verify in your own '
-              'organization. The basis line shows where it comes from. Checks marked &ldquo;Our practice&rdquo; come from our own delivery '
+              'organization. Some checks come from our own delivery '
               'work: the platform controls and ways of working we use to make those practices hold in production. They are our '
               'recommendation, not a finding from the studies.</p>'
-              '<p class="t2">The figures are from surveys of executives and reflect their own assessment of their companies. They show '
-              'association, not cause. The EY survey covers US companies only, and McKinsey&rsquo;s high-performer group is small (92 '
-              'respondents). BCG, McKinsey and EY did not review or endorse this checklist.</p>'
-              '<ul class="list">%s</ul>' % "".join('<li><a href="%s" rel="noopener">%s</a></li>' % (u, t) for t, u in READINESS_SOURCES),
+              '<p class="t2">The research is based on surveys of executives and reflects their own assessment of their companies. It shows '
+              'association, not cause.</p>',
               "split even")),
 ])
 
@@ -5867,7 +5828,7 @@ PERSPECTIVES = "".join([
         + "".join('<a class="post" href="{P}perspectives/%s/"><span class="meta">%s &middot; 5 min</span><div><h3>%s</h3><p>%s</p></div></a>'
                   % (sl, k, t, dk) for sl, k, t, dk, _ in GUIDES)
         + '<a class="post" href="{P}approach/#readiness-checklist"><span class="meta">Checklist &middot; 5 min</span><div><h3>How ready is your '
-        'business to turn AI into results?</h3><p>%d checks based on research by BCG, McKinsey and EY, scored in your browser. '
+        'business to turn AI into results?</h3><p>%d checks based on industry research, scored in your browser. '
         'Nothing is sent.</p></div></a>' % READINESS_N
         + '<a class="post" href="{P}perspectives/glossary/"><span class="meta">Reference</span><div><h3>Glossary</h3><p>Ontology, approval '
         'boundary, evidence record and the other technical terms, with example usage.</p></div></a></div>'),
