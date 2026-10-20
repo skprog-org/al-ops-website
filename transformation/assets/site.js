@@ -233,6 +233,20 @@
     pick(pd.getAttribute('data-start'),false);
   });
 })();
+
+// homepage principles: select a discipline to highlight the principles taken from it; select it again to clear
+(function(){
+  [].forEach.call(document.querySelectorAll('[data-pr]'),function(pr){
+    var btns=[].slice.call(pr.querySelectorAll('.vb-disc button')),items=[].slice.call(pr.querySelectorAll('li[data-k]'));
+    pr.addEventListener('click',function(e){
+      var b=e.target.closest('.vb-disc button');if(!b)return;
+      var k=b.getAttribute('aria-pressed')==='true'?null:b.getAttribute('data-k');
+      btns.forEach(function(x){x.setAttribute('aria-pressed',x===b&&k?'true':'false')});
+      items.forEach(function(i){i.classList.toggle('on',i.getAttribute('data-k')===k)});
+      pr.classList.toggle('sel',!!k);
+    });
+  });
+})();
 // underlined key words, the timeline, the signal lines, and the scroll-driven loop
 (function(){
   var d=document,still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
