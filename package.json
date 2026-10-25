@@ -1,0 +1,16 @@
+{
+  "name": "al-ops-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "cd transformation && python3 build.py --no-still",
+    "harden": "node scripts/harden.mjs",
+    "build:prod": "npm run build && npm run harden"
+  },
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "html-minifier-terser": "^7.2.0",
+    "javascript-obfuscator": "^5.9.0",
+    "wrangler": "^4.152.0"
+  }
+}

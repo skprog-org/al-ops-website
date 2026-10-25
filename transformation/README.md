@@ -41,12 +41,29 @@ PostHog loads only when the stored choice has `analytics: true` and `POSTHOG_KEY
 ## Deploy (Cloudflare)
 
 Workers with static assets, configured by `wrangler.jsonc` at the repo root. `.assetsignore` keeps the sources (`build.py`, this README) unserved,
-and the build writes `_headers` with basic security headers.
+and `_headers` (security headers, CSP) is maintained by hand in `transformation/`.
 
-- Workers Builds build command: `cd transformation && python3 build.py --no-still` (CI has no Chrome, so the committed stills are kept)
+- Workers Builds build command: `npm ci && npm run build:prod` (CI has no Chrome, so the committed stills are kept; see Production build and protection)
 - Deploy command: `npx wrangler deploy`
 - Secrets, not committed: `npx wrangler secret put SHEETS_WEBHOOK_URL` and `npx wrangler secret put SHEETS_SECRET`
 - Local: put the same two values in a `.dev.vars` file at the repo root, then run `npx wrangler dev` from the repo root
+
+## Production build and protection
+
+`npm run build:prod` (repo root) runs `python3 build.py --no-still` and then `scripts/harden.mjs`, which writes a git-ignored `dist/`:
+
+- copies `transformation/` to `dist/` without the sources (`*.py`, `*.hash`, `README.md`, `.assetsignore`, `.DS_Store`); `assets/vendor/` is copied untouched
+- minifies HTML (whitespace and comments only; inline `<script>` and JSON-LD bodies are never changed) and CSS (clean-css level 1)
+- obfuscates `assets/*.js` (not `assets/vendor/`) with light javascript-obfuscator settings: hexadecimal identifier names, base64 string array. No control-flow flattening, dead code, self-defending or debug protection, so the 3D loop stays fast
+- fails the build if an inline script's sha256 is missing from the CSP in `_headers`, or if any `dist/assets/*.js` fails a syntax check
+
+`wrangler` serves `./dist` (`assets.directory` in `wrangler.jsonc`), so the sources are never deployed. `dist/` is generated and git-ignored; edit
+only `build.py` and friends. Commands: `npm ci && npm run build:prod` to build, `npx wrangler dev` to test locally, `npx wrangler deploy` to ship.
+If you change an inline script, update its hash in `transformation/_headers` (the harden step prints the new one).
+
+What this does and does not do: obfuscation and minification raise the effort needed to read and reuse the code. They do not prevent copying,
+because a browser must receive working code and can always be inspected. The protection against automated scraping comes from the Worker gate,
+`robots.txt` (all crawlers plus named AI crawlers disallowed, even after launch) and the `X-Robots-Tag` header.
 
 ## Form storage (Google Sheet)
 

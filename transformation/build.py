@@ -27,6 +27,9 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 BRAND = "AL Ops"                      # working name; the positioning doc leaves brand identity open ([Brand])
 SITE_URL = "https://www.example.com"  # TODO: replace with the approved domain before launch
 DRAFT = True                          # noindex and robots Disallow; set False only after sign-off
+AI_CRAWLERS = ["GPTBot", "ChatGPT-User", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "anthropic-ai", "CCBot", "PerplexityBot",
+               "Bytespider", "Google-Extended", "Amazonbot", "Applebot-Extended", "cohere-ai", "Diffbot", "ImagesiftBot",
+               "Omgilibot", "FacebookBot", "meta-externalagent", "YouBot"]  # always disallowed, even after launch
 POSTHOG_KEY = ""                      # phc_... PostHog project key; analytics load only when set and the visitor allows them
 POSTHOG_HOST = "https://us.i.posthog.com"  # PostHog ingest host (use https://eu.i.posthog.com for the EU cloud)
 CONSENT_VERSION = 1                   # bump when the cookie categories change; everyone is asked again
@@ -6218,7 +6221,9 @@ def main():
     routes = [r for _, _, r in PAGES if r is not None]
     w("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
       + "".join("  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n" % (url(r), TODAY) for r in routes) + "</urlset>\n")
-    w("robots.txt", ("User-agent: *\nDisallow: /\n" if DRAFT else "User-agent: *\nAllow: /\n") + "\nSitemap: %s\n" % url("sitemap.xml"))
+    w("robots.txt", ("User-agent: *\nDisallow: /\n" if DRAFT else "User-agent: *\nAllow: /\n")
+      + "".join("\nUser-agent: %s\nDisallow: /\n" % bot for bot in AI_CRAWLERS)
+      + "\nSitemap: %s\n" % url("sitemap.xml"))
 
     # remove pages from earlier builds that are no longer generated (html only; never assets or sources)
     removed = 0
