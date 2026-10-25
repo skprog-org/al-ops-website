@@ -58,4 +58,4 @@ Disallow: /
 User-agent: YouBot
 Disallow: /
 
-Sitemap: https://www.example.com/sitemap.xml
+Sitemap: https://al-ops.ai/sitemap.xml

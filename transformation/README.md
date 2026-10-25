@@ -25,7 +25,7 @@ a still when its scene or the shared runtime changes; without Chrome it says so 
 | Setting | Current | Change before launch |
 |---|---|---|
 | `BRAND` | `AL Ops` | Blueprint leaves product identity open (`[Platform]`) |
-| `SITE_URL` | `https://www.example.com` | Approved domain; used in canonicals, sitemap and JSON-LD |
+| `SITE_URL` | `https://al-ops.ai` | Production domain; used in canonicals, sitemap and JSON-LD |
 | `DRAFT` | `True` | `noindex`, and `robots.txt` Disallow. Set `False` only after sign-off |
 | `POSTHOG_KEY` | empty | PostHog project key (`phc_...`). While empty, no analytics code or meta tag is emitted and the consent banner lists only the Necessary category |
 | `POSTHOG_HOST` | `https://us.i.posthog.com` | PostHog ingest host; use `https://eu.i.posthog.com` for the EU cloud |
