@@ -18,6 +18,7 @@ const BLOCKED_UA = [
 const GATE_COOKIE = '__gate';
 const GATE_TTL = 12 * 60 * 60; // seconds
 const MAX_TOKEN = 2048;
+const TURNSTILE_ACTION = 'gate';
 const SITEVERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
 function isBlockedUA(ua) {
@@ -117,7 +118,12 @@ async function handleGate(request, env, url) {
     if (ip) form.set('remoteip', ip);
     const res = await fetch(SITEVERIFY, { method: 'POST', body: form, signal: AbortSignal.timeout(10000) });
     const out = await res.json();
-    if (res.ok && out && out.success === true) {
+    // Real widgets: the token must come from our 'gate' action and an allowed hostname. Cloudflare's test keys (1x/2x/3x...) skip both.
+    const testKey = /^[123]x/.test(env.TURNSTILE_SITE_KEY);
+    const hosts = (env.TURNSTILE_HOSTNAMES || '').split(',').map((h) => h.trim().toLowerCase()).filter(Boolean);
+    const okAction = testKey || out.action === TURNSTILE_ACTION;
+    const okHost = testKey || !hosts.length || hosts.includes(String(out.hostname || '').toLowerCase());
+    if (res.ok && out && out.success === true && okAction && okHost) {
       return json({ ok: true }, 200, { 'Set-Cookie': cookieHeader(await makeCookieValue(env.GATE_SECRET), url) });
     }
   } catch (e) {
@@ -139,7 +145,7 @@ function pass(token){
 }
 function draw(){
   retry.hidden=true;say('');
-  var o={sitekey:box.getAttribute('data-sitekey'),callback:pass,
+  var o={sitekey:box.getAttribute('data-sitekey'),action:'gate',callback:pass,
     'error-callback':function(){fail('The check could not be completed. Please try again.');},
     'expired-callback':function(){fail('The check expired. Please try again.');}};
   if(wid!==null){window.turnstile.reset(wid);}else{wid=window.turnstile.render(box,o);}

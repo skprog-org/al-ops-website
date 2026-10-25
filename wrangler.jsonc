@@ -12,8 +12,9 @@
     "run_worker_first": ["/*"]
   },
   "vars": {
-    // PLACEHOLDER: replace with your Turnstile widget site key from the Cloudflare dashboard.
-    "TURNSTILE_SITE_KEY": "REPLACE_WITH_TURNSTILE_SITE_KEY"
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFlcNL7BTE1EbQS7",
+    // Hostnames allowed to pass the check; tokens issued for any other hostname (including *.workers.dev previews) are rejected.
+    "TURNSTILE_HOSTNAMES": "al-ops.ai,www.al-ops.ai"
   },
   // Per-IP rate limit used by worker/index.js (300 requests per 60s; every asset counts, so keep headroom for a page load).
   "ratelimits": [
