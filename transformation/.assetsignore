@@ -1,0 +1,7 @@
+build.py
+illustrations.py
+README.md
+*.py
+*.hash
+__pycache__
+.DS_Store

@@ -27,6 +27,9 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 BRAND = "AL Ops"                      # working name; the positioning doc leaves brand identity open ([Brand])
 SITE_URL = "https://www.example.com"  # TODO: replace with the approved domain before launch
 DRAFT = True                          # noindex and robots Disallow; set False only after sign-off
+POSTHOG_KEY = ""                      # phc_... PostHog project key; analytics load only when set and the visitor allows them
+POSTHOG_HOST = "https://us.i.posthog.com"  # PostHog ingest host (use https://eu.i.posthog.com for the EU cloud)
+CONSENT_VERSION = 1                   # bump when the cookie categories change; everyone is asked again
 TODAY = "2026-09-30"
 
 # ---------------------------------------------------------------- CSS
@@ -75,6 +78,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:1px solid var(--accent);outline-offset:3px}
 .skip{position:absolute;left:-9999px;top:10px;z-index:200;background:var(--accent);color:var(--accent-ink);padding:10px 16px;border-radius:0;font-weight:500}
 .skip:focus{left:12px}
+#main:focus{outline:none}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* layout */
@@ -578,7 +582,17 @@ dl.glossary dd.ex{font-style:italic;color:var(--muted);font-size:15.5px}
 .fcol ul{list-style:none;margin:0;padding:0}
 .fcol a{display:inline-block;padding:6px 0;text-decoration:none;color:var(--text-2)}
 .fcol a:hover{color:var(--text)}
-.fword{font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:clamp(72px,20vw,300px);line-height:.8;letter-spacing:-.04em;color:var(--raised);margin-top:72px;padding-top:32px;border-top:1px solid var(--border);white-space:nowrap;overflow:hidden;user-select:none}
+/* footer wordmark: the header lockup (logo tile + tracked name) at display size, with a slow light sweep across the name */
+.fword{display:flex;align-items:center;gap:.3em;font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:clamp(40px,12vw,176px);line-height:1;letter-spacing:.12em;color:var(--text);margin-top:72px;padding-top:48px;border-top:1px solid var(--border);white-space:nowrap;overflow:hidden;user-select:none}
+.fword .brand-mark{width:.94em;height:.94em}
+.fword em{font-style:normal;color:var(--accent)}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+  .fword span{color:transparent;
+    background:linear-gradient(105deg,transparent 42%,color-mix(in srgb,var(--accent) 85%,transparent) 50%,transparent 58%) 160% 0/250% 100% no-repeat,
+      linear-gradient(180deg,var(--text) 30%,color-mix(in srgb,var(--text) 45%,transparent) 100%);
+    -webkit-background-clip:text;background-clip:text;animation:fword-sweep 9s var(--ease) infinite}
+}
+@keyframes fword-sweep{0%,55%{background-position:160% 0,0 0}100%{background-position:-60% 0,0 0}}
 .fbottom{margin-top:32px;padding-top:20px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;font-size:13.5px;color:var(--muted)}
 .fbottom ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 20px}
 .fbottom a{text-decoration:none;display:inline-block;padding:4px 0}
@@ -843,8 +857,66 @@ JS = r"""
     boxes.forEach(function(b){b.addEventListener('change',upd)});upd();
   }
 
-  // forms: inline errors, data kept on failure, honest confirmation when delivery is not configured
-  var FORM_ENDPOINT='';  // set to an HTTPS endpoint that accepts a JSON POST to deliver submissions
+  // cookie consent: record in localStorage {v,analytics,ts}; PostHog loads only with analytics:true and a key in <meta name="posthog">
+  var CC_V=__CC_VERSION__,cc=d.querySelector('.cc'),ccd=d.querySelector('.cc-prefs'),phm=d.querySelector('meta[name="posthog"]'),ccTrigger=null;
+  function ccGet(){var r=null;try{r=JSON.parse(localStorage.getItem('consent'))}catch(e){}return r&&typeof r==='object'?r:null}
+  function ccSet(a){try{localStorage.setItem('consent',JSON.stringify({v:CC_V,analytics:!!a,ts:new Date().toISOString()}))}catch(e){}}
+  function loadAnalytics(){
+    if(!phm||window.posthog&&window.posthog.__loaded)return;
+    // official PostHog loader snippet (stub queue, then array.js from the asset host)
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(d,window.posthog||[]);
+    window.posthog.init(phm.getAttribute('content'),{api_host:phm.getAttribute('data-host'),persistence:'localStorage+cookie',person_profiles:'identified_only',disable_session_recording:true});
+  }
+  // withdrawal: stop capture, remove ph_* cookies (path and domain variants) and ph_* storage keys, then reload so nothing keeps running
+  function withdrawAnalytics(){
+    try{if(window.posthog&&window.posthog.opt_out_capturing)window.posthog.opt_out_capturing()}catch(e){}
+    var host=location.hostname,parts=host.split('.'),doms=['',host,'.'+host];
+    if(parts.length>2)doms.push('.'+parts.slice(-2).join('.'));
+    var paths=['/'],segs=location.pathname.split('/').filter(Boolean),acc='';
+    segs.forEach(function(s){acc+='/'+s;paths.push(acc,acc+'/')});
+    d.cookie.split(';').forEach(function(c){
+      var n=c.split('=')[0].replace(/^\s+/,'');
+      if(n.indexOf('ph_')===0||n.indexOf('__ph_')===0)doms.forEach(function(dm){paths.forEach(function(p){
+        d.cookie=n+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path='+p+(dm?';domain='+dm:'')})});
+    });
+    try{Object.keys(localStorage).forEach(function(k){if(k.indexOf('ph_')===0||k.indexOf('__ph_')===0)localStorage.removeItem(k)})}catch(e){}
+    try{Object.keys(sessionStorage).forEach(function(k){if(k.indexOf('ph_')===0||k.indexOf('__ph_')===0)sessionStorage.removeItem(k)})}catch(e){}
+  }
+  function withdrawReload(){withdrawAnalytics();location.reload()}
+  function ccFocus(){var m=d.getElementById('main');if(m)m.focus()}
+  function ccChoose(a){
+    var was=ccGet(),wasOn=!!(was&&was.analytics&&was.v>=CC_V),fromBanner=!!(cc&&!cc.hidden),fromDialog=!!(ccd&&ccd.open&&ccTrigger&&ccTrigger.closest('.cc'));
+    ccSet(a);
+    if(cc)cc.hidden=true;
+    if(ccd&&ccd.open)ccd.close();
+    if(a)loadAnalytics();
+    else if(wasOn)withdrawReload();
+    else if(was&&was.analytics)withdrawAnalytics();   // stale record with analytics on: clean up without reloading
+    if(fromBanner||fromDialog||!ccTrigger||!ccTrigger.focus||!d.body.contains(ccTrigger)||ccTrigger.closest('[hidden]'))ccFocus();
+    else ccTrigger.focus();
+  }
+  function ccOpen(t){
+    if(!ccd||!ccd.showModal)return false;
+    ccTrigger=t||null;
+    var box=ccd.querySelector('[name="cc-analytics"]'),r=ccGet();
+    if(box)box.checked=!!(r&&r.analytics);
+    ccd.showModal();return true;
+  }
+  (function(){
+    if(!cc)return;
+    var r=ccGet();
+    if(r&&r.analytics&&r.v>=CC_V)loadAnalytics();
+    if(!r||!(r.v>=CC_V))cc.hidden=false;
+    [].forEach.call(d.querySelectorAll('[data-cc="accept"]'),function(b){b.addEventListener('click',function(){ccChoose(true)})});
+    [].forEach.call(d.querySelectorAll('[data-cc="reject"]'),function(b){b.addEventListener('click',function(){ccChoose(false)})});
+    [].forEach.call(d.querySelectorAll('[data-cc="manage"]'),function(b){b.addEventListener('click',function(){if(!ccOpen(b)){var pl=cc.querySelector('a[href*="#your-choices"]');if(pl)location.href=pl.getAttribute('href')}})});
+    [].forEach.call(d.querySelectorAll('[data-cc="save"]'),function(b){b.addEventListener('click',function(){var bx=ccd.querySelector('[name="cc-analytics"]');ccChoose(!!(bx&&bx.checked))})});
+    [].forEach.call(d.querySelectorAll('[data-consent-open]'),function(a){a.addEventListener('click',function(e){if(ccOpen(a))e.preventDefault()})});
+    if(ccd)ccd.addEventListener('close',function(){if(ccTrigger&&ccTrigger.focus&&d.body.contains(ccTrigger)&&!ccTrigger.closest('[hidden]'))ccTrigger.focus();else ccFocus()});
+  })();
+
+  // forms: inline errors, data kept on failure; submissions post to the worker at /api/contact (see the README)
+  var FORM_ENDPOINT='/api/contact';  // JSON POST; the body carries data.form so one endpoint serves both forms
   [].forEach.call(d.querySelectorAll('form[data-form]'),function(f){
     f.addEventListener('submit',function(e){
       e.preventDefault();var ok=true,first=null;
@@ -856,8 +928,11 @@ JS = r"""
       var id=f.getAttribute('data-form'),okBox=d.getElementById(id+'-ok'),fail=d.getElementById(id+'-fail');
       var done=function(live){fail.hidden=true;f.hidden=true;okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
       if(!FORM_ENDPOINT){done(false);return}
+      data.form=id;
       fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-        .then(function(r){if(!r.ok)throw new Error('status '+r.status);done(true)}).catch(function(){fail.hidden=false;fail.focus()});
+        .then(function(r){if(!r.ok)throw new Error('status '+r.status);done(true);
+          // analytics only if the visitor allowed it (window.posthog exists then); no email, organization or free text
+          try{window.posthog&&window.posthog.capture&&window.posthog.capture('form_submitted',{form:id,priority:data['mv-priority']||null,region:data['mv-region']||null})}catch(e){}}).catch(function(){fail.hidden=false;fail.focus()});
     });
   });
 })();
@@ -3098,7 +3173,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
     head: extra markup for <head>, such as a variant stylesheet.
     footer_art: markup placed in the footer between the wordmark and the bottom bar (the industries line by default)."""
     depth = route.count("/")
-    P = "./" if depth == 0 else "../" * depth
+    P = "/" if out == "404.html" else "./" if depth == 0 else "../" * depth   # the 404 page is served at any path, so its links are root-absolute
     nav = "".join('<a href="%s%s"%s>%s</a>' % (P, r, " aria-current=page" if section == r else "", n) for r, n in NAV)
     mutil = "".join('<a class="m-only" href="%s%s">%s</a>' % (P, r, n) for r, n in UTIL)
     util = "".join('<a href="%s%s"%s>%s</a>' % (P, r, " aria-current=page" if section == r else "", n) for r, n in UTIL)
@@ -3124,6 +3199,8 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
         meta.append('<meta property="og:url" content="%s">' % url(route if variant_of is None else variant_of))
     if DRAFT or out is not None or variant_of is not None:
         meta.append('<meta name="robots" content="noindex,nofollow">')
+    if POSTHOG_KEY:
+        meta.append('<meta name="posthog" content="%s" data-host="%s">' % (POSTHOG_KEY, POSTHOG_HOST))
     draft = ""
     # closing call to action above the footer (the homepage and contact page already end with one)
     fcta = "" if route in ("", "contact/") or out is not None or variant_of is not None else (
@@ -3150,6 +3227,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+%(cc)s
 %(draft)s
 <header class="site-header">
   <div class="wrap hdr">
@@ -3163,7 +3241,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
     </div>
   </div>
 </header>
-<main id="main">
+<main id="main" tabindex="-1">
 %(body)s
 </main>
 %(fcta)s<footer class="site-footer">
@@ -3178,18 +3256,18 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
       <div class="fcol"><h2>Company</h2><ul><li><a href="%(P)sabout/">About</a></li><li><a href="%(P)scontact/">Contact</a></li><li><a href="%(P)scontact/#move-form">Regional enquiries</a></li></ul></div>
     </div>
     %(regions)s
-    <div class="fword" aria-hidden="true">%(brand)s</div>
+    <div class="fword" aria-hidden="true">%(mark)s<span>%(fword)s</span></div>
     %(fart)s<div class="fbottom"><span>&copy; 2026 %(brand)s. Draft site. <span class="flang">English (global)</span></span>
-      <ul><li><a href="%(P)slegal/privacy-notice/">Privacy notice</a></li><li><a href="%(P)slegal/privacy-notice/#your-choices">Your privacy choices</a></li><li><a href="%(P)slegal/terms/">Terms</a></li><li><a href="%(P)slegal/data-processing-addendum/">Data processing</a></li><li><a href="%(P)slegal/ai-use-policy/">AI-use policy</a></li><li><a href="%(P)slegal/accessibility/">Accessibility</a></li></ul></div>
+      <ul><li><a href="%(P)slegal/privacy-notice/">Privacy notice</a></li><li><a href="%(P)slegal/privacy-notice/#your-choices" data-consent-open>Your privacy choices</a></li><li><a href="%(P)slegal/terms/">Terms</a></li><li><a href="%(P)slegal/data-processing-addendum/">Data processing</a></li><li><a href="%(P)slegal/ai-use-policy/">AI-use policy</a></li><li><a href="%(P)slegal/accessibility/">Accessibility</a></li></ul></div>
   </div>
 </footer>
 <script src="%(P)sassets/site.js?v=%(av)s" defer></script>
 </body>
 </html>
 """ % dict(av=asset_version(), title=title, desc=desc, meta="\n".join(meta), fav=FAVICON, P=P, init=HEAD_INIT, ld=ld, draft=draft,
-           brand=BRAND, mark=BRAND_MARK, nav=nav, mutil=mutil, util=util, cta=CTA, body=body,
+           brand=BRAND, mark=BRAND_MARK, fword="%s <em>%s</em>" % tuple(BRAND.rsplit(" ", 1)), nav=nav, mutil=mutil, util=util, cta=CTA, body=body,
            regions=footer_regions(P), fcta=fcta, head=("\n" + head.replace("{P}", P)) if head else "",
-           fart=(FOOTER_ART if footer_art is None else footer_art).replace("{P}", P))
+           fart=(FOOTER_ART if footer_art is None else footer_art).replace("{P}", P), cc=cookie_consent(P))
     PAGES.append((out or (route + "index.html"), html, route if out is None and variant_of is None else None))
 
 
@@ -3634,6 +3712,52 @@ VB_FAQ = [
      "stories or reported results."),
 ]
 
+# engineering principles other disciplines kept, brought back to advice, technology and delivery
+VB_DISC = [
+    ("auto", "Automotive", "Functional safety", "Every hazard is analysed before a part goes on the road, and a fault fails safe."),
+    ("life", "Life sciences", "Validation", "A process is proven against its intended use, and proven again after every change."),
+    ("health", "Healthcare", "Do no harm", "Diagnosis before prescription, a checklist before surgery, a second pair of eyes."),
+    ("mep", "Building engineering", "Codes and commissioning", "Approved drawings before building, tested systems before handover, a name on the sign-off."),
+]
+VB_PRINCIPLES = [
+    ("Advisory", [
+        ("health", "Diagnose before prescribing", "We find the cause and the result worth pursuing before recommending anything, and we recommend what fits."),
+        ("mep", "Design before building", "Outcome, scope and acceptance criteria are agreed and written down before any work starts."),
+        ("auto", "Name the risks first", "What could go wrong, and how it will be contained, is part of the plan from day one."),
+    ]),
+    ("Technology", [
+        ("auto", "Fail safe", "When the system is unsure, or the action is consequential, it stops and waits for a person."),
+        ("life", "Validated, not assumed", "Tested against its intended use, and retested whenever the model, data or rules change."),
+        ("life", "Traceable by design", "Every decision, source and approval leaves a record you can replay, like a batch record."),
+    ]),
+    ("Implementation", [
+        ("mep", "Commission before handover", "Tested in your real environment against the agreed criteria before it goes live."),
+        ("health", "A second pair of eyes", "Consequential changes are checked by someone who did not make them, against a checklist."),
+        ("mep", "As-built records", "You receive what was actually delivered, documented, so your team can run it without us."),
+    ]),
+]
+
+
+def vb_principles(only=None):
+    """The disciplines and the principles taken from them. only: one area (e.g. "Technology"), shown as three columns."""
+    name = {k: n for k, n, _, _ in VB_DISC}
+    areas = [(a, items) for a, items in VB_PRINCIPLES if only in (None, a)]
+    used = {k for _, items in areas for k, _, _ in items}
+    li = lambda k, t, d: '<li data-k="%s"><span class="vb-tag">From %s</span><h3>%s</h3><p>%s</p></li>' % (k, name[k].lower(), t, d)
+    cols = (["<article>%s<ol>%s</ol></article>" % (vb_chip(a), "".join(li(*x) for x in items)) for a, items in areas] if only is None
+            else ["<article><ol>%s</ol></article>" % li(*x) for x in areas[0][1]])
+    return (
+        '<div class="vb-pr%s" data-pr><div class="vb-disc" role="group" aria-label="Highlight principles by discipline">'
+        % (" one" if only else "")
+        + "".join('<button type="button" data-k="%s" aria-pressed="false"><span class="vb-tag">%s</span><b>%s</b><p>%s</p></button>' % d
+                  for d in VB_DISC if d[0] in used)
+        + '</div><p class="vb-pr-hint">Select a discipline to see what we brought back from it.</p><div class="vb-cols vb-pr-cols">'
+        + "".join(cols) + '</div>'
+        '<div class="vb-ship"><h3>Principles that speed you up, not slow you <mark>down.</mark></h3>'
+        '<p>We help you ship on principle: built right the first time, so there is less rework, fewer surprises in production and faster '
+        'approval from risk and compliance. Your business can keep pace with demand and stay ahead of competitors in a fast-moving '
+        'market, without trading speed for safety.</p></div></div>')
+
 
 def vb_cta(note):
     return ('<div class="vb-cta"><a class="vb-btn" href="%s">Discuss your next move</a><div><p><b>%s</b></p>'
@@ -3707,6 +3831,15 @@ HOME = "".join([
               for (verb, tag, d), (href, lab) in zip(OFFER, [("approach/", "Our approach"), ("platform/", "Our platform"),
                                                              ("approach/", "How we deliver")]))
     + '</div></div></section>',
+
+    # principles: what automotive, life sciences, healthcare and building engineering never gave up
+    '<section class="vb-sec"><div class="wrap"><div class="vb-split"><div>' + vb_chip("Our principles")
+    + '<h2 class="vb-h2">Other disciplines kept their principles. Software let them <mark>slip.</mark></h2></div><div>'
+    '<p class="vb-lede">Cars, medicines, hospitals and buildings are not delivered on trust. They are designed before they are built, '
+    'validated before they are used, recorded as they run and signed off by someone accountable.</p>'
+    '<p class="vb-strong">Software once worked this way too. In the rush to ship faster, much of it was lost. We bring those principles '
+    'back to advice, to technology and to implementation.</p></div></div>'
+    + vb_principles() + '</div></section>',
 
     # who decides: the supply chain scene, where a planner approves the switch to a second supplier
     '<section class="vb-sec vb-glow"><div class="wrap"><div class="vb-split wide"><div>' + vb_chip("Accountability")
@@ -4107,7 +4240,7 @@ LOOK_CSS += r"""
 .fgrid{order:1}
 .fregions{order:2}
 .fword{order:3}
-.vb-scape{order:4;position:relative;margin-top:-.6em;font-size:clamp(72px,20vw,300px)}
+.vb-scape{order:4;position:relative;margin-top:64px}
 .vb-scape>*{font-size:1rem}
 .vb-scape-head{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 40px;margin-bottom:8px}
 .vb-ftag{margin:0;font-family:var(--display);font-size:clamp(22px,2.2vw,30px);letter-spacing:-.02em;line-height:1.15;max-width:22ch}
@@ -4155,7 +4288,7 @@ html.js .vb-scape.drawn .vb-win,html.js .vb-scape.drawn .vb-smoke,html.js .vb-sc
 .fbottom{order:5;margin-top:28px}
 @media (prefers-reduced-motion:reduce){.vb-win,.vb-blades,.vb-dish,.vb-smoke,.vb-water{animation:none}}
 @media (max-width:900px){
-  .vb-scape{margin-top:-.6em}
+  .vb-scape{margin-top:40px}
   .vb-scape-svg{width:900px}
   .vb-scape-labels{height:auto;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:auto;margin-left:0}
   .vb-scape-labels a{position:static;transform:none}
@@ -4805,6 +4938,166 @@ JS += r"""
 })();
 """
 
+CSS += r"""
+/* homepage principles: four disciplines, nine principles; selecting a discipline highlights what came from it */
+.vb-disc{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:56px}
+.vb-disc button{display:flex;flex-direction:column;gap:6px;padding:18px;text-align:left;border:1px solid var(--border);border-radius:var(--r);
+  background:var(--surface);color:var(--text);font:inherit;cursor:pointer;transition:border-color .2s var(--ease),background-color .2s var(--ease)}
+.vb-disc button:hover{border-color:color-mix(in srgb,var(--accent) 60%,var(--border))}
+.vb-disc button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+.vb-disc b{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:-.02em;line-height:1.15}
+.vb-disc p{margin:0;color:var(--text-2);font-size:14px;line-height:1.45}
+.vb-pr-hint{margin:14px 0 0;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+html:not(.js) .vb-pr-hint{display:none}
+.vb-pr-cols{margin-top:40px}
+.vb-pr-cols .vb-chip{margin-bottom:8px}
+.vb-pr ol{list-style:none;margin:0;padding:0}
+.vb-pr li{padding:16px 0 16px 16px;border-left:2px solid var(--border);transition:opacity .25s var(--ease),border-color .25s var(--ease)}
+.vb-pr li+li{margin-top:4px}
+.vb-pr li h3{margin:6px 0 6px;font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:-.02em;line-height:1.15}
+.vb-pr li p{margin:0;font-size:15px}
+.vb-pr li .vb-tag{color:var(--muted)}
+.vb-pr.sel li{opacity:.35}
+.vb-pr.sel li.on{opacity:1;border-left-color:var(--accent)}
+.vb-pr.sel li.on .vb-tag{color:var(--accent)}
+.vb-pr.one .vb-disc{grid-template-columns:repeat(2,1fr)}
+.vb-pr.one .vb-pr-cols article{border-top:0;padding-top:0}
+.vb-ship{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:16px clamp(24px,4vw,64px);align-items:start;margin-top:48px;padding:28px;
+  border:1px solid var(--border);border-left:2px solid var(--accent);background:var(--surface)}
+.vb-ship h3{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(24px,2.3vw,32px);line-height:1.1;letter-spacing:-.025em}
+.vb-ship p{margin:0;color:var(--text-2)}
+@media (max-width:860px){.vb-ship{grid-template-columns:1fr}}
+@media (max-width:1100px){.vb-disc{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.vb-disc,.vb-pr.one .vb-disc{grid-template-columns:1fr}}
+"""
+
+JS += r"""
+// homepage principles: select a discipline to highlight the principles taken from it; select it again to clear
+(function(){
+  [].forEach.call(document.querySelectorAll('[data-pr]'),function(pr){
+    var btns=[].slice.call(pr.querySelectorAll('.vb-disc button')),items=[].slice.call(pr.querySelectorAll('li[data-k]'));
+    pr.addEventListener('click',function(e){
+      var b=e.target.closest('.vb-disc button');if(!b)return;
+      var k=b.getAttribute('aria-pressed')==='true'?null:b.getAttribute('data-k');
+      btns.forEach(function(x){x.setAttribute('aria-pressed',x===b&&k?'true':'false')});
+      items.forEach(function(i){i.classList.toggle('on',i.getAttribute('data-k')===k)});
+      pr.classList.toggle('sel',!!k);
+    });
+  });
+})();
+"""
+
+
+CSS += r"""
+/* platform: right tool, right job */
+.vb-pr.fit .vb-disc{margin-top:40px}
+.fit-flow{margin-top:36px;padding:24px;border:1px solid var(--border);background:var(--surface)}
+.fit-k{margin:0 0 14px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
+.fit-flow ol{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;list-style:none;margin:0 0 14px;padding:0;counter-reset:f}
+.fit-flow li{position:relative;padding:14px 0 0;border-left:0;border-top:2px solid var(--border)}
+.fit-flow li+li{margin-top:0}
+.fit-flow li::before{counter-increment:f;content:"0" counter(f);display:block;margin-bottom:6px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.fit-flow li p{margin:6px 0 0;font-size:14.5px;line-height:1.45;color:var(--text-2)}
+.fit-flow li[data-k=people] .vb-tag{color:var(--accent)}
+.vb-pr.sel .fit-flow li.on{border-top-color:var(--accent)}
+.fit-lessons{margin-top:64px}
+.fit-lessons ol{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(20px,3vw,36px);list-style:none;margin:28px 0 0;padding:0}
+.fit-lessons li{padding-top:18px;border-top:1px solid var(--border)}
+.fit-lessons h4{margin:0 0 10px;font-family:var(--display);font-weight:400;font-size:21px;line-height:1.2;letter-spacing:-.02em}
+.fit-lessons p{margin:0;color:var(--text-2);font-size:15px}
+.lg{margin-top:72px;padding-top:48px;border-top:1px solid var(--border)}
+.lg-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px clamp(24px,4vw,64px);align-items:end}
+.lg-head .t2{margin:0}
+.lg-paths{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;list-style:none;margin:32px 0 0;padding:0;counter-reset:lg}
+.lg-paths li{padding:18px;border:1px solid var(--border);border-top:2px solid var(--accent);background:var(--surface)}
+.lg-paths h4{margin:6px 0 8px;font-family:var(--display);font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-.02em}
+.lg-paths p{margin:0;color:var(--text-2);font-size:14px;line-height:1.45}
+.lg-foot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);margin-top:36px}
+.lg-tests{margin:0;padding-left:20px;color:var(--text-2);font-size:15px}
+.lg-tests li{padding:4px 0}
+.lg-tests li::marker{font-family:var(--mono);font-size:12px;color:var(--accent)}
+.lg-ai{padding:20px 22px;border-left:2px solid var(--accent);background:var(--surface)}
+.lg-ai p:last-child{margin:0;color:var(--text-2);font-size:15px}
+@media (max-width:1100px){.fit-flow ol,.fit-lessons ol{grid-template-columns:1fr 1fr}.lg-paths{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:860px){.lg-head,.lg-foot{grid-template-columns:1fr}.lg-paths{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.fit-flow ol,.fit-lessons ol,.lg-paths{grid-template-columns:1fr}}
+"""
+
+# the right tool for each part of the work: not everything needs AI
+FIT_KINDS = [
+    ("keep", "Keep", "The legacy system", "It already holds the truth and works. Connect to it now, and plan its future on purpose."),
+    ("auto", "Automate", "A simple workflow", "The steps are known and rarely change. A form, a trigger or a scheduled job is enough."),
+    ("script", "Script", "Code and integration", "The logic is precise and repeatable. Code gives the same answer every time, quickly and cheaply."),
+    ("ai", "AI", "Judgment on messy input", "Language, documents, exceptions and trade-offs, where fixed rules break down."),
+]
+FIT_FLOW = [
+    ("keep", "The ERP stays the system of record for suppliers, orders and payments."),
+    ("script", "A nightly script collects new invoices, orders and delivery notes into one place."),
+    ("auto", "A matching rule clears every invoice that agrees with its order and delivery: most of them."),
+    ("ai", "AI reads the exceptions (a changed price, a partial delivery, a note in an email) and proposes a fix with its reasons."),
+    ("people", "The accounts owner approves the fix, and the ERP is updated through its normal interface."),
+]
+FIT_LESSONS = [
+    ("The best AI answer is often a script.",
+     "Asked to do the same calculation a thousand times, a language model is the wrong tool. Asked to write the code that does it, it is "
+     "the right one. AI should build the automation, not become it."),
+    ("Legacy systems usually hold the truth.",
+     "Older systems encode years of rules and edge cases that nobody has written down. AI works best reading and acting through them, "
+     "not replacing them."),
+    ("AI earns its place where the work is messy.",
+     "Free text, unusual cases, conflicting information and decisions that need a summary of the trade-offs. That is where rules run out "
+     "and judgment is needed."),
+    ("The progress is in the combination.",
+     "Systems of record for truth, scripts and rules for what is predictable, AI for what is ambiguous, people for what is consequential. "
+     "Each part does what it is best at, and the value shows up in the whole."),
+]
+
+# legacy modernisation: decide system by system, from the business need, not the age of the technology
+LEGACY_PATHS = [
+    ("Retain", "Leave it as it is", "It is stable, cheap to run and rarely changes. Review it again when the business need changes."),
+    ("Wrap", "Connect around it", "The core is sound but hard to reach. Add interfaces so new services, automation and AI can use it safely."),
+    ("Extend", "Build next to it", "New needs keep arriving. Add them alongside, so the old core stops growing and new work is easier to change."),
+    ("Replace", "Move it step by step", "It holds the business back. Move one function at a time, with the old and new running together until each step is proven."),
+    ("Retire", "Switch it off", "Little depends on it any more. Move the remaining data and records, then stop paying for it."),
+]
+LEGACY_TESTS = [
+    "How much does the business depend on it, and what breaks if it stops?",
+    "How often does it need to change, and how long does each change take?",
+    "What does it cost to run, support and keep secure?",
+    "Is the knowledge of how it works held by a few people, or written down?",
+    "Does it block a result the business needs, such as a new service or real-time data?",
+]
+
+
+def fit_section():
+    kind = {k: n for k, n, _, _ in FIT_KINDS}
+    kind["people"] = "People decide"
+    return (
+        '<p class="eyebrow">Right tool, right job</p><h2 class="h2">Not everything needs AI.</h2>'
+        '<p class="lede">Some work needs only a simple automation or a script, and some systems are best left as they are. Real progress '
+        'comes from finding where AI adds value and combining it with everything that already works.</p>'
+        '<div class="vb-pr fit" data-pr><div class="vb-disc" role="group" aria-label="Highlight steps by type of tool">'
+        + "".join('<button type="button" data-k="%s" aria-pressed="false"><span class="vb-tag">%s</span><b>%s</b><p>%s</p></button>' % k
+                  for k in FIT_KINDS)
+        + '</div><p class="vb-pr-hint">Select one to see where it fits in a real process.</p>'
+        '<div class="fit-flow"><p class="fit-k">Example: from invoice to payment</p><ol>'
+        + "".join('<li data-k="%s"><span class="vb-tag">%s</span><p>%s</p></li>' % (k, kind[k], t) for k, t in FIT_FLOW)
+        + '</ol><p class="caption">Illustrative process. AI handles the exceptions, not the whole flow.</p></div></div>'
+        '<div class="fit-lessons"><h3 class="h2" style="font-size:clamp(24px,2.4vw,34px)">What building with AI has taught us.</h3><ol>'
+        + "".join('<li><h4>%s</h4><p>%s</p></li>' % x for x in FIT_LESSONS)
+        + '</ol></div>'
+        '<div class="lg"><div class="lg-head"><div><p class="eyebrow">Modernising legacy systems</p>'
+        '<h3 class="h2" style="font-size:clamp(24px,2.4vw,34px)">Decide each system&rsquo;s future on purpose.</h3></div>'
+        '<p class="t2">Keeping a legacy system should be a choice, not a default. We assess each system against what the business will need '
+        'next, then choose one of five paths. Most estates use several at once.</p></div><ol class="lg-paths">'
+        + "".join('<li><span class="vb-tag">%s</span><h4>%s</h4><p>%s</p></li>' % x for x in LEGACY_PATHS)
+        + '</ol><div class="lg-foot"><div><p class="fit-k">Five questions behind the decision</p><ol class="lg-tests">'
+        + "".join('<li>%s</li>' % q for q in LEGACY_TESTS)
+        + '</ol></div><div class="lg-ai"><p class="fit-k">Where AI helps modernisation</p>'
+        '<p>The hardest part of modernising is often understanding what the old system really does. AI can read old code, configuration '
+        'and documents, explain the business rules hidden inside them, and draft the tests that prove a replacement behaves the same. '
+        'People still decide what to keep, change or retire.</p></div></div></div>')
+
 
 PLATFORM = "".join([
     hero("Our platform", "A platform for building what comes next.",
@@ -4834,6 +5127,7 @@ PLATFORM = "".join([
         '<p>Define who owns the new way of working, how performance will be reviewed, and what happens when conditions change. Build a '
         'foundation for the next improvement, not dependence on a single experiment.</p></div><span></span></div></div>'
         + acts(("Explore what you could build", "{P}contact/"))),
+    sec(fit_section(), id_="right-tool"),
     sec('<p class="eyebrow">How it fits together</p><h2 class="h2">The platform stack.</h2>'
         '<p class="lede">Five layers between your existing systems and the outcomes you want, with one control plane and one infrastructure '
         'base under all of them. Select any part to see what it changes for your business and your customers.</p>'
@@ -4845,6 +5139,10 @@ PLATFORM = "".join([
               links([("Technical overview", "platform/architecture/"), ("Semantic Data Layer", "platform/semantic-data-layer/"),
                      ("AI agents and execution boundaries", "platform/ai-agents/"), ("Integrations", "platform/integrations/"),
                      ("Deployment options", "platform/deployment/")]), "split even") + '</div>', tint=True, id_="stack"),
+    sec('<p class="eyebrow">Technology principles</p><h2 class="h2">Engineered the way safety-critical industries work.</h2>'
+        '<p class="lede">Automotive and life sciences never ship on trust: faults fail safe, processes are validated, and every batch leaves '
+        'a record. The platform is built on the same principles.</p>'
+        + vb_principles("Technology"), id_="principles"),
 ])
 
 # ---------------------------------------------------------------- AI & what's next
@@ -5354,7 +5652,7 @@ SEC_DOCS = "".join([
          "Tell us which deployment and assurance areas you are assessing. Sensitive documents are shared through an authorized review process."),
     sec(split(NO_SENSITIVE + form_msgs("docs", "Request received.", "We have your documentation request. The security team will contact you "
                                         "at the email address you provided about the review process.")
-              + '<form class="form" data-form="docs" novalidate>'
+              + '<form class="form" data-form="docs" novalidate><input name="website" tabindex="-1" autocomplete="off" hidden aria-hidden="true">'
               + '<div class="frow">' + field("docs-email", "Work email", "email", "Enter a valid work email.", auto="email")
               + field("docs-org", "Organization", required="Enter your organization.", auto="organization") + '</div>'
               + '<div class="frow">' + field("docs-role", "Role", required="Enter your role.", auto="organization-title")
@@ -5377,7 +5675,7 @@ CONTACT = "".join([
          "what to build."),
     sec(split('<h2 class="h2">Tell us about your next move.</h2>' + NO_SENSITIVE
               + form_msgs("move", "Thank you.", "We have your message and will reply to the email address you provided.")
-              + '<form class="form" id="move-form" data-form="move" novalidate>'
+              + '<form class="form" id="move-form" data-form="move" novalidate><input name="website" tabindex="-1" autocomplete="off" hidden aria-hidden="true">'
               + '<div class="frow">' + field("mv-email", "Work email", "email", "Enter a valid work email.", auto="email")
               + field("mv-org", "Organization", required="Enter your organization.", auto="organization") + '</div>'
               + '<div class="frow">' + field("mv-role", "Role", required="Enter your role.", auto="organization-title")
@@ -5689,17 +5987,31 @@ AI_USE = "".join([
 PRIVACY_NOTICE = "".join([
     hero("Legal", "Website privacy notice.", "How this website handles information about visitors."),
     sec(LEGAL_NOTE + '<div class="article" style="margin-top:32px">'
-        '<h2>What this site collects</h2><p>This draft site does not use analytics, advertising or tracking cookies. It stores one preference in '
-        'your browser, your chosen colour theme, and that preference never leaves your device.</p>'
-        '<h2>Forms</h2><p>The architecture review and documentation request forms ask for your work email, organization, role and details of '
-        'the workflow you want to discuss. In this draft build, form delivery is not configured and nothing you enter is sent or stored.</p>'
-        '<p>When delivery is enabled, this notice will state where submissions go, who can read them, how long they are kept and how to ask '
-        'for their deletion. Updates are sent only if you tick the separate, optional box.</p>'
+        '<h2>What this site collects</h2><p>The site stores a few items in your browser so it works as you set it.'
+        + (' Others are optional and are only set if you agree.' if POSTHOG_KEY else '') + '</p>'
+        + table(["Item", "Where", "Purpose", "Needed?"], [
+            ("theme", "Local storage", "Remembers your light or dark theme. Never sent to us.", "Yes"),
+            ("consent", "Local storage", "Records your cookie choice and when you made it. Never sent to us.", "Yes")]
+            + ([("ph_* (PostHog)", "Cookies and local storage", "Aggregate usage analytics: which pages are visited and whether a form is submitted. "
+                 "Set only after you allow analytics.", "No, optional")] if POSTHOG_KEY else []))
+        + ('<p>Analytics are off until you accept them. We do not record sessions, do not use advertising cookies and do not sell or share '
+           'personal information. If you reject analytics, no PostHog code is loaded and nothing is sent to PostHog. If you accept, PostHog '
+           'receives your IP address and device or browser data (such as browser type, operating system and screen size) as part of the analytics.</p>'
+           if POSTHOG_KEY else
+           '<p>This site uses no analytics and no advertising cookies, and does not sell or share personal information.</p>')
+        + '<p>The site is hosted on Cloudflare, which processes requests to the site and form submissions in transit.</p>'
+        '<h2>Forms</h2><p>The contact and documentation request forms ask for your work email, organization, role and details of what you want '
+        'to discuss. Submissions pass through Cloudflare and are stored in Google Sheets (Google Workspace) so we can reply, along with the time, the page and your '
+        'country as seen by our host. Updates are sent only if you tick the separate, optional box.</p>'
+        '<p>The retention period and how to ask for deletion will be stated here once the company details are confirmed.'
+        + (' Analytics events for a form submission carry only the form name, priority and region, never your email, organization or message.' if POSTHOG_KEY else '')
+        + '</p>'
         '<h2>Customer data</h2><p>Data processed for enterprise customers through the platform is covered by the '
         '<a class="ilink" href="{P}legal/data-processing-addendum/">data processing addendum</a>, not by this notice.</p>'
-        '<h2 id="your-choices">Your privacy choices</h2><p>This website does not sell or share personal information, does not use it for '
-        'targeted advertising and sets no tracking cookies, so there is nothing to opt out of here. The only stored preference is your colour '
-        'theme, kept in your browser. Clearing your browser storage removes it.</p>'
+        '<h2 id="your-choices">Your privacy choices</h2><p>To change your cookie choice, use &ldquo;Your privacy choices&rdquo; in the footer of any '
+        'page. ' + ('You can allow or turn off analytics there at any time. Turning analytics off removes the PostHog cookies and stored items '
+        'from this browser. ' if POSTHOG_KEY else '') + 'Clearing your browser storage also removes the theme and your recorded choice, so you will be asked again.</p>'
+        '<p>This website does not sell or share personal information and does not use it for targeted advertising.</p>'
         '<h2>Your rights by region</h2><p>Your rights depend on where you are and which law applies. The summaries below are a draft for counsel '
         'review and will be completed with the verified company and contact information.</p>'
         '<h3 id="rights-us">United States</h3><p>State privacy laws such as the California Consumer Privacy Act, as amended by the CPRA, give '
@@ -5739,6 +6051,64 @@ ACCESS = "".join([
 NOT_FOUND = ('<section class="page-hero"><div class="wrap"><p class="eyebrow">404</p><h1 class="h1">Page not found.</h1>'
              '<p class="lede">The page may have moved. Try one of these instead.</p><div style="max-width:560px;margin-top:28px">'
              + links([("Home", ""), ("Transformation", "transformation/"), ("Our platform", "platform/"), ("Contact", "contact/")]) + '</div></div></section>')
+
+
+# ---------------------------------------------------------------- cookie consent (banner + preferences dialog, every page)
+LOOK_CSS += r"""
+/* cookie consent: non-modal bottom banner and a preferences dialog */
+.cc{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--surface);border-top:1px solid var(--outline);padding:18px 0;animation:cc-in .3s var(--ease)}
+.cc[hidden]{display:none}
+.cc-in{max-width:1280px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:20px 40px}
+.cc p{margin:0;font-size:15px;line-height:1.5;color:var(--text-2);max-width:68ch}
+.cc p a{color:var(--text);text-underline-offset:3px}
+.cc-btns{display:flex;flex:none;gap:10px}
+.cc .btn,.cc-prefs .btn{min-height:44px;padding:9px 16px;font-size:14px;justify-content:center;white-space:nowrap}
+.cc-prefs{width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:28px;background:var(--surface);color:var(--text);border:1px solid var(--outline);border-radius:0}
+.cc-prefs:not([open]){display:none}
+.cc-prefs::backdrop{background:rgba(3,20,30,.72)}
+.cc-prefs h2{font-family:var(--display);font-weight:400;font-size:26px;line-height:1.1;letter-spacing:-.02em;margin:0 0 10px}
+.cc-prefs>p{font-size:15px;color:var(--text-2);margin:0 0 18px}
+.cc-cat{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;border-top:1px solid var(--border);padding:16px 0}
+.cc-cat:last-of-type{border-bottom:1px solid var(--border)}
+.cc-cat h3{font-size:16px;font-weight:500;margin:0 0 4px}
+.cc-cat p{margin:0;font-size:14px;color:var(--text-2)}
+.cc-cat label{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;color:var(--text-2);flex:none}
+.cc-cat input{width:20px;height:20px;accent-color:var(--accent);margin:0}
+.cc-prefs .cc-btns{margin-top:22px;flex-wrap:wrap}
+@keyframes cc-in{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@media (max-width:760px){
+  .cc{padding:16px 0 calc(16px + env(safe-area-inset-bottom))}
+  .cc-in{flex-direction:column;align-items:stretch;padding:0 16px}
+  .cc-btns{flex-direction:column}
+  .cc .btn,.cc-prefs .btn{width:100%}
+  .cc-prefs{padding:20px 16px}
+  .cc-prefs .cc-btns{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){.cc{animation:none}}
+@media print{.cc,.cc-prefs{display:none!important}}
+"""
+
+
+def cookie_consent(P):
+    """Banner and preferences dialog for every page. Without a PostHog key only the Necessary category is listed."""
+    ph = bool(POSTHOG_KEY)
+    link = '<a href="%slegal/privacy-notice/#your-choices">privacy notice</a>' % P
+    msg = ("We use a small amount of browser storage to remember your theme, and, only if you agree, analytics cookies to see how the site is used. "
+           "Details are in the %s." % link) if ph else (
+           "This site stores your theme choice in your browser and uses no analytics or advertising cookies. Details are in the %s." % link)
+    btn = lambda k, t, cls="btn btn-2": '<button class="%s" type="button" data-cc="%s">%s</button>' % (cls, k, t)
+    analytics = ('<div class="cc-cat"><div><h3>Analytics</h3><p>PostHog usage analytics: which pages are visited and whether forms are submitted. '
+                 'No session recording, no advertising. Off unless you turn it on.</p></div>'
+                 '<label><input type="checkbox" name="cc-analytics">Allow</label></div>') if ph else ""
+    return (
+        '<section class="cc" role="region" aria-label="Cookie preferences" hidden><div class="cc-in"><p>%s</p><div class="cc-btns">%s%s%s</div></div></section>'
+        '<dialog class="cc-prefs" aria-labelledby="cc-title"><h2 id="cc-title">Cookie preferences</h2>'
+        '<p>Choose what this site may store in your browser. You can change this at any time from &ldquo;Your privacy choices&rdquo; in the footer.</p>'
+        '<div class="cc-cat"><div><h3>Necessary</h3><p>Your theme preference and a record of this choice. The site needs these to work as you set it.</p></div>'
+        '<label><input type="checkbox" checked disabled>Always on</label></div>%s'
+        '<div class="cc-btns">%s%s%s</div></dialog>'
+    ) % (msg, btn("accept", "Accept all"), btn("reject", "Reject all"), btn("manage", "Manage preferences"),
+         analytics, btn("save", "Save preferences", "btn"), btn("accept", "Accept all"), btn("reject", "Reject all"))
 
 
 # ---------------------------------------------------------------- build
@@ -5846,7 +6216,7 @@ def main():
         written.add(path)
 
     w("assets/site.css", CSS.strip() + "\n" + LOOK_CSS.strip() + "\n")
-    w("assets/site.js", JS.strip() + "\n" + LOOK_JS.strip() + "\n")
+    w("assets/site.js", JS.replace("__CC_VERSION__", str(CONSENT_VERSION)).strip() + "\n" + LOOK_JS.strip() + "\n")
     w("assets/motion.js", MOTION.strip() + "\n")
     w("assets/night.js", NIGHT.strip() + "\n")
     for name, (source, _) in SCENES.items():
@@ -5857,6 +6227,10 @@ def main():
     w("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
       + "".join("  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n" % (url(r), TODAY) for r in routes) + "</urlset>\n")
     w("robots.txt", ("User-agent: *\nDisallow: /\n" if DRAFT else "User-agent: *\nAllow: /\n") + "\nSitemap: %s\n" % url("sitemap.xml"))
+
+    # security headers for Cloudflare static assets (picked up from the asset root; not html, so the cleanup below leaves it alone)
+    w("_headers", "/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n"
+      "  X-Frame-Options: SAMEORIGIN\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n")
 
     # remove pages from earlier builds that are no longer generated (html only; never assets or sources)
     removed = 0

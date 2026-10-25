@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "al-ops-website",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./transformation",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+    // Only /api/* runs the Worker first; everything else is served as a static asset.
+    "run_worker_first": ["/api/*"]
+  }
+  // Secrets (never committed). Set with:
+  //   npx wrangler secret put SHEETS_WEBHOOK_URL   (Apps Script web app /exec URL)
+  //   npx wrangler secret put SHEETS_SECRET        (shared secret checked by Code.gs)
+  // For local dev put both in .dev.vars (see .dev.vars.example).
+}
