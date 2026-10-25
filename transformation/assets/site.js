@@ -195,8 +195,66 @@
     boxes.forEach(function(b){b.addEventListener('change',upd)});upd();
   }
 
-  // forms: inline errors, data kept on failure, honest confirmation when delivery is not configured
-  var FORM_ENDPOINT='';  // set to an HTTPS endpoint that accepts a JSON POST to deliver submissions
+  // cookie consent: record in localStorage {v,analytics,ts}; PostHog loads only with analytics:true and a key in <meta name="posthog">
+  var CC_V=1,cc=d.querySelector('.cc'),ccd=d.querySelector('.cc-prefs'),phm=d.querySelector('meta[name="posthog"]'),ccTrigger=null;
+  function ccGet(){var r=null;try{r=JSON.parse(localStorage.getItem('consent'))}catch(e){}return r&&typeof r==='object'?r:null}
+  function ccSet(a){try{localStorage.setItem('consent',JSON.stringify({v:CC_V,analytics:!!a,ts:new Date().toISOString()}))}catch(e){}}
+  function loadAnalytics(){
+    if(!phm||window.posthog&&window.posthog.__loaded)return;
+    // official PostHog loader snippet (stub queue, then array.js from the asset host)
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(d,window.posthog||[]);
+    window.posthog.init(phm.getAttribute('content'),{api_host:phm.getAttribute('data-host'),persistence:'localStorage+cookie',person_profiles:'identified_only',disable_session_recording:true});
+  }
+  // withdrawal: stop capture, remove ph_* cookies (path and domain variants) and ph_* storage keys, then reload so nothing keeps running
+  function withdrawAnalytics(){
+    try{if(window.posthog&&window.posthog.opt_out_capturing)window.posthog.opt_out_capturing()}catch(e){}
+    var host=location.hostname,parts=host.split('.'),doms=['',host,'.'+host];
+    if(parts.length>2)doms.push('.'+parts.slice(-2).join('.'));
+    var paths=['/'],segs=location.pathname.split('/').filter(Boolean),acc='';
+    segs.forEach(function(s){acc+='/'+s;paths.push(acc,acc+'/')});
+    d.cookie.split(';').forEach(function(c){
+      var n=c.split('=')[0].replace(/^\s+/,'');
+      if(n.indexOf('ph_')===0||n.indexOf('__ph_')===0)doms.forEach(function(dm){paths.forEach(function(p){
+        d.cookie=n+'=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path='+p+(dm?';domain='+dm:'')})});
+    });
+    try{Object.keys(localStorage).forEach(function(k){if(k.indexOf('ph_')===0||k.indexOf('__ph_')===0)localStorage.removeItem(k)})}catch(e){}
+    try{Object.keys(sessionStorage).forEach(function(k){if(k.indexOf('ph_')===0||k.indexOf('__ph_')===0)sessionStorage.removeItem(k)})}catch(e){}
+  }
+  function withdrawReload(){withdrawAnalytics();location.reload()}
+  function ccFocus(){var m=d.getElementById('main');if(m)m.focus()}
+  function ccChoose(a){
+    var was=ccGet(),wasOn=!!(was&&was.analytics&&was.v>=CC_V),fromBanner=!!(cc&&!cc.hidden),fromDialog=!!(ccd&&ccd.open&&ccTrigger&&ccTrigger.closest('.cc'));
+    ccSet(a);
+    if(cc)cc.hidden=true;
+    if(ccd&&ccd.open)ccd.close();
+    if(a)loadAnalytics();
+    else if(wasOn)withdrawReload();
+    else if(was&&was.analytics)withdrawAnalytics();   // stale record with analytics on: clean up without reloading
+    if(fromBanner||fromDialog||!ccTrigger||!ccTrigger.focus||!d.body.contains(ccTrigger)||ccTrigger.closest('[hidden]'))ccFocus();
+    else ccTrigger.focus();
+  }
+  function ccOpen(t){
+    if(!ccd||!ccd.showModal)return false;
+    ccTrigger=t||null;
+    var box=ccd.querySelector('[name="cc-analytics"]'),r=ccGet();
+    if(box)box.checked=!!(r&&r.analytics);
+    ccd.showModal();return true;
+  }
+  (function(){
+    if(!cc)return;
+    var r=ccGet();
+    if(r&&r.analytics&&r.v>=CC_V)loadAnalytics();
+    if(!r||!(r.v>=CC_V))cc.hidden=false;
+    [].forEach.call(d.querySelectorAll('[data-cc="accept"]'),function(b){b.addEventListener('click',function(){ccChoose(true)})});
+    [].forEach.call(d.querySelectorAll('[data-cc="reject"]'),function(b){b.addEventListener('click',function(){ccChoose(false)})});
+    [].forEach.call(d.querySelectorAll('[data-cc="manage"]'),function(b){b.addEventListener('click',function(){if(!ccOpen(b)){var pl=cc.querySelector('a[href*="#your-choices"]');if(pl)location.href=pl.getAttribute('href')}})});
+    [].forEach.call(d.querySelectorAll('[data-cc="save"]'),function(b){b.addEventListener('click',function(){var bx=ccd.querySelector('[name="cc-analytics"]');ccChoose(!!(bx&&bx.checked))})});
+    [].forEach.call(d.querySelectorAll('[data-consent-open]'),function(a){a.addEventListener('click',function(e){if(ccOpen(a))e.preventDefault()})});
+    if(ccd)ccd.addEventListener('close',function(){if(ccTrigger&&ccTrigger.focus&&d.body.contains(ccTrigger)&&!ccTrigger.closest('[hidden]'))ccTrigger.focus();else ccFocus()});
+  })();
+
+  // forms: inline errors, data kept on failure; submissions post to the worker at /api/contact (see the README)
+  var FORM_ENDPOINT='/api/contact';  // JSON POST; the body carries data.form so one endpoint serves both forms
   [].forEach.call(d.querySelectorAll('form[data-form]'),function(f){
     f.addEventListener('submit',function(e){
       e.preventDefault();var ok=true,first=null;
@@ -208,8 +266,11 @@
       var id=f.getAttribute('data-form'),okBox=d.getElementById(id+'-ok'),fail=d.getElementById(id+'-fail');
       var done=function(live){fail.hidden=true;f.hidden=true;okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
       if(!FORM_ENDPOINT){done(false);return}
+      data.form=id;
       fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-        .then(function(r){if(!r.ok)throw new Error('status '+r.status);done(true)}).catch(function(){fail.hidden=false;fail.focus()});
+        .then(function(r){if(!r.ok)throw new Error('status '+r.status);done(true);
+          // analytics only if the visitor allowed it (window.posthog exists then); no email, organization or free text
+          try{window.posthog&&window.posthog.capture&&window.posthog.capture('form_submitted',{form:id,priority:data['mv-priority']||null,region:data['mv-region']||null})}catch(e){}}).catch(function(){fail.hidden=false;fail.focus()});
     });
   });
 })();

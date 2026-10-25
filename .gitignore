@@ -1,2 +1,6 @@
 # local browser-tool state
 .gstack/
+.dev.vars
+.wrangler/
+node_modules/
+prototype/
