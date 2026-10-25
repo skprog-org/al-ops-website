@@ -6,6 +6,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
   Cross-Origin-Opener-Policy: same-origin
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageai
 
 /assets/*
   Cache-Control: public, max-age=3600, must-revalidate

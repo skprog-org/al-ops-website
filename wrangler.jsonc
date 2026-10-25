@@ -4,14 +4,24 @@
   "main": "worker/index.js",
   "compatibility_date": "2026-10-01",
   "assets": {
-    "directory": "./transformation",
+    "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash",
-    // Only /api/* runs the Worker first; everything else is served as a static asset.
-    "run_worker_first": ["/api/*"]
-  }
+    // Every request runs the Worker first (bot pre-filter, rate limit, Turnstile gate).
+    "run_worker_first": ["/*"]
+  },
+  "vars": {
+    // PLACEHOLDER: replace with your Turnstile widget site key from the Cloudflare dashboard.
+    "TURNSTILE_SITE_KEY": "REPLACE_WITH_TURNSTILE_SITE_KEY"
+  },
+  // Per-IP rate limit used by worker/index.js (300 requests per 60s; every asset counts, so keep headroom for a page load).
+  "ratelimits": [
+    { "name": "RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 300, "period": 60 } }
+  ]
   // Secrets (never committed). Set with:
+  //   npx wrangler secret put TURNSTILE_SECRET     (Turnstile widget secret key)
+  //   npx wrangler secret put GATE_SECRET          (cookie signing key; generate with: openssl rand -hex 32)
   //   npx wrangler secret put SHEETS_WEBHOOK_URL   (Apps Script web app /exec URL)
   //   npx wrangler secret put SHEETS_SECRET        (shared secret checked by Code.gs)
   // For local dev put both in .dev.vars (see .dev.vars.example).

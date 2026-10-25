@@ -1,2 +1,6 @@
 SHEETS_WEBHOOK_URL=
 SHEETS_SECRET=
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+GATE_SECRET=change-me-local-only
+# Cloudflare's always-pass test site key is 1x00000000000000000000AA. Put it in the wrangler
+# vars (TURNSTILE_SITE_KEY) or pass it for local dev: npx wrangler dev --var TURNSTILE_SITE_KEY:1x00000000000000000000AA
