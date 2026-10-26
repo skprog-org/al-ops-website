@@ -3,6 +3,13 @@
   "name": "al-ops-website",
   "main": "worker/index.js",
   "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "preview_urls": true,
+  // Custom domains disabled until the existing al-ops.ai DNS records are removed (Cloudflare error 100117):
+  // "routes": [
+  //   { "pattern": "al-ops.ai", "custom_domain": true },
+  //   { "pattern": "www.al-ops.ai", "custom_domain": true }
+  // ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
@@ -13,8 +20,8 @@
   },
   "vars": {
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFlcNL7BTE1EbQS7",
-    // Hostnames allowed to pass the check; tokens issued for any other hostname (including *.workers.dev previews) are rejected.
-    "TURNSTILE_HOSTNAMES": "al-ops.ai,www.al-ops.ai"
+    // Hostnames allowed to pass the check; tokens issued for any other hostname (including other *.workers.dev previews) are rejected.
+    "TURNSTILE_HOSTNAMES": "al-ops.ai,www.al-ops.ai,al-ops-website.skprog577.workers.dev"
   },
   // Per-IP rate limit used by worker/index.js (300 requests per 60s; every asset counts, so keep headroom for a page load).
   "ratelimits": [
