@@ -17,7 +17,7 @@ var TABS = {
 var FIELDS = {
   move: ['mv-email', 'mv-org', 'mv-role', 'mv-priority', 'mv-region', 'mv-move', 'mv-help', 'mv-notes', 'mv-updates', 'mv-readiness-id'],
   docs: ['docs-email', 'docs-org', 'docs-role', 'docs-deploy', 'docs-areas', 'docs-notes'],
-  readiness: ['rd-id', 'rd-score', 'rd-band', 'rd-areas', 'rd-answers']
+  readiness: ['rd-id', 'rd-score', 'rd-band', 'rd-areas', 'rd-selected', 'rd-answers']
 };
 
 /**

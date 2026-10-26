@@ -209,6 +209,8 @@
       try{sessionStorage.setItem('readiness-id',rid)}catch(x){}
       var p={form:'readiness','rd-id':rid,'rd-score':n+' of '+boxes.length,'rd-band':rh.textContent,
         'rd-areas':areas.map(function(a){var bx=[].slice.call(a.querySelectorAll('input'));return a.getAttribute('data-name')+': '+bx.filter(function(x){return x.checked}).length+'/'+bx.length}).join('; '),
+        'rd-selected':areas.map(function(a){var t=[].slice.call(a.querySelectorAll('label')).filter(function(l){return l.querySelector('input').checked}).map(function(l){return l.textContent.trim()});
+          return t.length?a.getAttribute('data-name')+': '+t.join(' | '):''}).filter(Boolean).join('\n'),
         'rd-answers':boxes.map(function(b){return b.checked?'Y':'N'}).join('')};
       dl.setAttribute('aria-busy','true');
       var t=setTimeout(go,3000);

@@ -231,7 +231,7 @@ const FIELDS = {
   },
   readiness: {
     required: null,
-    long: ['rd-areas', 'rd-answers'],
+    long: ['rd-areas', 'rd-answers', 'rd-selected'],
     short: ['rd-id', 'rd-score', 'rd-band'],
   },
   docs: {
@@ -296,7 +296,7 @@ async function handleContact(request, env) {
 
   const fields = {};
   for (const k of spec.short) fields[k] = clean(data[k], 300, /-email$/.test(k));
-  for (const k of spec.long) fields[k] = clean(data[k], 2000);
+  for (const k of spec.long) fields[k] = clean(data[k], k === 'rd-selected' ? 8000 : 2000);
 
   // Validate the raw (pre-escape) email.
   if (spec.required) {

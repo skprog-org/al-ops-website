@@ -895,6 +895,8 @@ JS = r"""
       try{sessionStorage.setItem('readiness-id',rid)}catch(x){}
       var p={form:'readiness','rd-id':rid,'rd-score':n+' of '+boxes.length,'rd-band':rh.textContent,
         'rd-areas':areas.map(function(a){var bx=[].slice.call(a.querySelectorAll('input'));return a.getAttribute('data-name')+': '+bx.filter(function(x){return x.checked}).length+'/'+bx.length}).join('; '),
+        'rd-selected':areas.map(function(a){var t=[].slice.call(a.querySelectorAll('label')).filter(function(l){return l.querySelector('input').checked}).map(function(l){return l.textContent.trim()});
+          return t.length?a.getAttribute('data-name')+': '+t.join(' | '):''}).filter(Boolean).join('\n'),
         'rd-answers':boxes.map(function(b){return b.checked?'Y':'N'}).join('')};
       dl.setAttribute('aria-busy','true');
       var t=setTimeout(go,3000);
@@ -6058,6 +6060,11 @@ PRIVACY_NOTICE = "".join([
         '<h2>Forms</h2><p>The contact and documentation request forms ask for your work email, organization, role and details of what you want '
         'to discuss. Submissions pass through Cloudflare and are stored in Google Sheets (Google Workspace) so we can reply, along with the time, the page and your '
         'country as seen by our host. Updates are sent only if you tick the separate, optional box.</p>'
+        '<h3>AI readiness checklist</h3><p>The checklist is scored in your browser and nothing is sent while you tick statements. If you choose '
+        '&ldquo;Discuss your result&rdquo;, we save your result (the score, the area scores and which statements you ticked) to Google Sheets under a '
+        'randomly generated reference id, with the time, the page and your country as seen by our host. The result contains no name, email or '
+        'other contact detail. The reference id is kept in your browser for the session and added to the contact form, so if you then send a '
+        'message we can see which result you were discussing; if you never send a message, the result stays unlinked to you.</p>'
         '<p>The retention period and how to ask for deletion will be stated here once the company details are confirmed.'
         + (' Analytics events for a form submission carry only the form name, priority and region, never your email, organization or message.' if POSTHOG_KEY else '')
         + '</p>'
