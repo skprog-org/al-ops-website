@@ -110,7 +110,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* layout */
 .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
-.section{padding:clamp(88px,10vw,152px) 0;border-top:1px solid var(--border)}
+.section{padding:clamp(52px,6vw,88px) 0;border-top:1px solid var(--border)}
 /* tinted sections lay a light wash over the page grid, in the active theme */
 .section.tint{background:color-mix(in srgb,var(--surface) 60%,transparent)}
 .prose-w{max-width:72ch}
@@ -189,7 +189,7 @@ button.btn::after,.hdr-right .btn::after{content:none}
 .hero{padding:72px 0 88px}
 .hero-grid{display:grid;grid-template-columns:5fr 7fr;gap:48px;align-items:start}
 .hero .support{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:15px;max-width:48ch}
-.page-hero{padding:clamp(72px,9vw,136px) 0 clamp(64px,7vw,104px);position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.page-hero{padding:clamp(48px,6vw,88px) 0 clamp(40px,5vw,72px);position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
 .page-hero .wrap{position:relative}
 .byline{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:18px}
 
@@ -645,7 +645,7 @@ dl.glossary dd.ex{font-style:italic;color:var(--muted);font-size:15.5px}
   .rp-step{grid-template-columns:1fr;gap:2px}
   body{font-size:16.5px}
   .wrap{padding:0 20px}
-  .section{padding:64px 0}
+  .section{padding:44px 0}
   .hero{padding:44px 0 56px}
   .hdr{gap:12px}
   .hdr-right .btn{display:none}
@@ -3944,7 +3944,7 @@ html.js mark.on{background-size:100% .06em}
   font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--text)}
 .vb-link::after{content:"\2192";transition:transform .2s var(--ease)}
 .vb-link:hover::after{transform:translateX(4px)}
-.vb-sec{position:relative;padding:clamp(96px,11vw,168px) 0}
+.vb-sec{position:relative;padding:clamp(56px,7vw,104px) 0}
 .vb-split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,96px);align-items:start}
 .vb-split.wide{grid-template-columns:5fr 6fr;align-items:center}
 
@@ -4033,14 +4033,14 @@ html.js .vb-panel.on .vb-card::before{transform:none}
 .vb-wave{display:block;width:100%;height:200px;margin-top:56px}
 
 /* pathway rows */
-.vb-row{display:grid;grid-template-columns:5fr 7fr;gap:clamp(32px,5vw,80px);align-items:center;margin-top:clamp(56px,7vw,104px)}
+.vb-row{display:grid;grid-template-columns:5fr 7fr;gap:clamp(32px,5vw,80px);align-items:center;margin-top:clamp(40px,5vw,72px)}
 .vb-row.rev{grid-template-columns:7fr 5fr}
 .vb-row.rev>div{order:2}
 .vb-row .illus img{border-radius:var(--r)}
 .vb-row .illus-stage canvas{border-radius:var(--r)}
 
 /* the loop */
-.vb-loop{position:relative;padding:clamp(96px,11vw,168px) 0}
+.vb-loop{position:relative;padding:clamp(56px,7vw,104px) 0}
 .vb-loop .vb-split{grid-template-columns:5fr 7fr;align-items:center}
 .vb-prog{display:flex;align-items:center;gap:16px;margin-top:40px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .vb-bar{position:relative;width:140px;height:1px;background:var(--border)}
