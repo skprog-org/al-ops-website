@@ -332,8 +332,9 @@ html.js .run-ctl{display:flex}
 
 /* evidence cards */
 .ev-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px}
+.ev-grid>*,.split>*{min-width:0}
 .ev{border:1px solid var(--border);border-radius:0;padding:20px;background:var(--bg)}
-.ev-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.ev-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
 .ev h3{font-family:var(--display);font-weight:500;font-size:18px;margin:0}
 .ev .kv{grid-template-columns:120px 1fr}
 .ev .kv dt,.ev .kv dd{padding:7px 0;font-size:14px}
