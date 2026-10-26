@@ -30,8 +30,32 @@ DRAFT = True                          # noindex and robots Disallow; set False o
 AI_CRAWLERS = ["GPTBot", "ChatGPT-User", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "anthropic-ai", "CCBot", "PerplexityBot",
                "Bytespider", "Google-Extended", "Amazonbot", "Applebot-Extended", "cohere-ai", "Diffbot", "ImagesiftBot",
                "Omgilibot", "FacebookBot", "meta-externalagent", "YouBot"]  # always disallowed, even after launch
-POSTHOG_KEY = ""                      # phc_... PostHog project key; analytics load only when set and the visitor allows them
-POSTHOG_HOST = "https://us.i.posthog.com"  # PostHog ingest host (use https://eu.i.posthog.com for the EU cloud)
+
+
+def build_env(name):
+    value = os.environ.get(name)
+    if value is not None:
+        return value
+    try:
+        with open(os.path.join(ROOT, "..", ".env"), encoding="utf-8") as env_file:
+            for line in env_file:
+                key, separator, value = line.strip().partition("=")
+                if separator and key == name:
+                    return value.strip().strip("\"'")
+    except OSError:
+        pass
+    return None
+
+
+POSTHOG_KEY = build_env("POSTHOG_KEY")
+POSTHOG_HOST = build_env("POSTHOG_HOST")
+if os.environ.get("NODE_ENV") == "development":
+    for _posthog_var, _posthog_value in (("POSTHOG_KEY", POSTHOG_KEY), ("POSTHOG_HOST", POSTHOG_HOST)):
+        if not _posthog_value:
+            raise RuntimeError(
+                "%s variable required by PostHog is missing or un-configured, this causes events to be silently missed. "
+                "This error stops appearing once %s is configured" % (_posthog_var, _posthog_var)
+            )
 CONSENT_VERSION = 1                   # bump when the cookie categories change; everyone is asked again
 TODAY = "2026-09-30"
 
@@ -660,6 +684,8 @@ dl.glossary dd.ex{font-style:italic;color:var(--muted);font-size:15.5px}
 JS = r"""
 (function(){
   var d=document,root=d.documentElement;
+  function captureAnalytics(event,properties){try{if(window.posthog&&window.posthog.capture)window.posthog.capture(event,properties||{})}catch(e){}}
+  function logAnalytics(message,attributes){try{if(window.posthog&&window.posthog.logger)window.posthog.logger.info(message,attributes||{})}catch(e){}}
 
   // theme: a switch (on = light); preference kept in this browser only
   var tb=d.querySelector('[data-theme-toggle]');
@@ -752,7 +778,7 @@ JS = r"""
     dlg.querySelector('[data-close]').addEventListener('click',function(){dlg.close()});
     var cp=dlg.querySelector('[data-copy]');
     cp.addEventListener('click',function(){if(navigator.clipboard){navigator.clipboard.writeText(text()).then(function(){cp.textContent='Copied'},function(){cp.textContent='Copy failed'})}});
-    dlg.querySelector('[data-download]').addEventListener('click',function(){var a=d.createElement('a');a.href=URL.createObjectURL(new Blob([text()],{type:'text/plain'}));a.download='evidence-record-illustrative.txt';d.body.appendChild(a);a.click();a.remove()});
+    dlg.querySelector('[data-download]').addEventListener('click',function(){var a=d.createElement('a');a.href=URL.createObjectURL(new Blob([text()],{type:'text/plain'}));a.download='evidence-record-illustrative.txt';d.body.appendChild(a);a.click();a.remove();captureAnalytics('evidence_record_downloaded')});
     var cm=dlg.querySelector('[data-copy-mvdt]'),mv=dlg.querySelector('pre.mvdt');
     if(cm&&mv)cm.addEventListener('click',function(){if(navigator.clipboard){navigator.clipboard.writeText(mv.textContent).then(function(){cm.textContent='MVDT copied'},function(){cm.textContent='Copy failed'})}});
     // decision replay: step through the run, then recompute the hash chain in the browser
@@ -795,7 +821,7 @@ JS = r"""
       }
       function reset(){clearTimeout(timer);rp.classList.remove('playing');items.concat(mk).forEach(function(li){li.classList.remove('is-current','is-done','is-ok','is-bad')});st.textContent=''}
       function play(){
-        reset();rp.classList.add('playing');rbs.forEach(function(b){b.textContent='Replaying…';b.disabled=true});var i=0;
+        captureAnalytics('evidence_record_replay_started');reset();rp.classList.add('playing');rbs.forEach(function(b){b.textContent='Replaying…';b.disabled=true});var i=0;
         if(rp.scrollIntoView)rp.scrollIntoView({block:'start',behavior:still?'auto':'smooth'});
         (function step(){
           if(i>0){items[i-1].classList.remove('is-current');if(leaf(i-1))leaf(i-1).classList.remove('is-current')}
@@ -826,7 +852,7 @@ JS = r"""
       code.textContent='route:\n  when: '+p.when+'\n  use: '+M[p.use][2]+'\n  fallback: '+M[p.use==='sovereign'?'open':'sovereign'][2]+'\n  evaluation: required before promotion';
     };
     [].forEach.call(gw.querySelectorAll('input[name="route"]'),function(r){r.addEventListener('change',function(){cur=r.value;render()})});
-    btn.addEventListener('click',function(){added=true;P.quality.use='next';btn.disabled=true;btn.textContent='Model onboarded';note.textContent='The complex-reasoning route now points to the new model. Workflows did not change. Promote it only after it passes the same evaluation suite.';render()});
+    btn.addEventListener('click',function(){added=true;P.quality.use='next';btn.disabled=true;btn.textContent='Model onboarded';note.textContent='The complex-reasoning route now points to the new model. Workflows did not change. Promote it only after it passes the same evaluation suite.';render();captureAnalytics('model_gateway_demo_completed')});
     render();
   }
 
@@ -839,7 +865,7 @@ JS = r"""
       [.25,'Experimenting','Some foundations exist, but value is unlikely to show up in the results yet. Choose one core workflow and redesign it end to end.'],
       [.55,'Scaling','The basics are in place in several areas. Close the gaps below so each new workflow builds on the last instead of starting again.'],
       [.8,'Ready to expand','Ownership, controls and evidence are in place. Expand into more core workflows, and give agents more authority one workflow at a time as evaluations support it.']];
-    var upd=function(){
+    var upd=function(user){
       var n=boxes.filter(function(b){return b.checked}).length,b=bands[0],low=null;
       bar.style.width=(n/boxes.length*100)+'%';sc.textContent=n+' / '+boxes.length;
       bands.forEach(function(x){if(n>=x[0]*boxes.length)b=x});rh.textContent=b[1];rp.textContent=b[2];
@@ -850,9 +876,9 @@ JS = r"""
         if(r<1&&(!low||r<low.r))low={r:r,a:a};
       });
       if(low){nx.hidden=false;nx.querySelector('b').textContent='Start with: '+low.a.getAttribute('data-name');nx.querySelector('span').textContent=low.a.getAttribute('data-next')}
-      else nx.hidden=true;
+      else {nx.hidden=true;if(user)captureAnalytics('readiness_assessment_completed',{check_count:n})}
     };
-    boxes.forEach(function(b){b.addEventListener('change',upd)});upd();
+    boxes.forEach(function(b){b.addEventListener('change',function(){upd(true)})});upd();
   }
 
   // cookie consent: record in localStorage {v,analytics,ts}; PostHog loads only with analytics:true and a key in <meta name="posthog">
@@ -863,7 +889,7 @@ JS = r"""
     if(!phm||window.posthog&&window.posthog.__loaded)return;
     // official PostHog loader snippet (stub queue, then array.js from the asset host)
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(d,window.posthog||[]);
-    window.posthog.init(phm.getAttribute('content'),{api_host:phm.getAttribute('data-host'),persistence:'localStorage+cookie',person_profiles:'identified_only',disable_session_recording:true});
+    window.posthog.init(phm.getAttribute('content'),{api_host:phm.getAttribute('data-host'),defaults:'2026-05-30',persistence:'localStorage+cookie',person_profiles:'identified_only',capture_exceptions:{capture_unhandled_errors:true,capture_unhandled_rejections:true,capture_console_errors:false},logs:{serviceName:'al-ops-web',environment:location.hostname==='localhost'?'development':'production'}});
   }
   // withdrawal: stop capture, remove ph_* cookies (path and domain variants) and ph_* storage keys, then reload so nothing keeps running
   function withdrawAnalytics(){
@@ -929,8 +955,9 @@ JS = r"""
       data.form=id;
       fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
         .then(function(r){if(!r.ok)throw new Error('status '+r.status);done(true);
-          // analytics only if the visitor allowed it (window.posthog exists then); no email, organization or free text
-          try{window.posthog&&window.posthog.capture&&window.posthog.capture('form_submitted',{form:id,priority:data['mv-priority']||null,region:data['mv-region']||null})}catch(e){}}).catch(function(){fail.hidden=false;fail.focus()});
+          // Analytics and logs only if the visitor allowed it; no email, organization, or free text.
+          captureAnalytics('form_submitted',{form:id,priority:data['mv-priority']||null,region:data['mv-region']||null});
+          logAnalytics('contact form submitted',{form:id})}).catch(function(){logAnalytics('contact form submission failed',{form:id});fail.hidden=false;fail.focus()});
     });
   });
 })();
@@ -3197,7 +3224,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
         meta.append('<meta property="og:url" content="%s">' % url(route if variant_of is None else variant_of))
     if DRAFT or out is not None or variant_of is not None:
         meta.append('<meta name="robots" content="noindex,nofollow">')
-    if POSTHOG_KEY:
+    if POSTHOG_KEY and POSTHOG_HOST:
         meta.append('<meta name="posthog" content="%s" data-host="%s">' % (POSTHOG_KEY, POSTHOG_HOST))
     draft = ""
     # closing call to action above the footer (the homepage and contact page already end with one)
@@ -3220,7 +3247,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
 <link rel="icon" href="%(fav)s">
 <link rel="preload" href="%(P)sassets/fonts/inter-tight-400.woff2" as="font" type="font/woff2" crossorigin>
 %(init)s
-<link rel="stylesheet" href="%(P)sassets/site.css?v=%(av)s">%(head)s
+<link rel="stylesheet" href="%(P)sassets/site.css?v=%(av)s" crossorigin="anonymous">%(head)s
 %(ld)s
 </head>
 <body>
@@ -5994,7 +6021,7 @@ PRIVACY_NOTICE = "".join([
             ("consent", "Local storage", "Records your cookie choice and when you made it. Never sent to us.", "Yes")]
             + ([("ph_* (PostHog)", "Cookies and local storage", "Aggregate usage analytics: which pages are visited and whether a form is submitted. "
                  "Set only after you allow analytics.", "No, optional")] if POSTHOG_KEY else []))
-        + ('<p>Analytics are off until you accept them. We do not record sessions, do not use advertising cookies and do not sell or share '
+        + ('<p>Analytics, including session replay, are off until you accept them. We do not use advertising cookies and do not sell or share '
            'personal information. If you reject analytics, no PostHog code is loaded and nothing is sent to PostHog. If you accept, PostHog '
            'receives your IP address and device or browser data (such as browser type, operating system and screen size) as part of the analytics.</p>'
            if POSTHOG_KEY else
