@@ -72,6 +72,12 @@
   var rs=d.getElementById('mv-region'),rq=(location.search.match(/[?&]region=([a-z-]+)/)||[])[1];
   if(rs&&rq){var ro=rs.querySelector('option[data-key="'+rq+'"]');if(ro)rs.value=ro.value}
 
+  // contact form: link to a saved readiness result (?rid=<uuid>, or the id kept in this tab's session)
+  var rid=d.getElementById('mv-readiness-id');
+  if(rid){var UU=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,rv=(location.search.match(/[?&]rid=([0-9a-f-]{36})/i)||[])[1];
+    if(!rv){try{rv=sessionStorage.getItem('readiness-id')}catch(x){}}
+    if(rv&&UU.test(rv))rid.value=rv.toLowerCase()}
+
   // workflow run steppers (manual, no autoplay)
   [].forEach.call(d.querySelectorAll('[data-stepper]'),function(s){
     var items=[].slice.call(s.querySelectorAll('.run-step')),prev=s.querySelector('[data-prev]'),next=s.querySelector('[data-next]'),pos=s.querySelector('[data-pos]'),i=0;
@@ -172,7 +178,7 @@
     render();
   }
 
-  // readiness self-check: scored locally, nothing is sent
+  // readiness self-check: scored locally; only "Discuss your result" sends it (random reference id, no personal data)
   var rc=d.getElementById('readiness');
   if(rc){
     var boxes=[].slice.call(rc.querySelectorAll('input[type="checkbox"]')),areas=[].slice.call(rc.querySelectorAll('fieldset[data-area]'));
@@ -195,6 +201,20 @@
       else {nx.hidden=true;if(user)captureAnalytics('readiness_assessment_completed',{check_count:n})}
     };
     boxes.forEach(function(b){b.addEventListener('change',function(){upd(true)})});upd();
+    var dl=d.getElementById('rd-discuss');
+    if(dl)dl.addEventListener('click',function(e){
+      e.preventDefault();
+      var rid=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});
+      var n=boxes.filter(function(b){return b.checked}).length,go=function(){location.href=dl.getAttribute('href')+'?rid='+rid};
+      try{sessionStorage.setItem('readiness-id',rid)}catch(x){}
+      var p={form:'readiness','rd-id':rid,'rd-score':n+' of '+boxes.length,'rd-band':rh.textContent,
+        'rd-areas':areas.map(function(a){var bx=[].slice.call(a.querySelectorAll('input'));return a.getAttribute('data-name')+': '+bx.filter(function(x){return x.checked}).length+'/'+bx.length}).join('; '),
+        'rd-answers':boxes.map(function(b){return b.checked?'Y':'N'}).join('')};
+      dl.setAttribute('aria-busy','true');
+      var t=setTimeout(go,3000);
+      fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p),keepalive:true})
+        .then(function(){captureAnalytics('readiness_result_saved',{check_count:n})}).catch(function(){}).then(function(){clearTimeout(t);go()});
+    });
   }
 
   // cookie consent: record in localStorage {v,analytics,ts}; PostHog loads only with analytics:true and a key in <meta name="posthog">
@@ -266,7 +286,7 @@
       if(!ok){first.focus();return}
       var data={};new FormData(f).forEach(function(v,k){data[k]=data[k]?data[k]+', '+v:v});
       var id=f.getAttribute('data-form'),okBox=d.getElementById(id+'-ok'),fail=d.getElementById(id+'-fail');
-      var done=function(live){fail.hidden=true;f.hidden=true;okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
+      var done=function(live){fail.hidden=true;f.hidden=true;[].forEach.call(okBox.parentNode.children,function(n){if(n!==okBox)n.hidden=true});okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
       if(!FORM_ENDPOINT){done(false);return}
       data.form=id;
       fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})

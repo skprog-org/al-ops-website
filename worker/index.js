@@ -227,7 +227,12 @@ const FIELDS = {
   move: {
     required: 'mv-email',
     long: ['mv-move', 'mv-help', 'mv-notes'],
-    short: ['mv-email', 'mv-org', 'mv-role', 'mv-priority', 'mv-region', 'mv-updates'],
+    short: ['mv-email', 'mv-org', 'mv-role', 'mv-priority', 'mv-region', 'mv-updates', 'mv-readiness-id'],
+  },
+  readiness: {
+    required: null,
+    long: ['rd-areas', 'rd-answers'],
+    short: ['rd-id', 'rd-score', 'rd-band'],
   },
   docs: {
     required: 'docs-email',
@@ -236,6 +241,7 @@ const FIELDS = {
   },
 };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function json(body, status = 200, extra = {}) {
@@ -293,8 +299,20 @@ async function handleContact(request, env) {
   for (const k of spec.long) fields[k] = clean(data[k], 2000);
 
   // Validate the raw (pre-escape) email.
-  const email = String(data[spec.required] ?? '').trim().slice(0, 300);
-  if (!EMAIL_RE.test(email)) return json({ ok: false, error: 'invalid email' }, 400);
+  if (spec.required) {
+    const email = String(data[spec.required] ?? '').trim().slice(0, 300);
+    if (!EMAIL_RE.test(email)) return json({ ok: false, error: 'invalid email' }, 400);
+  }
+
+  // Readiness reference ids are random UUIDs; anything else is dropped (contact) or rejected (readiness).
+  const idKey = data.form === 'readiness' ? 'rd-id' : 'mv-readiness-id';
+  if (idKey in fields) {
+    if (fields[idKey] && !UUID_RE.test(fields[idKey])) {
+      if (data.form === 'readiness') return json({ ok: false, error: 'invalid id' }, 400);
+      fields[idKey] = '';
+    }
+    if (data.form === 'readiness') fields[idKey] = fields[idKey].toLowerCase();
+  }
 
   if (!env.SHEETS_WEBHOOK_URL || !env.SHEETS_SECRET) {
     console.error('contact: SHEETS_WEBHOOK_URL or SHEETS_SECRET not configured');

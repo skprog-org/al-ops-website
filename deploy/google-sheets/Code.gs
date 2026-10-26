@@ -9,13 +9,15 @@
 /** Tab name per form type. */
 var TABS = {
   move: 'Contact',
-  docs: 'Documentation requests'
+  docs: 'Documentation requests',
+  readiness: 'Readiness'
 };
 
 /** Known fields per form type, in preferred column order. */
 var FIELDS = {
-  move: ['mv-email', 'mv-org', 'mv-role', 'mv-priority', 'mv-region', 'mv-move', 'mv-help', 'mv-notes', 'mv-updates'],
-  docs: ['docs-email', 'docs-org', 'docs-role', 'docs-deploy', 'docs-areas', 'docs-notes']
+  move: ['mv-email', 'mv-org', 'mv-role', 'mv-priority', 'mv-region', 'mv-move', 'mv-help', 'mv-notes', 'mv-updates', 'mv-readiness-id'],
+  docs: ['docs-email', 'docs-org', 'docs-role', 'docs-deploy', 'docs-areas', 'docs-notes'],
+  readiness: ['rd-id', 'rd-score', 'rd-band', 'rd-areas', 'rd-answers']
 };
 
 /**
@@ -111,7 +113,7 @@ function doPost(e) {
   }
 
   var form = data.form;
-  if (form !== 'move' && form !== 'docs') {
+  if (!Object.prototype.hasOwnProperty.call(TABS, form)) {
     return json_({ ok: false, error: 'invalid form' });
   }
   delete data.secret;

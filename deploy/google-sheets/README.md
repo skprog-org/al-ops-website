@@ -33,8 +33,9 @@ Saving the script does not update the live web app. Open Deploy, then Manage dep
 
 ## Tabs
 
-- `Contact`: the move form. Columns: submitted_at, form, mv-email, mv-org, mv-role, mv-priority, mv-region, mv-move, mv-help, mv-notes, mv-updates, page, country.
+- `Contact`: the move form. Columns: submitted_at, form, mv-email, mv-org, mv-role, mv-priority, mv-region, mv-move, mv-help, mv-notes, mv-updates, mv-readiness-id, page, country. `mv-readiness-id` matches `rd-id` in the `Readiness` tab.
 - `Documentation requests`: the docs form. Columns: submitted_at, form, docs-email, docs-org, docs-role, docs-deploy, docs-areas, docs-notes, page, country.
+- `Readiness`: saved when someone clicks "Discuss your result". Columns: submitted_at, form, rd-id (random UUID), rd-score, rd-band, rd-areas, rd-answers (Y/N per statement), page, country. No personal data.
 
 Tabs are created on the first submission. Any new field the form sends is added as an extra column on the right.
 

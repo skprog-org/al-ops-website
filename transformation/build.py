@@ -70,7 +70,7 @@ CSS = r"""
 :root{
   --bg:#03141E;--surface:#061E2B;--raised:#0C2E40;--border:#14394C;--outline:#3F6878;
   --text:#EAF6F4;--text-2:#B4D0D4;--muted:#7FA2AB;
-  --accent:#5EE0CF;--accent-ink:#03141E;--blue:#8EC9F0;--ok:#8FD9B6;--warn:#F2C46D;--bad:#FF9292;
+  --ok-bright:#3DDC84;--accent:#5EE0CF;--accent-ink:#03141E;--blue:#8EC9F0;--ok:#8FD9B6;--warn:#F2C46D;--bad:#FF9292;
   --glow:rgba(94,224,207,.25);
   --cur:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2.5v16.2l4.3-4.1 2.8 6.3 2.7-1.2-2.8-6.2h6z' fill='%235EE0CF' stroke='%2303141E' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 4 3,auto;
   --cur-link:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg stroke-linecap='round'%3E%3Cpath d='M5.2 5.2 2.6 2.6M8.5 4V1.4M4 8.5H1.4' stroke='%2303141E' stroke-width='3.6'/%3E%3Cpath d='M5.2 5.2 2.6 2.6M8.5 4V1.4M4 8.5H1.4' stroke='%235EE0CF' stroke-width='1.8'/%3E%3C/g%3E%3Cpath d='M8.5 7v16.2l4.3-4.1 2.8 6.3 2.7-1.2-2.8-6.2h6z' fill='%235EE0CF' stroke='%2303141E' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 8 7,pointer;
@@ -83,7 +83,7 @@ CSS = r"""
 :root[data-theme="light"]{
   --bg:#E3F0EE;--surface:#F3F9F8;--raised:#D3E6E4;--border:#BCD5D4;--outline:#6B8C93;
   --text:#04202B;--text-2:#234452;--muted:#4A6B75;
-  --accent:#0B6F6A;--accent-ink:#FFFFFF;--blue:#1E5F86;--ok:#1C7A52;--warn:#8A5A00;--bad:#B42828;
+  --ok-bright:#34D17B;--accent:#0B6F6A;--accent-ink:#FFFFFF;--blue:#1E5F86;--ok:#1C7A52;--warn:#8A5A00;--bad:#B42828;
   --glow:rgba(11,111,106,.2);
   --cur:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M4 2.5v16.2l4.3-4.1 2.8 6.3 2.7-1.2-2.8-6.2h6z' fill='%230B6F6A' stroke='%23FFFFFF' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 4 3,auto;
   --cur-link:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg stroke-linecap='round'%3E%3Cpath d='M5.2 5.2 2.6 2.6M8.5 4V1.4M4 8.5H1.4' stroke='%23FFFFFF' stroke-width='3.6'/%3E%3Cpath d='M5.2 5.2 2.6 2.6M8.5 4V1.4M4 8.5H1.4' stroke='%230B6F6A' stroke-width='1.8'/%3E%3C/g%3E%3Cpath d='M8.5 7v16.2l4.3-4.1 2.8 6.3 2.7-1.2-2.8-6.2h6z' fill='%230B6F6A' stroke='%23FFFFFF' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 8 7,pointer;
@@ -499,7 +499,9 @@ input[type="checkbox"]:hover,input[type="radio"]:hover{border-color:var(--text)}
 input[type="checkbox"]:focus-visible,input[type="radio"]:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
 @media (forced-colors:active){input[type="checkbox"],input[type="radio"]{-webkit-appearance:auto;appearance:auto}}
 .msg{border:1px solid var(--border);border-radius:0;padding:22px;max-width:680px}
-.msg.ok{border-color:var(--ok)}
+[hidden]{display:none!important}
+.msg.ok{border-color:var(--ok-bright);background:var(--ok-bright);color:#04210F}
+.msg.ok h2,.msg.ok p{color:#04210F}
 .msg.fail{border-color:var(--bad);margin-bottom:20px}
 .msg h2{font-family:var(--display);font-weight:500;font-size:22px;margin:0 0 8px}
 .warn-box{border:1px solid var(--warn);border-radius:0;padding:16px 18px;font-size:15px;color:var(--text-2);margin-bottom:26px;max-width:680px}
@@ -756,6 +758,12 @@ JS = r"""
   var rs=d.getElementById('mv-region'),rq=(location.search.match(/[?&]region=([a-z-]+)/)||[])[1];
   if(rs&&rq){var ro=rs.querySelector('option[data-key="'+rq+'"]');if(ro)rs.value=ro.value}
 
+  // contact form: link to a saved readiness result (?rid=<uuid>, or the id kept in this tab's session)
+  var rid=d.getElementById('mv-readiness-id');
+  if(rid){var UU=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,rv=(location.search.match(/[?&]rid=([0-9a-f-]{36})/i)||[])[1];
+    if(!rv){try{rv=sessionStorage.getItem('readiness-id')}catch(x){}}
+    if(rv&&UU.test(rv))rid.value=rv.toLowerCase()}
+
   // workflow run steppers (manual, no autoplay)
   [].forEach.call(d.querySelectorAll('[data-stepper]'),function(s){
     var items=[].slice.call(s.querySelectorAll('.run-step')),prev=s.querySelector('[data-prev]'),next=s.querySelector('[data-next]'),pos=s.querySelector('[data-pos]'),i=0;
@@ -856,7 +864,7 @@ JS = r"""
     render();
   }
 
-  // readiness self-check: scored locally, nothing is sent
+  // readiness self-check: scored locally; only "Discuss your result" sends it (random reference id, no personal data)
   var rc=d.getElementById('readiness');
   if(rc){
     var boxes=[].slice.call(rc.querySelectorAll('input[type="checkbox"]')),areas=[].slice.call(rc.querySelectorAll('fieldset[data-area]'));
@@ -879,6 +887,20 @@ JS = r"""
       else {nx.hidden=true;if(user)captureAnalytics('readiness_assessment_completed',{check_count:n})}
     };
     boxes.forEach(function(b){b.addEventListener('change',function(){upd(true)})});upd();
+    var dl=d.getElementById('rd-discuss');
+    if(dl)dl.addEventListener('click',function(e){
+      e.preventDefault();
+      var rid=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});
+      var n=boxes.filter(function(b){return b.checked}).length,go=function(){location.href=dl.getAttribute('href')+'?rid='+rid};
+      try{sessionStorage.setItem('readiness-id',rid)}catch(x){}
+      var p={form:'readiness','rd-id':rid,'rd-score':n+' of '+boxes.length,'rd-band':rh.textContent,
+        'rd-areas':areas.map(function(a){var bx=[].slice.call(a.querySelectorAll('input'));return a.getAttribute('data-name')+': '+bx.filter(function(x){return x.checked}).length+'/'+bx.length}).join('; '),
+        'rd-answers':boxes.map(function(b){return b.checked?'Y':'N'}).join('')};
+      dl.setAttribute('aria-busy','true');
+      var t=setTimeout(go,3000);
+      fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p),keepalive:true})
+        .then(function(){captureAnalytics('readiness_result_saved',{check_count:n})}).catch(function(){}).then(function(){clearTimeout(t);go()});
+    });
   }
 
   // cookie consent: record in localStorage {v,analytics,ts}; PostHog loads only with analytics:true and a key in <meta name="posthog">
@@ -950,7 +972,7 @@ JS = r"""
       if(!ok){first.focus();return}
       var data={};new FormData(f).forEach(function(v,k){data[k]=data[k]?data[k]+', '+v:v});
       var id=f.getAttribute('data-form'),okBox=d.getElementById(id+'-ok'),fail=d.getElementById(id+'-fail');
-      var done=function(live){fail.hidden=true;f.hidden=true;okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
+      var done=function(live){fail.hidden=true;f.hidden=true;[].forEach.call(okBox.parentNode.children,function(n){if(n!==okBox)n.hidden=true});okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
       if(!FORM_ENDPOINT){done(false);return}
       data.form=id;
       fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
@@ -5672,6 +5694,11 @@ SUBPROC = "".join([
 ])
 
 
+CONTACT_ROLES = ["CEO / Founder", "COO / Operations leader", "CTO / CIO / Technology leader", "CFO / Finance leader",
+                 "Chief Data / AI Officer", "CISO / Security leader", "Product or business unit lead", "Engineering or data manager",
+                 "Risk, compliance or legal", "Consultant or advisor", "Other"]
+
+
 def field(id_, label, kind="text", required=None, hint="", opts=None, auto=""):
     req = ' data-required="%s"' % required if required else ""
     star = "" if required else ' <span class="muted">(optional)</span>'
@@ -5732,9 +5759,10 @@ CONTACT = "".join([
     sec(split('<h2 class="h2">Tell us about your next move.</h2>' + NO_SENSITIVE
               + form_msgs("move", "Thank you.", "We have your message and will reply to the email address you provided.")
               + '<form class="form" id="move-form" data-form="move" novalidate><input name="website" tabindex="-1" autocomplete="off" hidden aria-hidden="true">'
+              + '<input type="hidden" name="mv-readiness-id" id="mv-readiness-id">'
               + '<div class="frow">' + field("mv-email", "Work email", "email", "Enter a valid work email.", auto="email")
               + field("mv-org", "Organization", required="Enter your organization.", auto="organization") + '</div>'
-              + '<div class="frow">' + field("mv-role", "Role", required="Enter your role.", auto="organization-title")
+              + '<div class="frow">' + field("mv-role", "Role", "select", "Choose the closest role.", opts=CONTACT_ROLES)
               + field("mv-priority", "Priority", "select", "Choose the closest priority.",
                       opts=["Build new growth", "Create capacity to grow", "Improve the customer experience", "Start with AI", "Not sure yet"]) + '</div>'
               + '<div class="frow">' + field("mv-region", "Region", "select", "Choose the region where the work would happen.",
@@ -5868,7 +5896,7 @@ READINESS_N = sum(len(a[3]) for a in READINESS_AREAS)
 
 READINESS_INTRO = sec('<h2 class="h2" id="readiness-check">How ready is your business to turn AI into results?</h2><p class="lede">%d checks in six areas, '
     'based on 2026 industry research into what separates the companies that get value from AI from those that do not. '
-    'Tick what is already true today. The score is calculated in your browser and nothing is sent or stored.</p>' % READINESS_N, id_="readiness-checklist")
+    'Tick what is already true today. The score is calculated in your browser. Nothing is sent unless you choose &ldquo;Discuss your result&rdquo;, which saves your result under a random reference so we can see it when you contact us.</p>' % READINESS_N, id_="readiness-checklist")
 
 READINESS = "".join([
     READINESS_INTRO,
@@ -5881,7 +5909,7 @@ READINESS = "".join([
         'that are true for your organization.</p><ul class="rc-areas">%s</ul><p class="rc-next" id="rd-next"><b></b><span></span></p>'
         % (READINESS_N, "".join('<li id="rd-a-%s"><span>%s</span><div class="meter"><i></i></div><output>0/%d</output></li>' % (a[0], a[1], len(a[3]))
                                  for a in READINESS_AREAS))
-        + acts(("Discuss your result", "{P}contact/")) + '</aside>', "split rev"), tint=True),
+        + acts(("Discuss your result", "{P}contact/")).replace('<a class="btn"', '<a class="btn" id="rd-discuss"') + '</aside>', "split rev"), tint=True),
     sec(split('<h2 class="h2">How we built this checklist.</h2>',
               '<p class="t2">Each check turns a practice that the research links to AI value into a statement you can verify in your own '
               'organization. Some checks come from our own delivery '
@@ -5928,7 +5956,7 @@ PERSPECTIVES = "".join([
                   % (sl, k, t, dk) for sl, k, t, dk, _ in GUIDES)
         + '<a class="post" href="{P}approach/#readiness-checklist"><span class="meta">Checklist &middot; 5 min</span><div><h3>How ready is your '
         'business to turn AI into results?</h3><p>%d checks based on industry research, scored in your browser. '
-        'Nothing is sent.</p></div></a>' % READINESS_N
+        'Nothing is sent unless you choose to discuss your result.</p></div></a>' % READINESS_N
         + '<a class="post" href="{P}perspectives/glossary/"><span class="meta">Reference</span><div><h3>Glossary</h3><p>Ontology, approval '
         'boundary, evidence record and the other technical terms, with example usage.</p></div></a></div>'),
     sec('<h2 class="h2">Tools we are building for leaders.</h2><p class="lede">Practical, reusable material. Each will publish its method, '
