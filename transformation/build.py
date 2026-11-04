@@ -3076,13 +3076,13 @@ export const mount = fig => mountScene(fig, { create, DECISIONS, decisionsAt, ST
 """
 
 # scene module -> (source, static still); next to each still, a .hash file fingerprints the scene that produced it
-SCENES = {"hub3d": (HUB3D, "assets/img/business-in-motion-3d.webp"), "growth3d": (GROWTH3D, "assets/img/growth-room-3d.webp"),
-          "ops3d": (OPS3D, "assets/img/operations-line-3d.webp"),
-          "cx3d": (CX3D, "assets/img/customer-counter-3d.webp"),
-          "fin3d": (FIN3D, "assets/img/financial-onboarding-3d.webp"),
-          "sc3d": (SC3D, "assets/img/supply-network-3d.webp"),
-          "def3d": (DEF3D, "assets/img/readiness-room-3d.webp"),
-          "infra3d": (INFRA3D, "assets/img/field-substation-3d.webp")}
+SCENES = {"hub3d": (HUB3D, "assets/img/alops-business-in-motion.webp"), "growth3d": (GROWTH3D, "assets/img/alops-growth-room.webp"),
+          "ops3d": (OPS3D, "assets/img/alops-operations-line.webp"),
+          "cx3d": (CX3D, "assets/img/alops-customer-counter.webp"),
+          "fin3d": (FIN3D, "assets/img/alops-financial-onboarding.webp"),
+          "sc3d": (SC3D, "assets/img/alops-supply-network.webp"),
+          "def3d": (DEF3D, "assets/img/alops-readiness-room.webp"),
+          "infra3d": (INFRA3D, "assets/img/alops-field-substation.webp")}
 STILL_PAGE = """<!doctype html><meta charset="utf-8"><pre id="out">rendering</pre><script type="module">
 import * as m from './assets/%s.js';
 const c = document.createElement('canvas'), out = document.getElementById('out');
@@ -3198,6 +3198,10 @@ FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox
            "%3Cg transform='translate(4 9.6) scale(.4)' fill='%23EAF6F4'%3E%3Cpath d='M9.6 0h6.8L26 32h-6.6L13 9.6 6.6 32H0z'/%3E%3Crect x='11' y='14.5' width='18' height='3' fill='%235EE0CF'/%3E"
            "%3Cpath fill-rule='evenodd' d='M44 0a16 16 0 1 1 0 32a16 16 0 1 1 0-32zm0 6.4a9.6 9.6 0 1 0 0 19.2a9.6 9.6 0 1 0 0-19.2z'/%3E%3C/g%3E%3C/svg%3E")
 
+ALLOWED_CRAWLERS = ["Googlebot", "Bingbot", "OAI-SearchBot", "GPTBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User",
+                    "PerplexityBot", "Perplexity-User", "Google-Extended", "Applebot-Extended"]
+LLMS_TXT = '# ALOps\n\n> ALOps helps organizations run business transformation, starting with AI: a clear business reason first, then governed, deployable AI agents and platform.\n\n## Company\n- [About]({SITE}/about/): Who we are\n- [Approach]({SITE}/approach/): From ambition to change that works\n- [Contact]({SITE}/contact/): Discuss your next move\n\n## Transformation and AI\n- [Business Transformation]({SITE}/transformation/)\n- [Artificial Intelligence]({SITE}/capabilities/artificial-intelligence/)\n\n## Platform\n- [Platform]({SITE}/platform/)\n- [AI Agents]({SITE}/platform/ai-agents/)\n\n## Industries\n- [Industries]({SITE}/industries/)\n\n## Trust\n- [Trust]({SITE}/trust/)\n- [AI Governance]({SITE}/trust/ai-governance/)\n- [Security]({SITE}/trust/security/)\n- [Privacy]({SITE}/trust/privacy/)\n\n## Perspectives\n- [Perspectives]({SITE}/perspectives/)\n- [Glossary]({SITE}/perspectives/glossary/)\n'
+
 PAGES = []  # (output path, html, route or None)
 
 
@@ -3205,7 +3209,8 @@ def url(route):
     return SITE_URL.rstrip("/") + "/" + route
 
 
-ORG = {"@type": "Organization", "@id": url("") + "#organization", "name": BRAND, "url": url("")}
+ORG = {"@type": "Organization", "@id": url("") + "#organization", "name": "ALOps", "alternateName": BRAND, "url": url(""),
+       "logo": {"@type": "ImageObject", "url": SITE_URL + "/apple-touch-icon.png", "width": 180, "height": 180}}
 
 
 KEY_WORD = re.compile(r'(<(h1|h2) class="(?:display|h1|h2)[^"]*">)([^<]*?)((?:&[a-z]+;|[\w-])+[.?!]?)(</\2>)')
@@ -3216,11 +3221,73 @@ def mark_key_words(body):
     return KEY_WORD.sub(lambda m: m.group(1) + m.group(3) + "<mark>" + m.group(4) + "</mark>" + m.group(5), body)
 
 
+import html as _html
+html_unescape = _html.unescape
+OG_ALT = "ALOps - business transformation, starting with AI"
+OG_BY_PREFIX = [("transformation/growth", "growth-room"), ("transformation/operations", "operations-line"),
+                ("transformation/customer-experience", "customer-counter"), ("industries/financial-services", "financial-onboarding"),
+                ("industries/supply-chain", "supply-network"), ("industries/defense-intelligence", "readiness-room"),
+                ("platform/deployment", "field-substation"), ("platform", "operations-line"), ("trust", "readiness-room")]
+
+
+def og_image_for(route):
+    for pre, name in OG_BY_PREFIX:
+        if route.startswith(pre):
+            return "alops-" + name
+    return "alops-business-in-motion"
+
+
+def seo_title(title, route, out):
+    """Site title standard: 'ALOps - Page Name', max 70 characters."""
+    if out == "404.html":
+        return "ALOps - Error 404"
+    if route == "":
+        return "ALOps - Business Transformation, Starting with AI"
+    t = re.sub(r"\s*\|\s*%s\s*$" % re.escape(BRAND), "", title)
+    t = "ALOps - " + t
+    if len(html_unescape(t)) > 70:
+        t = _html.escape(html_unescape(t)[:67].rsplit(" ", 1)[0].rstrip(",;:.-") + "...", quote=False)
+    return t
+
+
+KEYWORDS_BASE = "ALOps, business transformation, AI, enterprise AI"
+
+
+def seo_keywords(title, route):
+    words = re.sub(r"^ALOps - ", "", html_unescape(title)).rstrip(".")
+    section = route.strip("/").split("/")[0].replace("-", " ") if route else "business transformation"
+    parts = [words, section]
+    return _html.escape(", ".join(dict.fromkeys(p for p in parts + KEYWORDS_BASE.split(", ") if p)), quote=True)
+
+
+def fix_heading_levels(body):
+    """No H1 -> H3 jumps: h3 headings that come before the page's first h2 become h2 (CSS styles both identically, see css_h2_twin)."""
+    i = body.find("<h2")
+    head, tail = (body, "") if i < 0 else (body[:i], body[i:])
+    head = re.sub(r"<h3\b", "<h2", head)
+    head = head.replace("</h3>", "</h2>")
+    return head + tail
+
+
+def css_h2_twin(css):
+    """Every `... h3` selector also matches the same `... h2`, so retagged headings keep their look."""
+    def fix(m):
+        sel = m.group(1)
+        if not re.search(r"(?<![\w.#-])h3\b", sel) or sel.lstrip().startswith("@"):
+            return m.group(0)
+        twin = re.sub(r"(?<![\w.#-])h3\b", "h2", sel)
+        return sel + "," + twin + "{"
+    return re.sub(r"([^{}]+)\{", fix, css)
+
+
 def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=None, variant_of=None, head="", footer_art=None):
     """route like 'platform/ai-agents/' ('' for home). crumbs: list of (name, route) after Home.
     variant_of: route this page is an A/B variant of; the variant is noindex, canonical to that route and left out of the sitemap.
     head: extra markup for <head>, such as a variant stylesheet.
     footer_art: markup placed in the footer between the wordmark and the bottom bar (the industries line by default)."""
+    title = seo_title(title, route, out)
+    if len(html_unescape(desc)) > 155:
+        desc = _html.escape(html_unescape(desc)[:152].rsplit(" ", 1)[0].rstrip(",;:") + "...", quote=True)
     depth = route.count("/")
     P = "/" if out == "404.html" else "./" if depth == 0 else "../" * depth   # the 404 page is served at any path, so its links are root-absolute
     nav = "".join('<a href="%s%s"%s>%s</a>' % (P, r, " aria-current=page" if section == r else "", n) for r, n in NAV)
@@ -3236,7 +3303,22 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
         graph.append({"@type": "BreadcrumbList", "@id": url(route) + "#breadcrumbs",
                       "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": n, "item": url(r)}
                                           for i, (n, r) in enumerate(trail)]})
+    if out is None and variant_of is None:
+        ptype = {"about/": "AboutPage", "contact/": "ContactPage"}.get(route) or (
+            "CollectionPage" if route in ("industries/", "perspectives/", "trust/", "platform/", "transformation/") else "WebPage")
+        node = {"@type": ptype, "@id": url(route) + "#webpage", "url": url(route), "name": html_unescape(title),
+                "description": html_unescape(desc), "inLanguage": "en", "isPartOf": {"@id": url("") + "#website"},
+                "publisher": {"@id": ORG["@id"]}}
+        if crumbs:
+            node["breadcrumb"] = {"@id": url(route) + "#breadcrumbs"}
+        have = {n.get("@id") for n in graph}
+        extra = [] if ORG["@id"] in have else [ORG]
+        if route == "":
+            extra.append({"@type": "WebSite", "@id": url("") + "#website", "url": url(""), "name": "ALOps", "inLanguage": "en",
+                          "publisher": {"@id": ORG["@id"]}})
+        graph = extra + graph + [node]
     body = mark_key_words(body)
+    body = fix_heading_levels(body)
     body = body.replace("{CRUMBS}", crumb_html).replace("{P}", P).replace("{BRAND}", BRAND)
     ld = ""
     if graph:
@@ -3251,6 +3333,12 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
     if POSTHOG_KEY and POSTHOG_HOST:
         meta.append('<meta name="posthog" content="%s" data-host="%s">' % (POSTHOG_KEY, POSTHOG_HOST))
     draft = ""
+    if out is None:
+        og = SITE_URL + "/assets/og/" + og_image_for(route) + ".jpg"
+        meta.append('<meta property="og:image" content="%s">' % og)
+        meta.append('<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">')
+        meta.append('<meta property="og:image:alt" content="%s">' % OG_ALT)
+        meta.append('<meta name="twitter:image" content="%s">' % og)
     # closing call to action above the footer (the homepage and contact page already end with one)
     fcta = "" if route in ("", "contact/") or out is not None or variant_of is not None else (
         '<section class="fcta"><div class="wrap"><h2>What should your business be able to do <mark>next?</mark></h2>'
@@ -3262,13 +3350,19 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>%(title)s</title>
 <meta name="description" content="%(desc)s">
+<meta name="keywords" content="%(kw)s">
+<meta name="author" content="ALOps Team">
 %(meta)s
+<meta property="og:site_name" content="ALOps">
+<meta property="og:locale" content="en_US">
 <meta property="og:type" content="website">
 <meta property="og:title" content="%(title)s">
 <meta property="og:description" content="%(desc)s">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#03141E">
-<link rel="icon" href="%(fav)s">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="%(P)sassets/fonts/inter-tight-400.woff2" as="font" type="font/woff2" crossorigin>
 %(init)s
 <link rel="stylesheet" href="%(P)sassets/site.css?v=%(av)s" crossorigin="anonymous">%(head)s
@@ -3313,7 +3407,7 @@ def page(route, title, desc, body, crumbs=None, schema=None, section=None, out=N
 <script src="%(P)sassets/site.js?v=%(av)s" defer></script>
 </body>
 </html>
-""" % dict(av=asset_version(), title=title, desc=desc, meta="\n".join(meta), fav=FAVICON, P=P, init=HEAD_INIT, ld=ld, draft=draft,
+""" % dict(av=asset_version(), title=title, desc=desc, kw=seo_keywords(title, route), meta="\n".join(meta), P=P, init=HEAD_INIT, ld=ld, draft=draft,
            brand=BRAND, mark=BRAND_MARK, fword="%s <em>%s</em>" % tuple(BRAND.rsplit(" ", 1)), nav=nav, mutil=mutil, util=util, cta=CTA, body=body,
            regions=footer_regions(P), fcta=fcta, head=("\n" + head.replace("{P}", P)) if head else "",
            fart=(FOOTER_ART if footer_art is None else footer_art).replace("{P}", P), cc=cookie_consent(P))
@@ -3379,17 +3473,17 @@ EV_LEGEND = ('<ul class="legend" aria-label="Evidence status definitions">'
 
 
 ILLUS = {
-    "business-in-motion-3d.webp": (2400, 1000, "Illustration of a distribution centre at dusk seen from above: trailers are backed onto lit loading docks, a forklift carries a wrapped pallet from the outdoor staging bay through a drive-in door, a supervisor with a tablet checks the next load, a worker walks the pedestrian walkway, and a truck passes on the road."),
+    "alops-business-in-motion.webp": (2400, 1000, "Illustration of a distribution centre at dusk seen from above: trailers are backed onto lit loading docks, a forklift carries a wrapped pallet from the outdoor staging bay through a drive-in door, a supervisor with a tablet checks the next load, a worker walks the pedestrian walkway, and a truck passes on the road."),
     "business-in-motion.svg": (2400, 1000, "Illustration of a distribution hub at dusk: trucks wait at three loading docks, a forklift moves a pallet, and a shift lead and planner review the loading plan."),
     "operations-recovery.svg": (1600, 900, "Illustration of a production floor: a supervisor, a planner with a tablet and an operator agree a recovery plan at a standing table while one station on the line is paused."),
     "customer-experience.svg": (1600, 900, "Illustration of a service counter: a staff member hands a customer a completed document while, behind a glass partition, colleagues prepare the next case."),
-    "growth-room-3d.webp": (2400, 1350, "Illustration of a project room at dusk: a strategist adds a card to a wall board with the columns Ideas, Evidence, Prototype, Pilot and Scale, two colleagues pass a sketch across a long table beside an early prototype, and a product lead brings pilot evidence to the table, with city towers lit through the window behind."),
-    "operations-line-3d.webp": (2400, 1350, "Illustration of a production floor at night: cartons ride a conveyor through four stations, station 3 is stopped with an amber beacon for a tool change, an operator works on it, and a supervisor and a planner with a tablet agree a recovery plan at a standing table beneath a line status display."),
-    "customer-counter-3d.webp": (2400, 1350, "Illustration of a service counter at dusk: a customer stands at the counter while an advisor completes a pre-filled onboarding pack with them, a queue display shows the next ticket, another customer waits on a bench, and behind a glass partition a colleague carries a case folder to a caseworker at a desk."),
-    "financial-onboarding-3d.webp": (2400, 1350, "Illustration of an onboarding operations room at dusk: applications move across a wall display through the stages Received, Captured, Checks, Review and Opened, one exception drops into a review tray and is cleared, two analysts work at their screens, and a team lead walks over to approve the account opening, with the financial district through the window."),
-    "supply-network-3d.webp": (2400, 1350, "Illustration of a supply planning room at night: a wall display shows the supply network from suppliers A and B to the plant, the distribution centre and customers, the route from supplier A turns amber when a shipment is delayed and supplier B's route is brought in, a planner works at a desk while a colleague points at the display, and container cranes work a ship at the port through the window."),
-    "readiness-room-3d.webp": (2400, 1350, "Illustration of a readiness planning room: three planners work around a standing table with a map and maintenance records, a readiness board shows the status of six aircraft, and through an interior window a technician walks past a generic twin-engine aircraft on a work stand in a maintenance hangar."),
-    "field-substation-3d.webp": (2400, 1350, "Illustration of two field engineers in hard hats at dusk beside a fenced substation: one with a drawing walks to the gate to look at a transformer marked by an amber beacon, the other works on a tablet by a utility van, and a metro train crosses an elevated viaduct in front of the city skyline."),
+    "alops-growth-room.webp": (2400, 1350, "Illustration of a project room at dusk: a strategist adds a card to a wall board with the columns Ideas, Evidence, Prototype, Pilot and Scale, two colleagues pass a sketch across a long table beside an early prototype, and a product lead brings pilot evidence to the table, with city towers lit through the window behind."),
+    "alops-operations-line.webp": (2400, 1350, "Illustration of a production floor at night: cartons ride a conveyor through four stations, station 3 is stopped with an amber beacon for a tool change, an operator works on it, and a supervisor and a planner with a tablet agree a recovery plan at a standing table beneath a line status display."),
+    "alops-customer-counter.webp": (2400, 1350, "Illustration of a service counter at dusk: a customer stands at the counter while an advisor completes a pre-filled onboarding pack with them, a queue display shows the next ticket, another customer waits on a bench, and behind a glass partition a colleague carries a case folder to a caseworker at a desk."),
+    "alops-financial-onboarding.webp": (2400, 1350, "Illustration of an onboarding operations room at dusk: applications move across a wall display through the stages Received, Captured, Checks, Review and Opened, one exception drops into a review tray and is cleared, two analysts work at their screens, and a team lead walks over to approve the account opening, with the financial district through the window."),
+    "alops-supply-network.webp": (2400, 1350, "Illustration of a supply planning room at night: a wall display shows the supply network from suppliers A and B to the plant, the distribution centre and customers, the route from supplier A turns amber when a shipment is delayed and supplier B's route is brought in, a planner works at a desk while a colleague points at the display, and container cranes work a ship at the port through the window."),
+    "alops-readiness-room.webp": (2400, 1350, "Illustration of a readiness planning room: three planners work around a standing table with a map and maintenance records, a readiness board shows the status of six aircraft, and through an interior window a technician walks past a generic twin-engine aircraft on a work stand in a maintenance hangar."),
+    "alops-field-substation.webp": (2400, 1350, "Illustration of two field engineers in hard hats at dusk beside a fenced substation: one with a drawing walks to the gate to look at a transformer marked by an amber beacon, the other works on a tablet by a utility van, and a metro train crosses an elevated viaduct in front of the city skyline."),
     "growth-proposition.svg": (1600, 900, "Illustration of a project room: a team arranges cards on a wall and works with sketches and an early prototype to shape a new service."),
     "readiness-planning.svg": (1600, 900, "Illustration of a planning room overlooking a maintenance hangar: three staff stand around a paper map and maintenance records to agree priorities."),
     "field-infrastructure.svg": (1600, 900, "Illustration of two field engineers reviewing a drawing beside a substation at dusk, with an elevated metro train passing behind them."),
@@ -3555,7 +3649,7 @@ TRANSFORM_HUB = "".join([
 ])
 
 TRANSFORMS = [
-    dict(slug="growth", name="Growth", img="growth-room-3d.webp", motion="growth3d",
+    dict(slug="growth", name="Growth", img="alops-growth-room.webp", motion="growth3d",
          caption="Illustration", title="Business Growth &amp; New Propositions",
          desc="Explore what your business could offer beyond what it delivers today, and turn a promising idea into a proposition you can test and scale.",
          h1="Build your next source of growth.",
@@ -3568,7 +3662,7 @@ TRANSFORMS = [
          start="Turn expertise currently delivered one engagement at a time into a repeatable, technology-enabled service.",
          measures=["Customer adoption", "Willingness to pay", "Time to first value", "Delivery economics", "Contribution to revenue"],
          cta="Explore your next growth opportunity"),
-    dict(slug="operations", name="Operations", img="operations-line-3d.webp", motion="ops3d",
+    dict(slug="operations", name="Operations", img="alops-operations-line.webp", motion="ops3d",
          caption="Illustration", title="Operational Transformation",
          desc="Redesign the handoffs, decisions, and recurring tasks that constrain performance, and create usable capacity for higher-value work.",
          h1="Create more capacity for what matters.",
@@ -3581,7 +3675,7 @@ TRANSFORMS = [
          start="Reduce the repeated information gathering and cross-team handoffs needed to resolve a customer or supplier exception.",
          measures=["End-to-end cycle time", "Rework", "Exception backlog", "Cost to serve", "Staff time available for higher-value work"],
          cta="Identify the work worth changing"),
-    dict(slug="customer-experience", name="Customer experience", img="customer-counter-3d.webp", motion="cx3d",
+    dict(slug="customer-experience", name="Customer experience", img="alops-customer-counter.webp", motion="cx3d",
          caption="Illustration", title="Customer Experience Transformation",
          desc="Connect the visible customer experience with the operation required to deliver it, and fix the journey rather than only the interface.",
          h1="Build the experience your customers should have.",
@@ -3817,7 +3911,7 @@ def vb_cta(note):
 HOME = "".join([
     # hero: the homepage 3D scene, sized to the hero height and fading into the page behind a measuring rail
     '<section class="vb-hero"><div class="vb-hero-art">'
-    + illus("business-in-motion-3d.webp", "Illustration", eager=True, motion="hub3d")
+    + illus("alops-business-in-motion.webp", "Illustration", eager=True, motion="hub3d")
     + '</div><div class="vb-hero-fade" aria-hidden="true"></div><div class="vb-rail" aria-hidden="true"></div>'
     '<div class="wrap"><div class="vb-hero-copy">' + vb_chip("A platform for business transformation")
     + '<h1 class="vb-h">The future of your business won&rsquo;t build <mark>itself.</mark></h1>'
@@ -3897,7 +3991,7 @@ HOME = "".join([
     '<div class="vb-rule"><h3 class="vb-h3">Approval is a <mark>human gate.</mark></h3>'
     '<p>A recommendation becomes an action only when its accountable owner approves it, and the approval leaves a record.</p>'
     '<a class="vb-link" href="{P}trust/ai-governance/">How AI governance works</a></div></div>'
-    + illus("supply-network-3d.webp", "Illustration", motion="sc3d")
+    + illus("alops-supply-network.webp", "Illustration", motion="sc3d")
     + '</div></div></section>',
 
     # illustrative scenarios
@@ -5458,7 +5552,7 @@ DEPLOYMENT = "".join([
 # ---------------------------------------------------------------- industries
 # proposed application areas until delivery experience is confirmed; no deployments, authorizations or results are implied
 INDUSTRIES = [
-    dict(slug="financial-services", img="financial-onboarding-3d.webp", motion="fin3d",
+    dict(slug="financial-services", img="alops-financial-onboarding.webp", motion="fin3d",
          caption="Illustration", name="Financial Services", title="Financial Services Transformation",
          desc="Improve how customers are served and how work moves through a financial business, with accountability built into the operating model.",
          h1="Build a more responsive financial business.",
@@ -5469,7 +5563,7 @@ INDUSTRIES = [
          measures=["Time to a completed onboarding", "Repeat requests to customers", "Exception backlog", "Staff time on review"],
          path=("Customer experience", "transformation/customer-experience/"),
          related=[("How agents are bounded", "platform/ai-agents/"), ("AI governance controls", "trust/ai-governance/")]),
-    dict(slug="supply-chain", img="supply-network-3d.webp", motion="sc3d",
+    dict(slug="supply-chain", img="alops-supply-network.webp", motion="sc3d",
          caption="Illustration", name="Global Supply Chain", title="Supply Chain Transformation",
          desc="Connect commercial commitments with operational decisions so teams can understand disruption, compare practical alternatives, and coordinate recovery.",
          h1="Build a business that can respond when plans change.",
@@ -5480,9 +5574,9 @@ INDUSTRIES = [
          measures=["Time to a feasible recovery plan", "Planner acceptance", "Expedite cost against a baseline", "Service performance for the evaluated scope"],
          path=("Operations", "transformation/operations/"),
          related=[("Semantic Data Layer", "platform/semantic-data-layer/"), ("Technical overview", "platform/architecture/")]),
-    dict(slug="defense-intelligence", img="readiness-room-3d.webp", motion="def3d",
+    dict(slug="defense-intelligence", img="alops-readiness-room.webp", motion="def3d",
          caption="Illustration", name="Defense &amp; Intelligence", title="Defense Readiness &amp; Intelligence",
-         desc="Improve how authorized teams assemble information, plan resources, and respond to changing constraints, with clear responsibility for consequential decisions.",
+         desc="Help authorized teams assemble information, plan resources and respond to changing constraints, with clear responsibility for consequential decisions.",
          h1="Strengthen readiness. Make better use of what you know.",
          hero="Improve how authorized teams assemble information, plan resources, and respond to changing constraints. Keep responsibility "
               "for consequential decisions clear.",
@@ -5789,7 +5883,7 @@ ABOUT = "".join([
     hero("About", "We help organizations build what comes next.",
          "{BRAND} combines a technology platform with advisory and implementation services. We start with the business change you want to "
          "achieve, then bring together the strategy, software, and delivery needed to pursue it, beginning with AI."),
-    '<section class="band"><div class="wrap">' + illus("field-substation-3d.webp", "Illustration", motion="infra3d") + '</div></section>',
+    '<section class="band"><div class="wrap">' + illus("alops-field-substation.webp", "Illustration", motion="infra3d") + '</div></section>',
     sec('<h2 class="h2">One business ambition. Three complementary parts.</h2><p class="lede">Define the change, enable it, put it to work. '
         'Each part has a clear role, and you do not need to buy all three.</p>' + offer_trio(), tint=True),
     sec('<p class="eyebrow">How we work</p><h2 class="h2">What you can expect from us.</h2><div style="margin-top:28px">'
@@ -5815,7 +5909,7 @@ GUIDES = [
 <p>With those in place, the question shifts from &ldquo;which technology do we commit to?&rdquo; to &ldquo;which technology serves this workflow best today?&rdquo;, and that question can be answered again each quarter.</p>
 <h2>A practical test</h2>
 <p>If a better model appeared next month, how long would it take to move one production workflow to it, and what would have to change? If the answer is months and touches applications, lock-in is accumulating, even if each decision looked sound.</p>"""),
-    ("model-gateway", "Architecture", "The model gateway: switching provider should be a configuration change",
+    ("model-gateway", "Architecture", "The model gateway: switching provider as a configuration change",
      "One layer between applications and models turns a strategic dependency into an operational routine.",
      """<p>Among the architectural decisions that reduce lock-in, the model gateway does a great deal for its size.</p>
 <h2>What it is</h2>
@@ -6190,7 +6284,7 @@ def main():
          "Build new growth, better operations, and stronger customer experiences. %s connects business ambition with practical transformation, starting with AI." % b,
          HOME, schema=[org])
     page("transformation/", "Business Transformation | " + b,
-         "Transformation is a deliberate change in what your business can offer, how it operates, and how it creates value. Choose the outcome, then design the change.",
+         "Transformation is a deliberate change in what your business offers, how it operates and how it creates value. Choose the outcome, then design the change.",
          TRANSFORM_HUB, crumbs=[("Transformation", "transformation/")], section="transformation/")
     for x in TRANSFORMS:
         r = "transformation/%s/" % x["slug"]
@@ -6273,7 +6367,7 @@ def main():
             fh.write(text)
         written.add(path)
 
-    w("assets/site.css", CSS.strip() + "\n" + LOOK_CSS.strip() + "\n")
+    w("assets/site.css", css_h2_twin(CSS.strip() + "\n" + LOOK_CSS.strip()) + "\n")
     w("assets/site.js", JS.replace("__CC_VERSION__", str(CONSENT_VERSION)).strip() + "\n" + LOOK_JS.strip() + "\n")
     w("assets/motion.js", MOTION.strip() + "\n")
     w("assets/night.js", NIGHT.strip() + "\n")
@@ -6284,9 +6378,13 @@ def main():
     routes = [r for _, _, r in PAGES if r is not None]
     w("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
       + "".join("  <url><loc>%s</loc><lastmod>%s</lastmod></url>\n" % (url(r), TODAY) for r in routes) + "</urlset>\n")
-    w("robots.txt", ("User-agent: *\nDisallow: /\n" if DRAFT else "User-agent: *\nAllow: /\n")
-      + "".join("\nUser-agent: %s\nDisallow: /\n" % bot for bot in AI_CRAWLERS)
-      + "\nSitemap: %s\n" % url("sitemap.xml"))
+    if DRAFT:
+        robots = "User-agent: *\nDisallow: /\n" + "".join("\nUser-agent: %s\nDisallow: /\n" % bot for bot in AI_CRAWLERS)
+    else:   # launch: one group for named search + AI crawlers (a bot obeys only its most specific group), so /api/ is repeated
+        robots = ("".join("User-agent: %s\n" % b for b in ALLOWED_CRAWLERS) + "Allow: /\nDisallow: /api/\n"
+                  "\nUser-agent: *\nAllow: /\nDisallow: /api/\n")
+    w("robots.txt", robots + "\nSitemap: %s\n" % url("sitemap.xml"))
+    w("llms.txt", LLMS_TXT.replace("{SITE}", SITE_URL))
 
     # remove pages from earlier builds that are no longer generated (html only; never assets or sources)
     removed = 0

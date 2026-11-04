@@ -119,28 +119,28 @@ positioned each frame by projecting 3D anchors; `DECISIONS` in the module) show 
 rebalance approved by the shift lead, a low-confidence damaged-wrap flag overruled by the supervisor after inspection, and a door
 swap for a late carrier approved by the yard lead. They are illustrative (the caption says so), hidden from assistive technology,
 and summarised in a visually hidden list in the figure; on small screens only the newest card shows, in compact form. Visitors get a Pause/Play
-button; reduced motion shows the frame at `STILL_T`. `assets/img/business-in-motion-3d.webp` is that same frame, rendered by the
+button; reduced motion shows the frame at `STILL_T`. `assets/img/alops-business-in-motion.webp` is that same frame, rendered by the
 build, and is used without JavaScript or WebGL, in print, and for the alt text.
 
 The Growth page (`transformation/growth/`) plays a second scene the same way: `GROWTH3D` in `build.py`, written to
-`assets/growth3d.js`, with its still at `assets/img/growth-room-3d.webp`. It is a project room at dusk in a flat night palette
+`assets/growth3d.js`, with its still at `assets/img/alops-growth-room.webp`. It is a project room at dusk in a flat night palette
 (slate navy walls, periwinkle and paper-white cards, a city through the window). Over a 12-second loop a strategist adds a card to
 the Evidence column of a wall board (Ideas, Evidence, Prototype, Pilot, Scale), two colleagues pass a sketch across the table, a
 product lead brings pilot evidence in and takes it away again, and a prototype card is promoted to Pilot with a check. Its decision
 cards: an early-segment insight approved by the product lead, a pilot price point overruled by the commercial lead, and a readiness
 check approved by the sponsor. The Operations and Customer experience pages play two more scenes in the same night style:
-`OPS3D` (`assets/ops3d.js`, still `assets/img/operations-line-3d.webp`): station 3 on a conveyor line stops for a tool change and
+`OPS3D` (`assets/ops3d.js`, still `assets/img/alops-operations-line.webp`): station 3 on a conveyor line stops for a tool change and
 restarts, with cards for a torque-drift flag (approved by the line supervisor), a recovery plan (partly overruled by the planner)
-and a restart check (approved by the operator); and `CX3D` (`assets/cx3d.js`, still `assets/img/customer-counter-3d.webp`): a customer
+and a restart check (approved by the operator); and `CX3D` (`assets/cx3d.js`, still `assets/img/alops-customer-counter.webp`): a customer
 completes a pre-filled onboarding pack at a service counter while colleagues prepare the next case behind glass, with cards for the
 pre-filled pack (approved by the service advisor), an address-mismatch flag (overruled by the team lead) and booking the setup call
-(approved by the service advisor). The industry pages play three more: `FIN3D` (`assets/fin3d.js`, still `assets/img/financial-onboarding-3d.webp`), an onboarding
+(approved by the service advisor). The industry pages play three more: `FIN3D` (`assets/fin3d.js`, still `assets/img/alops-financial-onboarding.webp`), an onboarding
 operations room where applications move across a pipeline display and one exception is cleared in staff review; `SC3D` (`assets/sc3d.js`,
-still `assets/img/supply-network-3d.webp`), a planning room where a supply network display shows a delayed inbound route and supplier B
-brought in, with a container port through the window; and `DEF3D` (`assets/def3d.js`, still `assets/img/readiness-room-3d.webp`), a
+still `assets/img/alops-supply-network.webp`), a planning room where a supply network display shows a delayed inbound route and supplier B
+brought in, with a container port through the window; and `DEF3D` (`assets/def3d.js`, still `assets/img/alops-readiness-room.webp`), a
 readiness planning room with a six-aircraft readiness board and a maintenance hangar through an interior window (generic aircraft,
 no real units or systems). Each has three illustrative decision cards in the same pattern. The About page plays `INFRA3D` (`assets/infra3d.js`, still
-`assets/img/field-substation-3d.webp`), an outdoor dusk scene: two field engineers beside a substation whose transformer T2 runs warm,
+`assets/img/alops-field-substation.webp`), an outdoor dusk scene: two field engineers beside a substation whose transformer T2 runs warm,
 a metro crossing the viaduct and the city behind, with cards for the thermal flag, an overnight load switch (partly overruled by the
 control room engineer) and the completed inspection. The seven night scenes share `assets/night.js` (the `NIGHT` string): palette, people, furniture,
 the back wall with its window and city, lighting and camera. All scenes share `assets/motion.js` (the `MOTION` string): easing and tracks, materials and
