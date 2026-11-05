@@ -9,10 +9,6 @@ const BLOCKED_UA = [
   'curl', 'wget', 'python-requests', 'python-urllib', 'scrapy', 'httrack', 'go-http-client',
   'libwww', 'java/', 'okhttp', 'axios', 'node-fetch', 'headlesschrome', 'phantomjs',
   'selenium', 'puppeteer', 'playwright',
-  // AI crawlers
-  'gptbot', 'chatgpt-user', 'oai-searchbot', 'claudebot', 'claude-web', 'anthropic-ai', 'ccbot',
-  'perplexitybot', 'bytespider', 'google-extended', 'amazonbot', 'applebot-extended', 'cohere-ai',
-  'diffbot', 'imagesiftbot', 'omgilibot', 'facebookbot', 'meta-externalagent', 'youbot',
 ];
 
 const GATE_COOKIE = '__gate';
@@ -98,6 +94,8 @@ function cookieHeader(value, url) {
 }
 
 async function handleGate(request, env, url) {
+  // GET: the public Turnstile site key and action, so the forms can request a verification cookie on demand.
+  if (request.method === 'GET') return json({ siteKey: env.TURNSTILE_SITE_KEY, action: TURNSTILE_ACTION });
   if (request.method !== 'POST') return json({ ok: false, error: 'method not allowed' }, 405, { Allow: 'POST' });
   const len = parseInt(request.headers.get('Content-Length') || '0', 10);
   if (len > 4096) return json({ ok: false, error: 'too large' }, 413);
@@ -372,17 +370,17 @@ export default {
       }
     }
 
-    // (d) gate, fail closed when not configured
+    // (d) static pages are public (search and AI crawlers must read them); only /api/* sits behind the Turnstile gate
+    if (!url.pathname.startsWith('/api/')) return env.ASSETS.fetch(request);
+
+    // gate, fail closed when not configured
     if (!env.TURNSTILE_SECRET || !env.GATE_SECRET || !env.TURNSTILE_SITE_KEY || /^REPLACE_/.test(env.TURNSTILE_SITE_KEY)) {
       console.error('gate: TURNSTILE_SECRET, GATE_SECRET or TURNSTILE_SITE_KEY not configured');
       return text('not configured', 503);
     }
     if (url.pathname === '/api/gate') return handleGate(request, env, url);
     if (!(await hasValidGate(request, env))) {
-      if (url.pathname.startsWith('/api/')) {
-        return json({ ok: false, error: 'verification required' }, 403);
-      }
-      return gatePage(env);
+      return json({ ok: false, error: 'verification required' }, 403);
     }
 
     if (url.pathname === '/api/contact') return handleContact(request, env);
