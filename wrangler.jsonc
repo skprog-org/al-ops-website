@@ -30,7 +30,7 @@
   "vars": {
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFlcNL7BTE1EbQS7",
     // Hostnames allowed to pass the check; tokens issued for any other hostname (including other *.workers.dev previews) are rejected.
-    "TURNSTILE_HOSTNAMES": "al-ops.ai,www.al-ops.ai,al-ops-website.skprog577.workers.dev,development-al-ops-website.skprog577.workers.dev"
+    "TURNSTILE_HOSTNAMES": "al-ops.com,www.al-ops.com,al-ops.ai,www.al-ops.ai,al-ops-website.skprog577.workers.dev,development-al-ops-website.skprog577.workers.dev"
   },
   // Per-IP rate limit used by worker/index.js (300 requests per 60s; every asset counts, so keep headroom for a page load).
   "ratelimits": [
