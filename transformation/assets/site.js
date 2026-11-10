@@ -278,6 +278,22 @@
   })();
 
   // forms: inline errors, data kept on failure; submissions post to the worker at /api/contact (see the README)
+  // Turnstile: the worker only accepts /api/contact with its verification cookie. Earned on the first submit and invisible
+  // unless Cloudflare needs an interaction; the site key comes from GET /api/gate so it is not baked into the build.
+  var gateOk=false,gateP=null;
+  function ensureGate(f){
+    if(gateOk)return Promise.resolve();
+    if(gateP)return gateP;
+    gateP=fetch('/api/gate',{credentials:'same-origin'}).then(function(r){if(!r.ok)throw new Error('gate');return r.json()}).then(function(c){
+      return new Promise(function(res,rej){
+        var box=d.createElement('div');box.className='ts-box';f.appendChild(box);
+        var go=function(){window.turnstile.render(box,{sitekey:c.siteKey,action:c.action,appearance:'interaction-only',
+          callback:function(t){fetch('/api/gate',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t})})
+            .then(function(r){if(r.ok){gateOk=true;res()}else rej(new Error('gate'))}).catch(rej)},
+          'error-callback':function(){rej(new Error('gate'))},'expired-callback':function(){gateOk=false}})};
+        if(window.turnstile)go();else{var s=d.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;s.onload=go;s.onerror=function(){rej(new Error('gate'))};d.head.appendChild(s)}
+      })}).then(function(){gateP=null},function(e){gateP=null;throw e});
+    return gateP}
   var FORM_ENDPOINT='/api/contact';  // JSON POST; the body carries data.form so one endpoint serves both forms
   [].forEach.call(d.querySelectorAll('form[data-form]'),function(f){
     f.addEventListener('submit',function(e){
@@ -291,8 +307,8 @@
       var done=function(live){fail.hidden=true;f.hidden=true;[].forEach.call(okBox.parentNode.children,function(n){if(n!==okBox)n.hidden=true});okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
       if(!FORM_ENDPOINT){done(false);return}
       data.form=id;
-      fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-        .then(function(r){if(!r.ok)throw new Error('status '+r.status);done(true);
+      ensureGate(f).then(function(){return fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})})
+        .then(function(r){if(!r.ok){if(r.status===403)gateOk=false;throw new Error('status '+r.status)}done(true);
           // Analytics and logs only if the visitor allowed it; no email, organization, or free text.
           captureAnalytics('form_submitted',{form:id,priority:data['mv-priority']||null,region:data['mv-region']||null});
           logAnalytics('contact form submitted',{form:id})}).catch(function(){logAnalytics('contact form submission failed',{form:id});fail.hidden=false;fail.focus()});
