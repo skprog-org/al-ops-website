@@ -471,6 +471,10 @@ pre.policy{margin:0;padding:12px;border:1px solid var(--border);border-radius:0;
 
 /* forms */
 .form{display:grid;gap:20px;max-width:680px}
+.form-busy{display:inline-flex;align-items:center;gap:14px;color:var(--muted);font-size:14.5px}
+.form-busy .brand-mark{width:40px;height:40px}
+.ao-spin{animation:ao-pulse 1.4s ease-in-out infinite;transform-origin:center}
+@keyframes ao-pulse{0%,100%{transform:scale(.92);opacity:.65}50%{transform:scale(1);opacity:1}}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .field label,.field .lbl{display:block;font-size:14.5px;font-weight:500;margin-bottom:6px}
 .field .hint{display:block;font-size:13.5px;color:var(--muted);margin:-2px 0 8px}
@@ -982,8 +986,10 @@ JS = r"""
     return gateP}
   var FORM_ENDPOINT='/api/contact';  // JSON POST; the body carries data.form so one endpoint serves both forms
   [].forEach.call(d.querySelectorAll('form[data-form]'),function(f){
+    // Solve the Turnstile gate while the visitor types; submit reuses it. Errors are retried at submit.
+    f.addEventListener('focusin',function(){if(FORM_ENDPOINT)ensureGate(f).catch(function(){})},{once:true});
     f.addEventListener('submit',function(e){
-      e.preventDefault();var ok=true,first=null;
+      e.preventDefault();if(f.getAttribute('aria-busy')==='true')return;var ok=true,first=null;
       [].forEach.call(f.querySelectorAll('[data-required]'),function(el){
         var v=(el.value||'').trim(),bad=!v||(el.type==='email'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)),er=d.getElementById(el.id+'-err');
         if(er)er.textContent=bad?el.getAttribute('data-required'):'';el.setAttribute('aria-invalid',bad?'true':'false');if(bad){ok=false;if(!first)first=el}});
@@ -993,11 +999,14 @@ JS = r"""
       var done=function(live){fail.hidden=true;f.hidden=true;[].forEach.call(okBox.parentNode.children,function(n){if(n!==okBox)n.hidden=true});okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
       if(!FORM_ENDPOINT){done(false);return}
       data.form=id;
+      var btn=f.querySelector('[type="submit"]'),busy=f.querySelector('.form-busy');
+      f.setAttribute('aria-busy','true');if(btn)btn.disabled=true;if(busy)busy.hidden=false;
+      var idle=function(){f.removeAttribute('aria-busy');if(btn)btn.disabled=false;if(busy)busy.hidden=true};
       ensureGate(f).then(function(){return fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})})
         .then(function(r){if(!r.ok){if(r.status===403)gateOk=false;throw new Error('status '+r.status)}done(true);
           // Analytics and logs only if the visitor allowed it; no email, organization, or free text.
           captureAnalytics('form_submitted',{form:id,priority:data['mv-priority']||null,region:data['mv-region']||null});
-          logAnalytics('contact form submitted',{form:id})}).catch(function(){logAnalytics('contact form submission failed',{form:id});fail.hidden=false;fail.focus()});
+          logAnalytics('contact form submitted',{form:id})}).catch(function(){idle();logAnalytics('contact form submission failed',{form:id});fail.hidden=false;fail.focus()});
     });
   });
 })();
@@ -5830,6 +5839,11 @@ def field(id_, label, kind="text", required=None, hint="", opts=None, auto=""):
         id_, label, star, h, ctl, id_)
 
 
+def form_busy():
+    mark = BRAND_MARK.replace('class="brand-mark"', 'class="brand-mark ao-spin"')
+    return '<div class="form-busy" role="status" aria-live="polite" hidden>' + mark + '<span>Sending&hellip;</span></div>'
+
+
 def form_msgs(fid, live_h, live_p):
     return ('<div class="msg fail" id="%s-fail" tabindex="-1" hidden><h2>Your request was not sent.</h2><p class="t2" style="margin:0">'
             'Something went wrong. Your answers are still in the form; please try again.</p></div>'
@@ -5857,7 +5871,7 @@ SEC_DOCS = "".join([
                         ["Architecture", "Access control", "Encryption and keys", "Penetration testing", "Incident response", "Privacy and DPA",
                          "Assurance reports", "AI governance"]) + '</div></fieldset>'
               + field("docs-notes", "Anything else we should know", "textarea")
-              + '<div><button class="btn" type="submit">Request documentation</button></div></form>',
+              + form_busy() + '<div><button class="btn" type="submit">Request documentation</button></div></form>',
               '<aside class="panel pad"><h2 class="h3">How documents are shared</h2><p class="t2" style="margin:0">Public summaries are available '
               'without a request. Detailed reports are shared with eligible reviewers through an authorized process, typically under a '
               'non-disclosure agreement, and each document shows its version and review date.</p></aside>', "split rev"), tint=True),
@@ -5889,7 +5903,7 @@ CONTACT = "".join([
               + field("mv-notes", "Anything else we should know", "textarea")
               + '<label class="checkline"><input type="checkbox" name="mv-updates" value="yes">Send me occasional perspectives. Optional, and '
               'separate from this request.</label>'
-              + '<div><button class="btn" type="submit">Discuss your next move</button></div></form>',
+              + form_busy() + '<div><button class="btn" type="submit">Discuss your next move</button></div></form>',
               '<aside class="panel pad"><h2 class="h3">What the first conversation covers</h2>'
               + ul(["The business result you want and why now", "What is holding progress back", "Who owns the change",
                     "A starting point and how success would be measured", "Whether advisory, the platform, implementation, or a combination fits"], "list one")
