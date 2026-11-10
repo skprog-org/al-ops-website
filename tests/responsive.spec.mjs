@@ -19,6 +19,13 @@ function pages(dir = '', out = []) {
 }
 const PAGES = ['/', ...pages()];
 
+// Existing tests do not exercise consent: record a decision so the click prompt never intercepts their clicks.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    try { if (!localStorage.getItem('consent') && !sessionStorage.getItem('cc-test-cleared')) localStorage.setItem('consent', JSON.stringify({ v: 99999, analytics: false, ts: new Date().toISOString() })); } catch {}
+  });
+});
+
 const settle = async (page) => {
   await page.waitForLoadState('load');
   await page.evaluate(() => document.fonts?.ready);
@@ -124,4 +131,49 @@ test('home hero screenshot', async ({ page }, info) => {
   await page.goto('/');
   await settle(page);
   await info.attach('home-fold', { body: await page.screenshot(), contentType: 'image/png' });
+});
+
+test.describe('consent click prompt', () => {
+  // These tests start with no recorded choice. The seed in beforeEach is cleared before any page script runs.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => { if (!sessionStorage.getItem('cc-test-cleared')) { sessionStorage.setItem('cc-test-cleared', '1'); localStorage.removeItem('consent'); } });
+  });
+
+  test('scroll does not prompt; first link click does, Reject all then navigates', async ({ page }) => {
+    await page.goto('/');
+    await settle(page);
+    await page.mouse.wheel(0, 600);
+    await expect(page.locator('dialog.cc-prefs[open]')).toHaveCount(0);
+    const link = page.locator('footer a[href]:not([href="./"]):not([href^="#"]):not([href*="/legal/"]):not([data-consent-open])').first();
+    const href = await link.getAttribute('href');
+    await link.scrollIntoViewIfNeeded();
+    await link.evaluate((el) => el.click()); // the fixed banner can cover the footer link at narrow widths
+    await expect(page.locator('dialog.cc-prefs[open]')).toHaveCount(1);
+    await page.locator('dialog.cc-prefs [data-cc="reject"]').click();
+    await page.waitForURL((u) => u.pathname !== '/');
+    expect(href).toBeTruthy();
+    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('consent')).analytics)).toBe(false);
+  });
+
+  test('Escape closes the dialog and navigation still happens', async ({ page }) => {
+    await page.goto('/');
+    await settle(page);
+    const link = page.locator('footer a[href]:not([href="./"]):not([href^="#"]):not([href*="/legal/"]):not([data-consent-open])').first();
+    await link.scrollIntoViewIfNeeded();
+    await link.evaluate((el) => el.click()); // the fixed banner can cover the footer link at narrow widths
+    await expect(page.locator('dialog.cc-prefs[open]')).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    await page.waitForURL((u) => u.pathname !== '/');
+    expect(await page.evaluate(() => localStorage.getItem('consent'))).toBeNull();
+  });
+
+  test('typing in a contact form field never triggers the prompt', async ({ page }) => {
+    await page.goto('/contact/');
+    await settle(page);
+    const field = page.locator('form input[type=email], form input[type=text], form textarea').first();
+    await field.scrollIntoViewIfNeeded();
+    await field.focus();
+    await field.fill('hello');
+    await expect(page.locator('dialog.cc-prefs[open]')).toHaveCount(0);
+  });
 });

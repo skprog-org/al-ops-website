@@ -220,14 +220,18 @@
   }
 
   // cookie consent: record in localStorage {v,analytics,ts}; PostHog loads only with analytics:true and a key in <meta name="posthog">
-  var CC_V=1,cc=d.querySelector('.cc'),ccd=d.querySelector('.cc-prefs'),phm=d.querySelector('meta[name="posthog"]'),ccTrigger=null;
+  var CC_V=1,cc=d.querySelector('.cc'),ccd=d.querySelector('.cc-prefs'),phm=d.querySelector('meta[name="posthog"]'),ccTrigger=null,phStarted=false,ccPend=null,ccArmed=!!phm;
   function ccGet(){var r=null;try{r=JSON.parse(localStorage.getItem('consent'))}catch(e){}return r&&typeof r==='object'?r:null}
   function ccSet(a){try{localStorage.setItem('consent',JSON.stringify({v:CC_V,analytics:!!a,ts:new Date().toISOString()}))}catch(e){}}
-  function loadAnalytics(){
-    if(!phm||window.posthog&&window.posthog.__loaded)return;
+  // on=true: visitor accepted (cookies). on=false: cookieless counting only (no cookies, no storage); never on localhost
+  function loadAnalytics(on){
+    if(!phm||phStarted)return;
+    if(!on&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname))return;
+    phStarted=true;
     // official PostHog loader snippet (stub queue, then array.js from the asset host)
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(d,window.posthog||[]);
-    window.posthog.init(phm.getAttribute('content'),{api_host:phm.getAttribute('data-host'),defaults:'2026-05-30',persistence:'localStorage+cookie',person_profiles:'identified_only',capture_exceptions:{capture_unhandled_errors:true,capture_unhandled_rejections:true,capture_console_errors:false},logs:{serviceName:'al-ops-web',environment:location.hostname==='localhost'?'development':'production'}});
+    window.posthog.init(phm.getAttribute('content'),{api_host:phm.getAttribute('data-host'),defaults:'2026-05-30',persistence:'localStorage+cookie',person_profiles:'identified_only',cookieless_mode:'on_reject',opt_out_capturing_by_default:!on,capture_exceptions:{capture_unhandled_errors:true,capture_unhandled_rejections:true,capture_console_errors:false},logs:{serviceName:'al-ops-web',environment:location.hostname==='localhost'?'development':'production'}});
+    if(on)window.posthog.opt_in_capturing({captureEventName:null});
   }
   // withdrawal: stop capture, remove ph_* cookies (path and domain variants) and ph_* storage keys, then reload so nothing keeps running
   function withdrawAnalytics(){
@@ -246,14 +250,16 @@
   }
   function withdrawReload(){withdrawAnalytics();location.reload()}
   function ccFocus(){var m=d.getElementById('main');if(m)m.focus()}
-  function ccChoose(a){
+  function ccChoose(a,how){
     var was=ccGet(),wasOn=!!(was&&was.analytics&&was.v>=CC_V),fromBanner=!!(cc&&!cc.hidden),fromDialog=!!(ccd&&ccd.open&&ccTrigger&&ccTrigger.closest('.cc'));
     ccSet(a);
     if(cc)cc.hidden=true;
     if(ccd&&ccd.open)ccd.close();
-    if(a)loadAnalytics();
-    else if(wasOn)withdrawReload();
-    else if(was&&was.analytics)withdrawAnalytics();   // stale record with analytics on: clean up without reloading
+    if(a){if(phStarted)window.posthog.opt_in_capturing({captureEventName:null});else loadAnalytics(true)}
+    else if(phStarted&&!wasOn)window.posthog.opt_out_capturing();   // undecided -> reject: keep the cookieless count
+    captureAnalytics('consent_choice',{choice:how||(a?'accept':'reject'),via:ccPend?'click_prompt':fromBanner||fromDialog?'banner':'footer'});
+    if(!a&&wasOn)withdrawReload();   // after the reload PostHog boots cookieless
+    else if(!a&&was&&was.analytics)withdrawAnalytics();   // stale record with analytics on: clean up without reloading
     if(fromBanner||fromDialog||!ccTrigger||!ccTrigger.focus||!d.body.contains(ccTrigger)||ccTrigger.closest('[hidden]'))ccFocus();
     else ccTrigger.focus();
   }
@@ -267,15 +273,35 @@
   (function(){
     if(!cc)return;
     var r=ccGet();
-    if(r&&r.analytics&&r.v>=CC_V)loadAnalytics();
+    loadAnalytics(!!(r&&r.analytics&&r.v>=CC_V));   // accepted: cookies; otherwise cookieless counting
     if(!r||!(r.v>=CC_V))cc.hidden=false;
     [].forEach.call(d.querySelectorAll('[data-cc="accept"]'),function(b){b.addEventListener('click',function(){ccChoose(true)})});
     [].forEach.call(d.querySelectorAll('[data-cc="reject"]'),function(b){b.addEventListener('click',function(){ccChoose(false)})});
     [].forEach.call(d.querySelectorAll('[data-cc="manage"]'),function(b){b.addEventListener('click',function(){if(!ccOpen(b)){var pl=cc.querySelector('a[href*="#your-choices"]');if(pl)location.href=pl.getAttribute('href')}})});
-    [].forEach.call(d.querySelectorAll('[data-cc="save"]'),function(b){b.addEventListener('click',function(){var bx=ccd.querySelector('[name="cc-analytics"]');ccChoose(!!(bx&&bx.checked))})});
+    [].forEach.call(d.querySelectorAll('[data-cc="save"]'),function(b){b.addEventListener('click',function(){var bx=ccd.querySelector('[name="cc-analytics"]');ccChoose(!!(bx&&bx.checked),'custom')})});
     [].forEach.call(d.querySelectorAll('[data-consent-open]'),function(a){a.addEventListener('click',function(e){if(ccOpen(a))e.preventDefault()})});
-    if(ccd)ccd.addEventListener('close',function(){if(ccTrigger&&ccTrigger.focus&&d.body.contains(ccTrigger)&&!ccTrigger.closest('[hidden]'))ccTrigger.focus();else ccFocus()});
+    if(ccd)ccd.addEventListener('close',function(){
+      if(ccTrigger&&ccTrigger.focus&&d.body.contains(ccTrigger)&&!ccTrigger.closest('[hidden]'))ccTrigger.focus();else ccFocus();
+      var t=ccPend;ccPend=null;
+      if(t)setTimeout(function(){ccResume(t)},0);   // a choice or Escape both let the click carry on
+    });
+    // click prompt: with no current choice, the first real click on a link or button opens the dialog, then carries on
+    if(ccArmed&&ccd&&ccd.showModal&&(!r||!(r.v>=CC_V)))d.addEventListener('click',function(e){
+      var t=e.target&&e.target.closest?e.target.closest('a[href],button,summary,[role=button],input[type=submit]'):null;
+      if(!ccArmed||!t||e.defaultPrevented||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button>0)return;
+      if(t.closest('.cc,.cc-prefs,[data-consent-open],label,select,textarea,input:not([type=submit])'))return;
+      var h=t.getAttribute('href');
+      if(h&&(h.charAt(0)==='#'||h.indexOf('/legal/')>-1))return;
+      ccArmed=false;e.preventDefault();e.stopPropagation();
+      captureAnalytics('consent_prompt_shown');
+      ccPend=t;
+      if(!ccOpen(t)){ccPend=null;ccResume(t)}
+    },true);
   })();
+  function ccResume(t){
+    if(t.tagName==='A'&&t.href){if(t.target==='_blank')window.open(t.href,'_blank','noopener');else location.href=t.href}
+    else t.click();
+  }
 
   // forms: inline errors, data kept on failure; submissions post to the worker at /api/contact (see the README)
   // Turnstile: the worker only accepts /api/contact with its verification cookie. Earned on the first submit and invisible
