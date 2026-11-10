@@ -5868,7 +5868,8 @@ CONTACT = "".join([
     hero("Contact", "What should your business be able to do next?",
          "Start with the opportunity you want to pursue or the constraint you need to remove. Let&rsquo;s define the change before deciding "
          "what to build."),
-    sec(split('<h2 class="h2">Tell us about your next move.</h2>' + NO_SENSITIVE
+    sec(split('<h2 class="h2">Tell us about your next move.</h2>'
+              + '<p class="lede">Prefer email? Write to us at <a href="mailto:hello@al-ops.com">hello@al-ops.com</a>.</p>' + NO_SENSITIVE
               + form_msgs("move", "Thank you.", "We have your message and will reply to the email address you provided.")
               + '<form class="form" id="move-form" data-form="move" novalidate><input name="website" tabindex="-1" autocomplete="off" hidden aria-hidden="true">'
               + '<input type="hidden" name="mv-readiness-id" id="mv-readiness-id">'
