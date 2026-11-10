@@ -17,4 +17,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://al-ops.ai/sitemap.xml
+Sitemap: https://al-ops.com/sitemap.xml
