@@ -25,7 +25,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # ---------------------------------------------------------------- settings
 BRAND = "AL Ops"                      # working name; the positioning doc leaves brand identity open ([Brand])
-SITE_URL = "https://al-ops.ai"  # canonicals, sitemap and JSON-LD
+SITE_URL = "https://al-ops.com"  # canonicals, sitemap and JSON-LD
 DRAFT = False                         # True adds noindex and a robots Disallow; launched
 AI_CRAWLERS = ["GPTBot", "ChatGPT-User", "OAI-SearchBot", "ClaudeBot", "Claude-Web", "anthropic-ai", "CCBot", "PerplexityBot",
                "Bytespider", "Google-Extended", "Amazonbot", "Applebot-Extended", "cohere-ai", "Diffbot", "ImagesiftBot",

@@ -3,27 +3,27 @@
 > ALOps helps organizations run business transformation, starting with AI: a clear business reason first, then governed, deployable AI agents and platform.
 
 ## Company
-- [About](https://al-ops.ai/about/): Who we are
-- [Approach](https://al-ops.ai/approach/): From ambition to change that works
-- [Contact](https://al-ops.ai/contact/): Discuss your next move
+- [About](https://al-ops.com/about/): Who we are
+- [Approach](https://al-ops.com/approach/): From ambition to change that works
+- [Contact](https://al-ops.com/contact/): Discuss your next move
 
 ## Transformation and AI
-- [Business Transformation](https://al-ops.ai/transformation/)
-- [Artificial Intelligence](https://al-ops.ai/capabilities/artificial-intelligence/)
+- [Business Transformation](https://al-ops.com/transformation/)
+- [Artificial Intelligence](https://al-ops.com/capabilities/artificial-intelligence/)
 
 ## Platform
-- [Platform](https://al-ops.ai/platform/)
-- [AI Agents](https://al-ops.ai/platform/ai-agents/)
+- [Platform](https://al-ops.com/platform/)
+- [AI Agents](https://al-ops.com/platform/ai-agents/)
 
 ## Industries
-- [Industries](https://al-ops.ai/industries/)
+- [Industries](https://al-ops.com/industries/)
 
 ## Trust
-- [Trust](https://al-ops.ai/trust/)
-- [AI Governance](https://al-ops.ai/trust/ai-governance/)
-- [Security](https://al-ops.ai/trust/security/)
-- [Privacy](https://al-ops.ai/trust/privacy/)
+- [Trust](https://al-ops.com/trust/)
+- [AI Governance](https://al-ops.com/trust/ai-governance/)
+- [Security](https://al-ops.com/trust/security/)
+- [Privacy](https://al-ops.com/trust/privacy/)
 
 ## Perspectives
-- [Perspectives](https://al-ops.ai/perspectives/)
-- [Glossary](https://al-ops.ai/perspectives/glossary/)
+- [Perspectives](https://al-ops.com/perspectives/)
+- [Glossary](https://al-ops.com/perspectives/glossary/)
