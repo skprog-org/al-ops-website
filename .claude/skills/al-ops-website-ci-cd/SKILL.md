@@ -163,7 +163,8 @@ timeframe last 7 days (retention), filter `$metadata.service eq al-ops-website`:
 Normal background: scanner 404/405 (`.npmrc`, `.netrc`, `/actuator/env`, `/graphql`), 429 bursts
 from scanners hitting the 300 req/60s rate limit, 403 on `/api/*` probes, DigiCert DCV 404s.
 Real problems: 5xx, `gate:` log lines, 403s on `POST /api/gate` from real browsers, errors on
-`/api/contact`.
+`/api/contact`, and any `contact: delivery_failed` log line (a form row that never reached the sheet; the `ref`
+field identifies it. `/api/contact` now returns 202 and writes to Sheets in the background).
 
 ## Report back
 

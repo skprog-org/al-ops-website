@@ -46,6 +46,8 @@ and `_headers` (security headers, CSP) is maintained by hand in `transformation/
 - Workers Builds build command: `npm ci && npm run build:prod` (CI has no Chrome, so the committed stills are kept; see Production build and protection)
 - Deploy command: `npx wrangler deploy`
 - Secrets, not committed: `npx wrangler secret put SHEETS_WEBHOOK_URL` and `npx wrangler secret put SHEETS_SECRET`
+- Contact delivery is asynchronous: `/api/contact` validates, answers `202 {ok, ref}` at once, and writes to Sheets in the background (`ctx.waitUntil`). A definite failure (network error, non-2xx, or a body without `ok:true`) is retried once after about 1 s; a timeout is never retried, because Apps Script may already have written the row. The `ref` is also stored in the sheet.
+- Delivery logs are JSON lines with only `event, form, ref, attempt, status, ms, reason, country` (never email, names or free text): `contact: received`, `contact: delivered`, `contact: delivery_retry` (warn), `contact: delivery_failed` (error; the row is lost, look it up by `ref`), `contact: honeypot`
 - Local: put the same two values in a `.dev.vars` file at the repo root, then run `npx wrangler dev` from the repo root
 
 ## Production build and protection

@@ -257,7 +257,59 @@ function clean(value, max, skipEscape) {
   return s;
 }
 
-async function handleContact(request, env) {
+function log(level, event, fields) {
+  console[level](JSON.stringify({ event, ...fields }));
+}
+
+// One POST to the Apps Script webhook. Never throws; returns { ok, status, ms, reason }.
+async function sendToSheets(env, row) {
+  const t0 = Date.now();
+  try {
+    const res = await fetch(env.SHEETS_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(row),
+      redirect: 'follow',
+      signal: AbortSignal.timeout(15000),
+    });
+    let out = null;
+    try {
+      out = await res.json();
+    } catch (e) {
+      /* non-JSON response */
+    }
+    const ms = Date.now() - t0;
+    if (res.ok && out && out.ok === true) return { ok: true, status: res.status, ms, reason: '' };
+    return { ok: false, status: res.status, ms, reason: res.ok ? 'bad_body' : 'http_error' };
+  } catch (e) {
+    return { ok: false, status: 0, ms: Date.now() - t0, reason: e && e.name === 'TimeoutError' ? 'timeout' : 'network_error' };
+  }
+}
+
+// Delivers a row with one retry on a definite failure. A timeout is never retried: Apps Script may
+// already have written the row, and the write is not idempotent.
+async function deliver(env, row, ref, form, country) {
+  const base = { form, ref, country };
+  let r = await sendToSheets(env, row);
+  if (r.ok) {
+    log('log', 'contact: delivered', { ...base, attempt: 1, status: r.status, ms: r.ms });
+    return;
+  }
+  if (r.reason !== 'timeout') {
+    log('warn', 'contact: delivery_retry', { ...base, attempt: 1, status: r.status, ms: r.ms, reason: r.reason });
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    r = await sendToSheets(env, row);
+    if (r.ok) {
+      log('log', 'contact: delivered', { ...base, attempt: 2, status: r.status, ms: r.ms });
+      return;
+    }
+    log('error', 'contact: delivery_failed', { ...base, attempt: 2, status: r.status, ms: r.ms, reason: r.reason });
+    return;
+  }
+  log('error', 'contact: delivery_failed', { ...base, attempt: 1, status: r.status, ms: r.ms, reason: r.reason });
+}
+
+async function handleContact(request, env, ctx) {
   if (request.method !== 'POST') {
     return json({ ok: false, error: 'method not allowed' }, 405, { Allow: 'POST' });
   }
@@ -287,7 +339,10 @@ async function handleContact(request, env) {
   }
 
   // Honeypot: pretend success, forward nothing.
-  if (data.website != null && String(data.website).trim() !== '') return json({ ok: true });
+  if (data.website != null && String(data.website).trim() !== '') {
+    log('log', 'contact: honeypot', { country: request.cf?.country || '' });
+    return json({ ok: true });
+  }
 
   const spec = Object.prototype.hasOwnProperty.call(FIELDS, data.form) ? FIELDS[data.form] : null;
   if (!spec) return json({ ok: false, error: 'invalid form' }, 400);
@@ -317,8 +372,10 @@ async function handleContact(request, env) {
     return json({ ok: false, error: 'not configured' }, 503);
   }
 
+  const ref = crypto.randomUUID();
   const row = {
     secret: env.SHEETS_SECRET,
+    ref,
     form: data.form,
     submitted_at: new Date().toISOString(),
     page: clean(request.headers.get('Referer'), 300),
@@ -326,31 +383,14 @@ async function handleContact(request, env) {
     ...fields,
   };
 
-  try {
-    const res = await fetch(env.SHEETS_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(row),
-      redirect: 'follow',
-      signal: AbortSignal.timeout(15000),
-    });
-    let out = null;
-    try {
-      out = await res.json();
-    } catch (e) {
-      /* non-JSON response */
-    }
-    if (res.ok && out && out.ok === true) return json({ ok: true });
-    console.error('contact: sheets webhook failed, status ' + res.status);
-    return json({ ok: false }, 502);
-  } catch (e) {
-    console.error('contact: sheets webhook ' + (e && e.name === 'TimeoutError' ? 'timeout' : 'error: ' + (e && e.name)));
-    return json({ ok: false }, 502);
-  }
+  // Answer now; write to Sheets in the background so the visitor does not wait on Apps Script.
+  log('log', 'contact: received', { form: data.form, ref, country: row.country });
+  ctx.waitUntil(deliver(env, row, ref, data.form, row.country));
+  return json({ ok: true, ref }, 202);
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     // (a) robots.txt is always public.
@@ -383,7 +423,7 @@ export default {
       return json({ ok: false, error: 'verification required' }, 403);
     }
 
-    if (url.pathname === '/api/contact') return handleContact(request, env);
+    if (url.pathname === '/api/contact') return handleContact(request, env, ctx);
     return env.ASSETS.fetch(request);
   },
 };

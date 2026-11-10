@@ -296,8 +296,10 @@
     return gateP}
   var FORM_ENDPOINT='/api/contact';  // JSON POST; the body carries data.form so one endpoint serves both forms
   [].forEach.call(d.querySelectorAll('form[data-form]'),function(f){
+    // Solve the Turnstile gate while the visitor types; submit reuses it. Errors are retried at submit.
+    f.addEventListener('focusin',function(){if(FORM_ENDPOINT)ensureGate(f).catch(function(){})},{once:true});
     f.addEventListener('submit',function(e){
-      e.preventDefault();var ok=true,first=null;
+      e.preventDefault();if(f.getAttribute('aria-busy')==='true')return;var ok=true,first=null;
       [].forEach.call(f.querySelectorAll('[data-required]'),function(el){
         var v=(el.value||'').trim(),bad=!v||(el.type==='email'&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)),er=d.getElementById(el.id+'-err');
         if(er)er.textContent=bad?el.getAttribute('data-required'):'';el.setAttribute('aria-invalid',bad?'true':'false');if(bad){ok=false;if(!first)first=el}});
@@ -307,11 +309,14 @@
       var done=function(live){fail.hidden=true;f.hidden=true;[].forEach.call(okBox.parentNode.children,function(n){if(n!==okBox)n.hidden=true});okBox.querySelector('[data-live]').hidden=!live;okBox.querySelector('[data-draft]').hidden=live;okBox.hidden=false;okBox.focus()};
       if(!FORM_ENDPOINT){done(false);return}
       data.form=id;
+      var btn=f.querySelector('[type="submit"]'),busy=f.querySelector('.form-busy');
+      f.setAttribute('aria-busy','true');if(btn)btn.disabled=true;if(busy)busy.hidden=false;
+      var idle=function(){f.removeAttribute('aria-busy');if(btn)btn.disabled=false;if(busy)busy.hidden=true};
       ensureGate(f).then(function(){return fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})})
         .then(function(r){if(!r.ok){if(r.status===403)gateOk=false;throw new Error('status '+r.status)}done(true);
           // Analytics and logs only if the visitor allowed it; no email, organization, or free text.
           captureAnalytics('form_submitted',{form:id,priority:data['mv-priority']||null,region:data['mv-region']||null});
-          logAnalytics('contact form submitted',{form:id})}).catch(function(){logAnalytics('contact form submission failed',{form:id});fail.hidden=false;fail.focus()});
+          logAnalytics('contact form submitted',{form:id})}).catch(function(){idle();logAnalytics('contact form submission failed',{form:id});fail.hidden=false;fail.focus()});
     });
   });
 })();
